@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 17:32:08 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/12 17:55:38 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/13 15:51:36 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,11 @@
 
 Client::Client(int socket)
 {
-	_clientPoll.fd = socket;
+	_clientSocket.fd = socket;
 }
 
 Client::Client(Client const & other)
-	: _clientPoll(other._clientPoll), _nickname(other._nickname), _username(other._username)
+	: _clientSocket(other._clientSocket), _nickname(other._nickname), _username(other._username)
 {
 }
 
@@ -26,23 +26,26 @@ Client & Client::operator=(Client const & other)
 {
 	if (this != &other)
 	{
-		_clientPoll = other._clientPoll;
+		_clientSocket = other._clientSocket;
 		_nickname = other._nickname;
 		_username = other._username;
 	}
 	return *this;
 }
 
-Client::~Client() {}
+Client::~Client()
+{
+	std::cout << "Destructing client..." << std::endl;
+}
 
 void Client::setClientPoll(pollfd const & clientPoll)
 {
-	_clientPoll = clientPoll;
+	_clientSocket = clientPoll;
 }
 
 pollfd const & 	Client::getClientPoll() const
 {
-	return _clientPoll;
+	return _clientSocket;
 }
 
 std::string const &	Client::getNickname() const

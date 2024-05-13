@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:49:06 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/13 15:27:30 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/13 15:52:05 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ Server::Server()
 }
 
 Server::Server(Server const &other)
-	: _clients(other._clients)
+	: _clients(other._clients), _serverSocket(other._serverSocket)
 {
 }
 
@@ -49,25 +49,29 @@ Server &Server::operator=(Server const &other)
 	if (this != &other)
 	{
 		_clients = other._clients;
-		_serverSocket.fd = other._serverSocket.fd;
+		_serverSocket = other._serverSocket;
 	}
 	return *this;
 }
 
 Server::~Server()
 {
+	std::cout << "Closing server..." << std::endl;
 	closeServer();
 }
 
 void Server::startPolling()
 {
+	std::vector<pollfd> allSockets;
+
 	_serverSocket.events = POLLIN;
-	_allSockets.push_back(_serverSocket);
+	allSockets.push_back(_serverSocket);
 
 	while (true)
 	{
-		std::vector<pollfd> newSockets;
-		int numEvents = poll(_allSockets.data(), _allSockets.size(), -1);
+		std::vector<pollfd> newSockets(allSockets);
+
+		int numEvents = poll(allSockets.data(), allSockets.size(), -1);
 		if (numEvents == -1)
 		{
 			std::cerr << "poll() error\n";
@@ -75,11 +79,11 @@ void Server::startPolling()
 		}
 
 		// Check for events on each file descriptor
-		for (size_t i = 0; i < _allSockets.size(); i++)
+		for (size_t i = 0; i < allSockets.size(); i++)
 		{
-			if (_allSockets[i].revents & POLLIN)
+			if (allSockets[i].revents & POLLIN)
 			{
-				if (_allSockets[i].fd == _serverSocket.fd)
+				if (allSockets[i].fd == _serverSocket.fd)
 				{
 					// Accept incoming connections and handle each client separately
 					sockaddr_in clientAddress;
@@ -106,11 +110,13 @@ void Server::startPolling()
 				{
 					// Receive and process incoming messages from client
 					char buffer[1024];
-					ssize_t bytesRead = recv(_allSockets[i].fd, buffer, sizeof(buffer), 0);
+					ssize_t bytesRead = recv(allSockets[i].fd, buffer, sizeof(buffer), 0);
 					if (bytesRead <= 0)
 					{
-						close(_allSockets[i].fd);
-						_allSockets.erase(_allSockets.begin() + i);
+						std::cout << "Socket " << allSockets[i].fd << " is empty" << std::endl;
+						close(allSockets[i].fd);
+						std::cout << "Should be the same as " << newSockets[i].fd << "?" << std::endl;
+						newSockets.erase(newSockets.begin() + i);
 						continue;
 					}
 
@@ -126,16 +132,18 @@ void Server::startPolling()
 			}
 			// Add handling for other events (e.g., POLLHUP, POLLERR)
 		}
-		_allSockets.insert(_allSockets.end(), newSockets.begin(), newSockets.end());
+		allSockets = newSockets;
 	}
 }
 
 void Server::closeServer()
 {
-	for (std::vector<pollfd>::iterator it = _allSockets.begin(); it != _allSockets.end(); ++it)
+	close(_serverSocket.fd);
+
+	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
 	{
-		std::cout << "Closing " << it->fd << std::endl;
-		close(it->fd);
+		std::cout << "Closing " << it->getClientPoll().fd << std::endl;
+		close(it->getClientPoll().fd);
 	}
 }
 

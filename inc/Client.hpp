@@ -6,21 +6,22 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 17:26:30 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/12 17:55:27 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/13 15:51:43 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+#include <iostream>
 #include <string>
 #include <poll.h>
 
 class Client {
 private:
-	pollfd		_clientPoll;
+	pollfd		_clientSocket;
 	std::string _nickname;
 	std::string _username;
 public:
-	Client(int socket);
+	Client(int socketFd);
 	Client(Client const &);
 	Client & operator=(Client const &);
 	~Client();
