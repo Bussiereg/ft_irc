@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:43:26 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/13 14:09:12 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/13 15:27:30 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ class Server
 {
 private:
 	std::vector<Client> _clients;
-	pollfd				_serverPoll;
+	pollfd				_serverSocket;
 	std::vector<pollfd>	_allSockets;
 
 	void _acceptClients();

@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:49:06 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/13 14:49:26 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/13 15:27:30 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 
 Server::Server()
 {
-	_serverPoll.fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (_serverPoll.fd == -1)
+	_serverSocket.fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (_serverSocket.fd == -1)
 		throw SocketCreationException();
 
 	sockaddr_in serverAddress;
@@ -23,16 +23,16 @@ Server::Server()
 	serverAddress.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 	serverAddress.sin_port = htons(6667);
 
-	if (bind(_serverPoll.fd, reinterpret_cast<sockaddr *>(&serverAddress),
+	if (bind(_serverSocket.fd, reinterpret_cast<sockaddr *>(&serverAddress),
 			 sizeof(serverAddress)) == -1)
 	{
-		close(_serverPoll.fd);
+		close(_serverSocket.fd);
 		throw SocketBindingException();
 	}
 
-	if (listen(_serverPoll.fd, 10) == -1)
+	if (listen(_serverSocket.fd, 10) == -1)
 	{
-		close(_serverPoll.fd);
+		close(_serverSocket.fd);
 		throw SocketListeningException();
 	}
 
@@ -49,7 +49,7 @@ Server &Server::operator=(Server const &other)
 	if (this != &other)
 	{
 		_clients = other._clients;
-		_serverPoll.fd = other._serverPoll.fd;
+		_serverSocket.fd = other._serverSocket.fd;
 	}
 	return *this;
 }
@@ -61,8 +61,8 @@ Server::~Server()
 
 void Server::startPolling()
 {
-	_serverPoll.events = POLLIN;
-	_allSockets.push_back(_serverPoll);
+	_serverSocket.events = POLLIN;
+	_allSockets.push_back(_serverSocket);
 
 	while (true)
 	{
@@ -79,12 +79,12 @@ void Server::startPolling()
 		{
 			if (_allSockets[i].revents & POLLIN)
 			{
-				if (_allSockets[i].fd == _serverPoll.fd)
+				if (_allSockets[i].fd == _serverSocket.fd)
 				{
 					// Accept incoming connections and handle each client separately
 					sockaddr_in clientAddress;
 					socklen_t clientAddressLength = sizeof(clientAddress);
-					int clientSocket = accept(_serverPoll.fd,
+					int clientSocket = accept(_serverSocket.fd,
 											  reinterpret_cast<sockaddr *>(&clientAddress), &clientAddressLength);
 					// accept() returns when the client calls connect() successfully
 					if (clientSocket == -1)
