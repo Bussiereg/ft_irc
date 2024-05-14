@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 16:01:57 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/14 15:02:06 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/14 15:34:12 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,10 @@ void signal_handler(int sig)
 {
 	if (sig == SIGINT)
 	{
-		if (g_server)
+		if (g_server) {
 			delete g_server;
+			exit(0);
+		}
 		else
 			std::cout << "Server not active yet..." << std::endl;
 	}
@@ -35,7 +37,6 @@ int main(int argc, char *argv[])
 		std::cout << "Usage: ./ircserv <port> <password>";
 		return 1;
 	}
-
 
 	std::istringstream ss(argv[1]);
 	int port;

@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 17:32:08 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/13 15:51:36 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/14 15:09:14 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ Client & Client::operator=(Client const & other)
 
 Client::~Client()
 {
+	close(_clientSocket.fd);
 	std::cout << "Destructing client..." << std::endl;
 }
 

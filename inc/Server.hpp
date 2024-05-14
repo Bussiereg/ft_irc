@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:43:26 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/14 14:53:08 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/14 15:34:40 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include "Client.hpp"
+#include <cstdlib>
 
 class Server
 {

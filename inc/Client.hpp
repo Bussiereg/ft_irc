@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 17:26:30 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/13 15:51:43 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/14 15:08:48 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,9 @@
 #include <iostream>
 #include <string>
 #include <poll.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <unistd.h>
 
 class Client {
 private:

@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:49:06 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/14 14:59:07 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/14 15:09:37 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,12 +127,6 @@ void Server::startPolling()
 void Server::closeServer()
 {
 	close(_serverSocket.fd);
-
-	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
-	{
-		std::cout << "Closing " << it->getClientPoll().fd << std::endl;
-		close(it->getClientPoll().fd);
-	}
 }
 
 int Server::_acceptClient()
