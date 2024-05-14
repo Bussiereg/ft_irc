@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:49:06 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/14 15:09:37 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/14 15:52:26 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,58 +69,51 @@ void Server::startPolling()
 
 	while (true)
 	{
-		// Just so that we can add or erase elements from newSockets
-		// without disturbing the loop through allSockets
-		std::vector<pollfd> newSockets(allSockets);
-
-		int numEvents = poll(allSockets.data(), allSockets.size(), -1);
+		size_t size = allSockets.size();
+		int numEvents = poll(allSockets.data(), size, -1);
 		if (numEvents == -1)
 			break ;
 
-		// Check for events on each file descriptor
-		for (size_t i = 0; i < allSockets.size(); i++)
+		if (allSockets[0].revents & POLLIN)
 		{
-			if (allSockets[i].revents & POLLIN)
+			int clientSocket = _acceptClient();
+			if (clientSocket == -1)
+				continue ;
+
+			pollfd newClientPoll;
+			newClientPoll.fd = clientSocket;
+			newClientPoll.events = POLLIN | POLLOUT;
+			allSockets.push_back(newClientPoll);
+			size++;
+		}
+
+		// Check for events on each file descriptor
+		for (size_t i = 0; i < size; i++)
+		{
+			if (allSockets[i].fd != -1 && allSockets[i].revents & POLLIN)
 			{
-				if (allSockets[i].fd == _serverSocket.fd)
+				// Receive and process incoming messages from client
+				char buffer[1024];
+				ssize_t bytesRead = recv(allSockets[i].fd, buffer, sizeof(buffer), 0);
+				if (bytesRead <= 0)
 				{
-					int clientSocket = _acceptClient();
-					if (clientSocket == -1)
-						continue ;
-
-					// add to next loop
-					pollfd newClientPoll;
-					newClientPoll.fd = clientSocket;
-					newClientPoll.events = POLLIN | POLLOUT;
-					newSockets.push_back(newClientPoll);
+					std::cout << "Socket " << allSockets[i].fd << " is empty/disconnected" << std::endl;
+					close(allSockets[i].fd);
+					allSockets.erase(allSockets.begin() + i);
+					i--;
+					continue;
 				}
-				else
+
+				// parse the received message
+				std::string message(buffer, bytesRead);
+
+				if (message.substr(0, 5) == "NICK ")
 				{
-					// Receive and process incoming messages from client
-					char buffer[1024];
-					ssize_t bytesRead = recv(allSockets[i].fd, buffer, sizeof(buffer), 0);
-					if (bytesRead <= 0)
-					{
-						std::cout << "Socket " << allSockets[i].fd << " is empty/disconnected" << std::endl;
-						close(allSockets[i].fd);
-						std::cout << "Should be the same as " << newSockets[i].fd << std::endl;
-						newSockets.erase(newSockets.begin() + i);
-						continue;
-					}
-
-					// parse the received message
-					std::string message(buffer, bytesRead);
-
-					if (message.substr(0, 5) == "NICK ")
-					{
-						std::string nickname = message.substr(5);
-						_handleNickCommand(_clients.back(), nickname);
-					}
+					std::string nickname = message.substr(5);
+					_handleNickCommand(_clients.back(), nickname);
 				}
 			}
-			// Add handling for other events (e.g., POLLOUT, POLLERR)
 		}
-		allSockets = newSockets;
 	}
 }
 

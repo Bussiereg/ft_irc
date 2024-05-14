@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 16:01:57 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/14 15:34:12 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/14 15:38:55 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,8 @@ void signal_handler(int sig)
 	{
 		if (g_server) {
 			delete g_server;
-			exit(0);
 		}
-		else
-			std::cout << "Server not active yet..." << std::endl;
+		exit(0);
 	}
 }
 
