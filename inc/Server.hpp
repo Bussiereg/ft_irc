@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:43:26 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/13 15:28:58 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/14 14:53:08 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,11 +26,14 @@ class Server
 private:
 	std::vector<Client> _clients;
 	pollfd				_serverSocket;
+	int					_port;
+	std::string			_password;
 
-	void _acceptClients();
+	int _acceptClient();
+	int _handleCommand();
 	void _handleNickCommand(Client& client, const std::string & nickname);
 public:
-	Server();
+	Server(int port, std::string password);
 	Server(Server const &);
 	Server & operator=(Server const &);
 	~Server();

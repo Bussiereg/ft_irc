@@ -1,5 +1,7 @@
 {
 	"files.associations": {
-		"csignal": "cpp"
+		"csignal": "cpp",
+		"ostream": "cpp",
+		"sstream": "cpp"
 	}
 }
