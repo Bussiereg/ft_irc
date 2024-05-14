@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:49:06 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/14 15:52:26 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/14 16:04:32 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,21 +74,9 @@ void Server::startPolling()
 		if (numEvents == -1)
 			break ;
 
-		if (allSockets[0].revents & POLLIN)
-		{
-			int clientSocket = _acceptClient();
-			if (clientSocket == -1)
-				continue ;
-
-			pollfd newClientPoll;
-			newClientPoll.fd = clientSocket;
-			newClientPoll.events = POLLIN | POLLOUT;
-			allSockets.push_back(newClientPoll);
-			size++;
-		}
 
 		// Check for events on each file descriptor
-		for (size_t i = 0; i < size; i++)
+		for (size_t i = 1; i < size; i++)
 		{
 			if (allSockets[i].fd != -1 && allSockets[i].revents & POLLIN)
 			{
@@ -114,6 +102,28 @@ void Server::startPolling()
 				}
 			}
 		}
+		
+		if (allSockets[0].revents & POLLIN)
+		{
+			// Accept incoming connections and handle each client separately
+			sockaddr_in clientAddress;
+			socklen_t clientAddressLength = sizeof(clientAddress);
+			int clientSocket = accept(_serverSocket.fd, reinterpret_cast<sockaddr *>(&clientAddress), &clientAddressLength);
+			if (clientSocket == -1)
+			{
+				std::cerr << "Error accepting connection." << std::endl;
+				continue ;
+			}
+			std::cout << "Client connected." << std::endl;
+			Client newClient(clientSocket);
+			_clients.push_back(newClient);
+
+			pollfd newClientPoll;
+			newClientPoll.fd = clientSocket;
+			newClientPoll.events = POLLIN | POLLOUT;
+			newClient.setClientPoll(newClientPoll);
+			allSockets.push_back(newClientPoll);
+		}
 	}
 }
 
@@ -124,19 +134,8 @@ void Server::closeServer()
 
 int Server::_acceptClient()
 {
-	// Accept incoming connections and handle each client separately
-	sockaddr_in clientAddress;
-	socklen_t clientAddressLength = sizeof(clientAddress);
-	int clientSocket = accept(_serverSocket.fd, reinterpret_cast<sockaddr *>(&clientAddress), &clientAddressLength);
-	if (clientSocket == -1)
-	{
-		std::cerr << "Error accepting connection." << std::endl;
-		return -1;
-	}
-	std::cout << "Client connected." << std::endl;
-	Client newClient(clientSocket);
-	_clients.push_back(newClient);
-	return clientSocket;
+
+	return 0;
 }
 
 int Server::_handleCommand()
