@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:49:06 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/14 16:04:32 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/15 16:08:13 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,13 @@ Server::Server(int port, std::string password) : _port(port), _password(password
 	_serverSocket.fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (_serverSocket.fd == -1)
 		throw SocketCreationException();
+	fcntl(_serverSocket.fd, F_SETFL, O_NONBLOCK);
 
 	sockaddr_in serverAddress;
 	serverAddress.sin_family = AF_INET;
-	serverAddress.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+	serverAddress.sin_addr.s_addr = htonl(INADDR_ANY);
+	if (_port < 1500)
+		throw std::runtime_error("invalid port number");
 	serverAddress.sin_port = htons(_port);
 
 	if (bind(_serverSocket.fd, reinterpret_cast<sockaddr *>(&serverAddress),
@@ -57,90 +60,108 @@ Server &Server::operator=(Server const &other)
 Server::~Server()
 {
 	std::cout << "Closing server..." << std::endl;
-	closeServer();
+	close(_serverSocket.fd);
+	_clients.erase(_clients.begin(), _clients.end());
 }
 
 void Server::startPolling()
 {
-	std::vector<pollfd> allSockets;
-
-	_serverSocket.events = POLLIN;
-	allSockets.push_back(_serverSocket);
-
-	while (true)
+	_initAllSockets();
+	while (g_quit == false)
 	{
-		size_t size = allSockets.size();
-		int numEvents = poll(allSockets.data(), size, -1);
-		if (numEvents == -1)
-			break ;
-
-
-		// Check for events on each file descriptor
-		for (size_t i = 1; i < size; i++)
+		try
 		{
-			if (allSockets[i].fd != -1 && allSockets[i].revents & POLLIN)
+			_pollSockets();
+			if (_allSockets[0].revents & POLLIN)
 			{
-				// Receive and process incoming messages from client
-				char buffer[1024];
-				ssize_t bytesRead = recv(allSockets[i].fd, buffer, sizeof(buffer), 0);
-				if (bytesRead <= 0)
-				{
-					std::cout << "Socket " << allSockets[i].fd << " is empty/disconnected" << std::endl;
-					close(allSockets[i].fd);
-					allSockets.erase(allSockets.begin() + i);
-					i--;
-					continue;
-				}
-
-				// parse the received message
-				std::string message(buffer, bytesRead);
-
-				if (message.substr(0, 5) == "NICK ")
-				{
-					std::string nickname = message.substr(5);
-					_handleNickCommand(_clients.back(), nickname);
-				}
+				_acceptNewClient();
 			}
+			_listenToClients();
+			_updateAllSockets();
 		}
-		
-		if (allSockets[0].revents & POLLIN)
+		catch (std::exception &e)
 		{
-			// Accept incoming connections and handle each client separately
-			sockaddr_in clientAddress;
-			socklen_t clientAddressLength = sizeof(clientAddress);
-			int clientSocket = accept(_serverSocket.fd, reinterpret_cast<sockaddr *>(&clientAddress), &clientAddressLength);
-			if (clientSocket == -1)
-			{
-				std::cerr << "Error accepting connection." << std::endl;
-				continue ;
-			}
-			std::cout << "Client connected." << std::endl;
-			Client newClient(clientSocket);
-			_clients.push_back(newClient);
-
-			pollfd newClientPoll;
-			newClientPoll.fd = clientSocket;
-			newClientPoll.events = POLLIN | POLLOUT;
-			newClient.setClientPoll(newClientPoll);
-			allSockets.push_back(newClientPoll);
+			std::cout << e.what() << std::endl;
 		}
 	}
 }
 
-void Server::closeServer()
+void Server::_updateAllSockets()
 {
-	close(_serverSocket.fd);
+	for (size_t i = 1; i < _allSockets.size(); i++)
+	{
+		if (_allSockets[i].fd == -1)
+		{
+			std::cout << "Removing _allSockets[" << i << "].fd: " << _allSockets[i].fd << std::endl;
+			std::cout << "Which is client " << (_clients.begin() + i - 1)->getClientSocket().fd << std::endl;
+			_allSockets.erase(_allSockets.begin() + i);
+			_clients.erase(_clients.begin() + i - 1);
+			i--;
+		}
+	}
 }
 
-int Server::_acceptClient()
+void Server::_initAllSockets()
 {
-
-	return 0;
+	_serverSocket.events = POLLIN;
+	_serverSocket.revents = 0;
+	_allSockets.push_back(_serverSocket);
 }
 
-int Server::_handleCommand()
+void Server::_pollSockets()
 {
-	return 0;
+	int numEvents = poll(_allSockets.data(), _allSockets.size(), -1);
+	if (numEvents < 0)
+		throw std::runtime_error("error polling");
+}
+
+void Server::_acceptNewClient()
+{
+	sockaddr_in clientAddress;
+	socklen_t clientAddressSize = sizeof(clientAddress);
+	int clientFd = accept(_allSockets[0].fd, reinterpret_cast<sockaddr *>(&clientAddress), &clientAddressSize);
+	if (clientFd == -1)
+	{
+		throw std::runtime_error("failed to accept new connection");
+	}
+
+	std::cout << "Accepting new client..." << std::endl;
+	fcntl(clientFd, F_SETFL, O_NONBLOCK);
+
+	Client *newClient = new Client(clientFd);
+	_clients.push_back(*newClient);
+	_allSockets.push_back(newClient->getClientSocket());
+}
+
+void Server::_listenToClients()
+{
+	size_t size = _allSockets.size();
+	for (size_t i = 1; i < size; i++)
+	{
+		if (_allSockets[i].revents & POLLIN)
+		{
+			std::cout << "_allSockets[" << i << "].fd " << _allSockets[i].fd << " is sending bits" << std::endl;
+
+			char buffer[1024];
+			int bytesRead = read(_allSockets[i].fd, buffer, 1024);
+
+			if (bytesRead == -1)
+			{
+				_allSockets[i].fd = -1;
+				throw std::runtime_error("[Server] Recv() failed [456]");
+			}
+			else if (bytesRead == 0)
+			{
+				_allSockets[i].fd = -1;
+				throw std::runtime_error("[Server] A client just disconnected");
+			}
+			else
+			{
+				std::cout << "[Client] Message received from client " << std::endl;
+				std::cout << _allSockets[i].fd << " << " << buffer << std::endl;
+			}
+		}
+	}
 }
 
 void Server::_handleNickCommand(Client &client, const std::string &nickname)
@@ -150,7 +171,7 @@ void Server::_handleNickCommand(Client &client, const std::string &nickname)
 	std::string response = "Your nickname has been set to: " + client.getNickname() + "\r\n";
 	std::cout << response;
 
-	pollfd clientPoll = client.getClientPoll();
+	pollfd clientPoll = client.getClientSocket();
 	send(clientPoll.fd, response.c_str(), response.size(), 0);
 }
 

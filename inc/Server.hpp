@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:43:26 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/14 15:34:40 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/15 16:02:39 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,17 +21,24 @@
 #include <unistd.h>
 #include "Client.hpp"
 #include <cstdlib>
+#include <fcntl.h>
+
+extern bool	g_quit;
 
 class Server
 {
 private:
 	std::vector<Client> _clients;
 	pollfd				_serverSocket;
+	std::vector<pollfd>	_allSockets;
 	int					_port;
 	std::string			_password;
 
-	int _acceptClient();
-	int _handleCommand();
+	void _initAllSockets();
+	void _updateAllSockets();
+	void _pollSockets();
+	void _acceptNewClient();
+	void _listenToClients();
 	void _handleNickCommand(Client& client, const std::string & nickname);
 public:
 	Server(int port, std::string password);
@@ -40,7 +47,6 @@ public:
 	~Server();
 	
 	void startPolling();
-	void closeServer();
 	
 	class SocketCreationException : public std::exception {
 		virtual const char *what() const throw();

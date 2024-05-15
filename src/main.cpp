@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 16:01:57 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/14 15:38:55 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/15 15:17:47 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,17 +15,11 @@
 #include <csignal>
 #include <sstream>
 
-Server* g_server;
+bool g_quit = false;
 
-void signal_handler(int sig)
+void signal_handler(int )
 {
-	if (sig == SIGINT)
-	{
-		if (g_server) {
-			delete g_server;
-		}
-		exit(0);
-	}
+	g_quit = true;	
 }
 
 int main(int argc, char *argv[])
@@ -43,14 +37,12 @@ int main(int argc, char *argv[])
 	else if (!ss.eof())
   		std::cerr << "Trailing characters after port number: " << argv[1] << std::endl;
 	
+	signal(SIGINT, signal_handler);
 	try {
-		signal(SIGINT, signal_handler);
-		g_server = new Server(port, argv[2]);
-		std::cout << "Start polling..." << std::endl;
-		g_server->startPolling();
-	//	delete g_server;
+		Server server(port, argv[2]);
+		server.startPolling();
 	} catch (std::exception & e) {
-		std::cerr << e.what() << std::endl;
+		std::cerr << "ircserver: " << e.what() << std::endl;
 	}
 
 	return 0;

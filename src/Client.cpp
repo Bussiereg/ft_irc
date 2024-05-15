@@ -6,22 +6,21 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 17:32:08 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/14 15:54:55 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/15 15:43:52 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Client.hpp"
 
-Client::Client(int socket)
+Client::Client(int socketFd)
 {
-	_clientSocket.fd = socket;
-	while (true)
-	{
-	}
+	_socket.fd = socketFd;
+	_socket.events = POLLIN | POLLOUT;
+	_socket.revents = 0;
 }
 
 Client::Client(Client const & other)
-	: _clientSocket(other._clientSocket), _nickname(other._nickname), _username(other._username)
+	: _socket(other._socket), _nickname(other._nickname), _username(other._username)
 {
 }
 
@@ -29,7 +28,7 @@ Client & Client::operator=(Client const & other)
 {
 	if (this != &other)
 	{
-		_clientSocket = other._clientSocket;
+		_socket = other._socket;
 		_nickname = other._nickname;
 		_username = other._username;
 	}
@@ -39,16 +38,17 @@ Client & Client::operator=(Client const & other)
 Client::~Client()
 {
 	std::cout << "Destructing client..." << std::endl;
+	close(_socket.fd);
 }
 
-void Client::setClientPoll(pollfd const & clientPoll)
+void Client::setClientSocket(pollfd const & clientSocket)
 {
-	_clientSocket = clientPoll;
+	_socket = clientSocket;
 }
 
-pollfd const & 	Client::getClientPoll() const
+pollfd const & 	Client::getClientSocket() const
 {
-	return _clientSocket;
+	return _socket;
 }
 
 std::string const &	Client::getNickname() const
