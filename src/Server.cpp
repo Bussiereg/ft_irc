@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:49:06 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/15 16:08:13 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/15 16:14:09 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,11 +77,11 @@ void Server::startPolling()
 				_acceptNewClient();
 			}
 			_listenToClients();
-			_updateAllSockets();
 		}
 		catch (std::exception &e)
 		{
 			std::cout << e.what() << std::endl;
+			_updateAllSockets();
 		}
 	}
 }
