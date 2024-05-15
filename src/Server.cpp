@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:49:06 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/15 16:34:22 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/15 16:53:40 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,9 @@ Server &Server::operator=(Server const &other)
 Server::~Server()
 {
 	std::cout << "Closing server..." << std::endl;
-	close(_serverSocket.fd);
+	for (size_t i = 0; i < _allSockets.size(); i++) {
+		close(_allSockets[i].fd);
+	}
 	_clients.erase(_clients.begin(), _clients.end());
 }
 
@@ -119,12 +121,12 @@ void Server::_acceptNewClient()
 		return ;
 	}
 
-	std::cout << "Accepting new client..." << std::endl;
+	std::cout << "Accepting new client " << clientFd << std::endl;
 	fcntl(clientFd, F_SETFL, O_NONBLOCK);
 
-	Client *newClient = new Client(clientFd);
-	_clients.push_back(*newClient);
-	_allSockets.push_back(newClient->getClientSocket());
+	Client newClient(clientFd);
+	_clients.push_back(newClient);
+	_allSockets.push_back(newClient.getClientSocket());
 }
 
 void Server::_listenToClients()
@@ -134,11 +136,9 @@ void Server::_listenToClients()
 	{
 		if (_allSockets[i].revents & POLLIN)
 		{
-			std::cout << "_allSockets[" << i << "].fd " << _allSockets[i].fd << " is sending bits" << std::endl;
-
 			char buffer[1024];
 			memset(buffer, 0, 1024);
-			int bytesRead = read(_allSockets[i].fd, buffer, 1024);
+			int bytesRead = recv(_allSockets[i].fd, buffer, 1024, 0);
 
 			if (bytesRead == -1)
 			{
