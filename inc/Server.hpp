@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:43:26 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/15 16:22:19 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/15 16:33:52 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 #include "Client.hpp"
 #include <cstdlib>
 #include <fcntl.h>
+#include <cstring>
 
 extern bool	g_quit;
 

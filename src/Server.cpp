@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:49:06 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/15 16:23:11 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/15 16:34:22 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,8 +69,11 @@ void Server::startPolling()
 	_initAllSockets();
 	while (g_quit == false)
 	{
-		if (_pollSockets() < 0)
+		int numEvents = _pollSockets();
+		if (numEvents < 0)
 			break ;
+		if (numEvents == 0)
+			continue ;
 		if (_allSockets[0].revents & POLLIN)
 			_acceptNewClient();
 		_listenToClients();
@@ -134,6 +137,7 @@ void Server::_listenToClients()
 			std::cout << "_allSockets[" << i << "].fd " << _allSockets[i].fd << " is sending bits" << std::endl;
 
 			char buffer[1024];
+			memset(buffer, 0, 1024);
 			int bytesRead = read(_allSockets[i].fd, buffer, 1024);
 
 			if (bytesRead == -1)
