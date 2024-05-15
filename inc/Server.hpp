@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:43:26 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/15 16:02:39 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/15 16:22:19 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ private:
 
 	void _initAllSockets();
 	void _updateAllSockets();
-	void _pollSockets();
+	int _pollSockets();
 	void _acceptNewClient();
 	void _listenToClients();
 	void _handleNickCommand(Client& client, const std::string & nickname);

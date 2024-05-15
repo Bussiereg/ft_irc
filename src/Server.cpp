@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:49:06 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/15 16:14:09 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/15 16:23:11 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,20 +69,12 @@ void Server::startPolling()
 	_initAllSockets();
 	while (g_quit == false)
 	{
-		try
-		{
-			_pollSockets();
-			if (_allSockets[0].revents & POLLIN)
-			{
-				_acceptNewClient();
-			}
-			_listenToClients();
-		}
-		catch (std::exception &e)
-		{
-			std::cout << e.what() << std::endl;
-			_updateAllSockets();
-		}
+		if (_pollSockets() < 0)
+			break ;
+		if (_allSockets[0].revents & POLLIN)
+			_acceptNewClient();
+		_listenToClients();
+		_updateAllSockets();
 	}
 }
 
@@ -108,11 +100,9 @@ void Server::_initAllSockets()
 	_allSockets.push_back(_serverSocket);
 }
 
-void Server::_pollSockets()
+int Server::_pollSockets()
 {
-	int numEvents = poll(_allSockets.data(), _allSockets.size(), -1);
-	if (numEvents < 0)
-		throw std::runtime_error("error polling");
+	return poll(_allSockets.data(), _allSockets.size(), -1);
 }
 
 void Server::_acceptNewClient()
@@ -122,7 +112,8 @@ void Server::_acceptNewClient()
 	int clientFd = accept(_allSockets[0].fd, reinterpret_cast<sockaddr *>(&clientAddress), &clientAddressSize);
 	if (clientFd == -1)
 	{
-		throw std::runtime_error("failed to accept new connection");
+		std::cerr << "failed to accept new connection" << std::endl;
+		return ;
 	}
 
 	std::cout << "Accepting new client..." << std::endl;
@@ -148,12 +139,12 @@ void Server::_listenToClients()
 			if (bytesRead == -1)
 			{
 				_allSockets[i].fd = -1;
-				throw std::runtime_error("[Server] Recv() failed [456]");
+				std::cerr << "[Server] Recv() failed [456]" << std::endl;
 			}
 			else if (bytesRead == 0)
 			{
 				_allSockets[i].fd = -1;
-				throw std::runtime_error("[Server] A client just disconnected");
+				std::cerr << "[Server] A client just disconnected" << std::endl;
 			}
 			else
 			{
