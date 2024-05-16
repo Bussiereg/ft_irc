@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:49:06 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/16 18:07:36 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/16 18:45:46 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,6 +111,7 @@ void Server::_acceptNewClient()
 	Client newClient(clientFd);
 	_clients.push_back(newClient);
 	_allSockets.push_back(newClient.getClientSocket());
+	_clients.back().setAwaitingWelcomeMessage(true);
 }
 
 void Server::_checkClients()
@@ -157,13 +158,31 @@ int Server::_readClient(size_t i)
 	std::cout << _allSockets[i].fd << " << " << message << std::endl;
 	
 	if (message.find("NICK") == 0) {
-        _clients[i - 1].setNickname(message.substr(5));
+		std::string nickname = message.substr(5);
+		std::string response = ":server 431 * :No nickname given\r\n";
+		if (!nickname.empty()) {
+			response = ":server 001 " + nickname + " :Nickname accepted\r\n";
+        	_clients[i - 1].setNickname(nickname);
+		}
+		if (_allSockets[i].revents & POLLOUT)
+			send(_allSockets[i].fd, response.c_str(), response.length(), 0);
     } else if (message.find("USER") == 0) {
-		_clients[i - 1].setUsername(message.substr(5));
+		std::string username = message.substr(5);
+		std::string response = ":server 461 * :Not enough parameters\r\n";
+		if (!username.empty()) {
+			response = ":server 001 * :Username accepted\r\n";
+			_clients[i - 1].setUsername(username);
+		}
+		if (_allSockets[i].revents & POLLOUT)
+			send(_allSockets[i].fd, response.c_str(), response.length(), 0);
     }
-
-	std::string welcome = ":server 001 " + _clients[i - 1].getNickname() + " :Welcome to the IRC server, " + _clients[i - 1].getNickname() + "!" + _clients[i - 1].getUsername() + "@localhost\r\n";
-	send(_allSockets[i].fd, welcome.c_str(), welcome.length(), 0);
+	
+	if (_clients[i - 1].isAwaitingWelcomeMessage() && _allSockets[i].revents & POLLOUT)
+	{
+		std::string welcome = ":server 001 " + _clients[i - 1].getNickname() + " :Welcome to the IRC server, " + _clients[i - 1].getNickname() + "!" + _clients[i - 1].getUsername() + "@localhost\r\n";
+		send(_allSockets[i].fd, welcome.c_str(), welcome.length(), 0);
+		_clients[i - 1].setAwaitingWelcomeMessage(false);
+	}
 	
 	std::cout << std::endl << "***list of clients***" << std::endl;
 	for (size_t j = 0; j < _clients.size(); j++)

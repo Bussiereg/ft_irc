@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 17:26:30 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/16 16:40:26 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/16 18:26:33 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ private:
 	pollfd		_socket;
 	std::string _nickname;
 	std::string _username;
+	bool		_awaitingWelcomeMessage;
 public:
 	Client(int socketFd);
 	Client(Client const &);
@@ -35,4 +36,6 @@ public:
 	void				setNickname(std::string const &);
 	std::string const & getUsername() const;
 	void				setUsername(std::string const &);
+	bool 				isAwaitingWelcomeMessage() const;
+	void				setAwaitingWelcomeMessage(bool isAwaiting);
 };

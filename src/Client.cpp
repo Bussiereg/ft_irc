@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 17:32:08 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/16 17:32:25 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/16 18:26:40 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,4 +67,14 @@ std::string const & Client::getUsername() const
 void Client::setUsername(std::string const & username)
 {
 	_username = username;
+}
+
+bool Client::isAwaitingWelcomeMessage() const
+{
+	return _awaitingWelcomeMessage;
+}
+
+void Client::setAwaitingWelcomeMessage(bool isAwaiting)
+{
+	_awaitingWelcomeMessage = isAwaiting;
 }
