@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:49:06 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/16 17:32:02 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/16 18:07:36 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,22 +78,7 @@ void Server::startPolling()
 			continue ;
 		if (_allSockets[0].revents & POLLIN)
 			_acceptNewClient();
-		_listenToClients();
-//		_updateAllSockets();
-	}
-}
-
-void Server::_updateAllSockets()
-{
-	for (size_t i = 1; i < _allSockets.size(); i++)
-	{
-		if (_allSockets[i].fd == -1)
-		{
-			std::cout << "Removing client " << (_clients.begin() + i - 1)->getClientSocket().fd << std::endl;
-			_allSockets.erase(_allSockets.begin() + i);
-			_clients.erase(_clients.begin() + i - 1);
-			i--;
-		}
+		_checkClients();
 	}
 }
 
@@ -128,44 +113,65 @@ void Server::_acceptNewClient()
 	_allSockets.push_back(newClient.getClientSocket());
 }
 
-void Server::_listenToClients()
+void Server::_checkClients()
 {
 	for (size_t i = 1; i < _allSockets.size(); i++)
 	{
 		if (_allSockets[i].revents & POLLIN)
 		{
-			char buffer[1024];
-			memset(buffer, 0, 1024);
-			int bytesRead = recv(_allSockets[i].fd, buffer, 1024, 0);
-
-			if (bytesRead == -1)
-			{
-				std::cerr << "[Server] recv() failed on client fd " << _allSockets[i].fd << std::endl;
-				_allSockets.erase(_allSockets.begin() + i);
-				_clients.erase(_clients.begin() + i - 1);
+			if (_readClient(i) <= 0)
 				i--;
-			}
-			else if (bytesRead == 0)
-			{
-				std::cerr << "[Server] Client fd " << _allSockets[i].fd << " just disconnected" << std::endl;
-				_allSockets.erase(_allSockets.begin() + i);
-				_clients.erase(_clients.begin() + i - 1);
-				i--;
-			}
-			else
-			{
-				std::cout << "[Client] Message received from client " << std::endl;
-				std::cout << _allSockets[i].fd << " << " << buffer << std::endl;
-			}
-			
-			std::cout << std::endl << "***list of clients***" << std::endl;
-			for (size_t j = 0; j < _clients.size(); j++)
-			{
-				std::cout << "_clients[" << j << "].fd = " << _clients[j].getClientSocket().fd << std::endl;
-			}
-			std::cout << "***" << std::endl << std::endl;
 		}
+/* 		if (_allSockets[i].revents & POLLOUT)
+		{
+			if (_feedbackClient(i) <= 0)
+				i--;
+		} */
 	}
+}
+
+int Server::_readClient(size_t i)
+{
+	char buffer[1024];
+	memset(buffer, 0, 1024);
+	int bytesRead = recv(_allSockets[i].fd, buffer, 1024, 0);
+
+	if (bytesRead == -1)
+	{
+		std::cerr << "[Server] recv() failed on client fd " << _allSockets[i].fd << std::endl;
+		_allSockets.erase(_allSockets.begin() + i);
+		_clients.erase(_clients.begin() + i - 1);
+		return -1;
+	}
+	
+	if (bytesRead == 0)
+	{
+		std::cerr << "[Server] Client fd " << _allSockets[i].fd << " just disconnected" << std::endl;
+		_allSockets.erase(_allSockets.begin() + i);
+		_clients.erase(_clients.begin() + i - 1);
+		return 0;
+	}
+	
+	std::string message(buffer);
+	std::cout << "[Client] Message received from client " << std::endl;
+	std::cout << _allSockets[i].fd << " << " << message << std::endl;
+	
+	if (message.find("NICK") == 0) {
+        _clients[i - 1].setNickname(message.substr(5));
+    } else if (message.find("USER") == 0) {
+		_clients[i - 1].setUsername(message.substr(5));
+    }
+
+	std::string welcome = ":server 001 " + _clients[i - 1].getNickname() + " :Welcome to the IRC server, " + _clients[i - 1].getNickname() + "!" + _clients[i - 1].getUsername() + "@localhost\r\n";
+	send(_allSockets[i].fd, welcome.c_str(), welcome.length(), 0);
+	
+	std::cout << std::endl << "***list of clients***" << std::endl;
+	for (size_t j = 0; j < _clients.size(); j++)
+	{
+		std::cout << "_clients[" << j << "].fd = " << _clients[j].getClientSocket().fd << std::endl;
+	}
+	std::cout << "***" << std::endl << std::endl;
+	return 1;
 }
 
 void Server::_handleNickCommand(Client &client, const std::string &nickname)
