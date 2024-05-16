@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 17:32:08 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/15 16:54:53 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/16 17:32:25 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,8 +37,6 @@ Client & Client::operator=(Client const & other)
 
 Client::~Client()
 {
-	std::cout << "Destructing client " << _socket.fd << std::endl;
-	std::cout << "This might be only a copy" << std::endl;
 }
 
 void Client::setClientSocket(pollfd const & clientSocket)

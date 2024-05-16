@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:49:06 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/15 16:53:40 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/16 17:32:02 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ void Server::startPolling()
 		if (_allSockets[0].revents & POLLIN)
 			_acceptNewClient();
 		_listenToClients();
-		_updateAllSockets();
+//		_updateAllSockets();
 	}
 }
 
@@ -89,8 +89,7 @@ void Server::_updateAllSockets()
 	{
 		if (_allSockets[i].fd == -1)
 		{
-			std::cout << "Removing _allSockets[" << i << "].fd: " << _allSockets[i].fd << std::endl;
-			std::cout << "Which is client " << (_clients.begin() + i - 1)->getClientSocket().fd << std::endl;
+			std::cout << "Removing client " << (_clients.begin() + i - 1)->getClientSocket().fd << std::endl;
 			_allSockets.erase(_allSockets.begin() + i);
 			_clients.erase(_clients.begin() + i - 1);
 			i--;
@@ -131,8 +130,7 @@ void Server::_acceptNewClient()
 
 void Server::_listenToClients()
 {
-	size_t size = _allSockets.size();
-	for (size_t i = 1; i < size; i++)
+	for (size_t i = 1; i < _allSockets.size(); i++)
 	{
 		if (_allSockets[i].revents & POLLIN)
 		{
@@ -142,19 +140,30 @@ void Server::_listenToClients()
 
 			if (bytesRead == -1)
 			{
-				_allSockets[i].fd = -1;
-				std::cerr << "[Server] Recv() failed [456]" << std::endl;
+				std::cerr << "[Server] recv() failed on client fd " << _allSockets[i].fd << std::endl;
+				_allSockets.erase(_allSockets.begin() + i);
+				_clients.erase(_clients.begin() + i - 1);
+				i--;
 			}
 			else if (bytesRead == 0)
 			{
-				_allSockets[i].fd = -1;
-				std::cerr << "[Server] A client just disconnected" << std::endl;
+				std::cerr << "[Server] Client fd " << _allSockets[i].fd << " just disconnected" << std::endl;
+				_allSockets.erase(_allSockets.begin() + i);
+				_clients.erase(_clients.begin() + i - 1);
+				i--;
 			}
 			else
 			{
 				std::cout << "[Client] Message received from client " << std::endl;
 				std::cout << _allSockets[i].fd << " << " << buffer << std::endl;
 			}
+			
+			std::cout << std::endl << "***list of clients***" << std::endl;
+			for (size_t j = 0; j < _clients.size(); j++)
+			{
+				std::cout << "_clients[" << j << "].fd = " << _clients[j].getClientSocket().fd << std::endl;
+			}
+			std::cout << "***" << std::endl << std::endl;
 		}
 	}
 }
