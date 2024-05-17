@@ -19,11 +19,12 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
-#include "Client.hpp"
 #include <cstdlib>
 #include <fcntl.h>
 #include <cstring>
 #include <algorithm>
+#include "Client.hpp"
+#include "replies.hpp"
 
 extern bool	g_quit;
 

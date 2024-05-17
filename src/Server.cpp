@@ -140,6 +140,11 @@ int Server::_delClient(size_t index)
 void Server::_readClient(size_t & index)
 {
 	std::string buffer;
+ 	if (_fillBuffer(index, buffer) <= 0) {
+		std::cerr << "[Server] Client fd " << _allSockets[index].fd << " just disconnected" << std::endl;
+		index += _delClient(index);
+	}
+
 	Client &client = _clients[index - 1];
 	std::string response;
 	std::string message;
@@ -164,7 +169,7 @@ void Server::_readClient(size_t & index)
 				response = _handlePrivmsgCommand(client, message);
 				break;
 			case INVALID:
-				response = client.getNickname() + ' ' + message.substr(5) + " :Unkown command\r\n";
+				response = client.getNickname() + ' ' + message + " :Unknown command\r\n";
 		}
 
 		if (!response.empty() && _allSockets[index].revents & POLLOUT) {
@@ -183,13 +188,9 @@ void Server::_readClient(size_t & index)
 std::string Server::_sendWelcomeMessage(Client const &client) const
 {
 	std::string welcome_msg = "001 " + client.getNickname() + " :Welcome to the IRC server\r\n";
-	send(client.getClientFd(), welcome_msg.c_str(), welcome_msg.size(), 0);
 	std::string yourhost_msg = "002 " + client.getNickname() + " :Your host is IRCServer, running version 1.0\r\n";
-	send(client.getClientFd(), yourhost_msg.c_str(), yourhost_msg.size(), 0);
 	std::string created_msg = "003 " + client.getNickname() + " :This server was created recently\r\n";
-	send(client.getClientFd(), created_msg.c_str(), created_msg.size(), 0);
 	std::string myinfo_msg = "004 " + client.getNickname() + " IRCServer 1.0 o o\r\n";
-	send(client.getClientFd(), myinfo_msg.c_str(), myinfo_msg.size(), 0);
 
 	return welcome_msg + yourhost_msg + created_msg + myinfo_msg;
 }

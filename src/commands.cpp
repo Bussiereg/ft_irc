@@ -36,7 +36,7 @@ std::string Server::_handlePassCommand(Client & client, std::string & message)
 	{
 		return ("464 :Password incorrect\r\n");
 	}
-
+	std::cout << "[Server] Password accepted for " << client.getNickname() << std::endl;
 	client.acceptPassword();
 	return "";
 }
@@ -45,14 +45,18 @@ std::string Server::_handleNickCommand(Client & client, std::string & message)
 {
 	std::string response;
 	std::string nickname = message.substr(5);
-	if (nickname.empty()) {
-		response = "431 " + nickname + " :No nickname given\r\n";
-	} else if (_isNickInUse(nickname)) {
-        response = "433 " + nickname + " :Nickname is already in use\r\n";
-	} else {
+	if (nickname.empty())
+		return ERR_NONICKNAMEGIVEN;
+	if (_isNickInUse(nickname))
+        return ERR_NICKNAMEINUSE(nickname);
+	if (client.getNickname().empty()) {
+		std::cout << "[Server] Nickname accepted for " << nickname << std::endl;
 		client.setNickname(nickname);
+		return "";
 	}
-	return response;
+	std::string oldNick = client.getNickname();
+	client.setNickname(nickname);
+	return RPL_NICK(oldNick, nickname);
 }
 
 std::string Server::_handleUserCommand(Client & client, std::string & message)
@@ -64,8 +68,9 @@ std::string Server::_handleUserCommand(Client & client, std::string & message)
 	}
 	client.setUsername(username);
 	if (!client.isFullyAccepted()) {
+		std::cout << "[Server] Username accepted for " << client.getNickname() << std::endl;
 		client.acceptFully();
-		return _sendWelcomeMessage(client);
+		return RPL_WELCOME(client.getNickname(), client.getUsername(), "localhost");
 	} else {
 		return ":localhost 001 * :Username accepted\r\n";
 	}

@@ -25,22 +25,30 @@ bool	Server::_isNickInUse(std::string const & nick)
 ssize_t	Server::_fillBuffer(size_t index, std::string & buffer)
 {
 	char temp[BUFFER_SIZE];
+	static int counter;
 
+	counter++;
+	std::cout << "Call number " << counter << " to recv\n";
 	ssize_t bytesRead = recv(_allSockets[index].fd, temp, BUFFER_SIZE, 0);
 	if (bytesRead > 0)
 		buffer.append(temp);
 	return bytesRead;
 }
 
-std::string Server::_getNextLine(size_t & index, std::string & buffer)
+std::string Server::_getNextLine(size_t & , std::string & buffer)
 {
 	std::size_t pos;
-    while ((pos = buffer.find("\r\n")) == std::string::npos) {
+	/*     while ((pos = buffer.find("\r\n")) == std::string::npos) {
         if (_fillBuffer(index, buffer) <= 0) {
         	std::cerr << "[Server] Client fd " << _allSockets[index].fd << " just disconnected" << std::endl;
 			index += _delClient(index);
 			return "";
 		}
+	}*/
+
+	pos = buffer.find("\r\n");
+	if (pos == std::string::npos) {
+		return "";
 	}
     std::string line = buffer.substr(0, pos);
     buffer.erase(0, pos + 2); // Remove the line including \r\n
