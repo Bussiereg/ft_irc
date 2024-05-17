@@ -50,9 +50,9 @@ private:
 	void 	_initAllSockets();
 	int 	_pollSockets();
 	void 	_acceptNewClient();
-	int		_delClient(size_t index);
+	void	_delClient(size_t index);
 	void 	_checkClients();
-	void 	_readClient(size_t & index);
+	void 	_readBuffer(size_t index, std::string & buffer);
 	void	_handleNickCommand(Client& client, const std::string & nickname);
 	bool	_isNickInUse(std::string const & nick);
 

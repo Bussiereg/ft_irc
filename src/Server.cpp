@@ -121,30 +121,29 @@ void Server::_acceptNewClient()
 
 void Server::_checkClients()
 {
-	for (size_t i = 1; i < _allSockets.size(); i++)
+	for (size_t i = _allSockets.size() - 1; i > 0; i--)
 	{
 		if (_allSockets[i].revents & POLLIN)
 		{
-			_readClient(i);
+			std::string buffer;
+ 			if (_fillBuffer(i, buffer) > 0) {
+				_readBuffer(i, buffer);
+			} else {
+				_delClient(i);
+			}
 		}
 	}
 }
 
-int Server::_delClient(size_t index)
+void Server::_delClient(size_t index)
 {
+	std::cerr << "[Server] Client fd " << _allSockets[index].fd << " just disconnected" << std::endl;
 	_allSockets.erase(_allSockets.begin() + index);
 	_clients.erase(_clients.begin() + index - 1);
-	return -1;
 }
 
-void Server::_readClient(size_t & index)
+void Server::_readBuffer(size_t index, std::string & buffer)
 {
-	std::string buffer;
- 	if (_fillBuffer(index, buffer) <= 0) {
-		std::cerr << "[Server] Client fd " << _allSockets[index].fd << " just disconnected" << std::endl;
-		index += _delClient(index);
-	}
-
 	Client &client = _clients[index - 1];
 	std::string response;
 	std::string message;
