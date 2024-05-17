@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:43:26 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/16 17:54:39 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/17 16:35:22 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,19 @@
 #include <cstdlib>
 #include <fcntl.h>
 #include <cstring>
+#include <algorithm>
 
 extern bool	g_quit;
+
+#define BUFFER_SIZE 1024
+
+enum Commands {
+	PASS,
+	NICK,
+	USER,
+	PRIVMSG,
+	INVALID
+};
 
 class Server
 {
@@ -35,13 +46,24 @@ private:
 	int					_port;
 	std::string			_password;
 
-	void _initAllSockets();
-	void _updateAllSockets();
-	int _pollSockets();
-	void _acceptNewClient();
-	void _checkClients();
-	int _readClient(size_t index);
-	void _handleNickCommand(Client& client, const std::string & nickname);
+	void 	_initAllSockets();
+	int 	_pollSockets();
+	void 	_acceptNewClient();
+	int		_delClient(size_t index);
+	void 	_checkClients();
+	void 	_readClient(size_t & index);
+	void	_handleNickCommand(Client& client, const std::string & nickname);
+	std::string	_sendWelcomeMessage(Client const &) const;
+	bool	_isNickInUse(std::string const & nick);
+
+	ssize_t		_fillBuffer(size_t index, std::string & buffer);
+	std::string _getNextLine(size_t & index, std::string & buffer);
+
+	Commands 	_getCommand(std::string &);
+	std::string	_handlePassCommand(Client &, std::string &);
+	std::string	_handleNickCommand(Client &, std::string &);
+	std::string	_handleUserCommand(Client &, std::string &);
+	std::string	_handlePrivmsgCommand(Client &, std::string &);
 public:
 	Server(int port, std::string password);
 	Server(Server const &);
