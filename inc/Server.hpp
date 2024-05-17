@@ -54,7 +54,6 @@ private:
 	void 	_checkClients();
 	void 	_readClient(size_t & index);
 	void	_handleNickCommand(Client& client, const std::string & nickname);
-	std::string	_sendWelcomeMessage(Client const &) const;
 	bool	_isNickInUse(std::string const & nick);
 
 	ssize_t		_fillBuffer(size_t index, std::string & buffer);

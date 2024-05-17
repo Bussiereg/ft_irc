@@ -185,16 +185,6 @@ void Server::_readClient(size_t & index)
 	std::cout << "***" << std::endl << std::endl;
 }
 
-std::string Server::_sendWelcomeMessage(Client const &client) const
-{
-	std::string welcome_msg = "001 " + client.getNickname() + " :Welcome to the IRC server\r\n";
-	std::string yourhost_msg = "002 " + client.getNickname() + " :Your host is IRCServer, running version 1.0\r\n";
-	std::string created_msg = "003 " + client.getNickname() + " :This server was created recently\r\n";
-	std::string myinfo_msg = "004 " + client.getNickname() + " IRCServer 1.0 o o\r\n";
-
-	return welcome_msg + yourhost_msg + created_msg + myinfo_msg;
-}
-
 const char *Server::SocketCreationException::what() const throw()
 {
 	return "ircserv: error creating socket";
