@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:49:06 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/18 17:33:04 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/18 17:46:04 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 void Server::_readBuffer(size_t index, std::string & buffer)
 {
 	Client &client = *_clients[index - 1];
-	std::string response;
 	std::string message;
 
 	while (!(message = _getNextLine(index, buffer)).empty())
@@ -26,23 +25,19 @@ void Server::_readBuffer(size_t index, std::string & buffer)
 		enum Commands commandCase = _getCommand(message);
 		switch (commandCase) {
 			case PASS:
-				response = _handlePassCommand(client, message);
+				client.appendResponse(_handlePassCommand(client, message));
 				break;
 			case NICK:
-				response = _handleNickCommand(client, message);
+				client.appendResponse(_handleNickCommand(client, message));
 				break;
 			case USER:
-				response = _handleUserCommand(client, message);
+				client.appendResponse(_handleUserCommand(client, message));
 				break;
 			case PRIVMSG:
-				response = _handlePrivmsgCommand(client, message);
+				client.appendResponse(_handlePrivmsgCommand(client, message));
 				break;
 			case INVALID:
-				response = client.getNickname() + ' ' + message + " :Unknown command\r\n";
-		}
-
-		if (!response.empty() && _allSockets[index].revents & POLLOUT) {
-			send(_allSockets[index].fd, response.c_str(), response.size(), 0);
+				client.appendResponse(client.getNickname() + ' ' + message + " :Unknown command\r\n");
 		}
 	}
 
