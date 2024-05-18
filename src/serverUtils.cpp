@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:49:06 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/17 16:44:45 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/18 17:16:03 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 
 bool	Server::_isNickInUse(std::string const & nick)
 {
-	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-		if (it->getNickname() == nick) {
+	for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+		if ((*it)->getNickname() == nick) {
 			return true;
 		}
 	}

@@ -6,18 +6,18 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 17:32:08 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/18 16:07:54 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/18 17:12:12 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Client.hpp"
 
-Client::Client(int socketFd) : _socketFd(socketFd), _isPassedWord(false),  _isFullyAccepted(false)
+Client::Client(pollfd* socket) : _socket(socket), _isPassedWord(false),  _isFullyAccepted(false)
 {
 }
 
 Client::Client(Client const & other)
-	: _socketFd(other._socketFd), _nickname(other._nickname), _username(other._username), _hostname(other._hostname), _isPassedWord(other._isPassedWord), _isFullyAccepted(other._isFullyAccepted)
+	: _socket(other._socket), _nickname(other._nickname), _username(other._username), _hostname(other._hostname), _isPassedWord(other._isPassedWord), _isFullyAccepted(other._isFullyAccepted)
 {
 }
 
@@ -25,7 +25,7 @@ Client & Client::operator=(Client const & other)
 {
 	if (this != &other)
 	{
-		// socketFd cannot be copied because it is const
+		_socket = other._socket;
 		_nickname = other._nickname;
 		_username = other._username;
 		_hostname = other._hostname;
@@ -39,9 +39,9 @@ Client::~Client()
 {
 }
 
-int const & 	Client::getClientFd() const
+pollfd const * 	Client::getClientSocket() const
 {
-	return _socketFd;
+	return _socket;
 }
 
 std::string const &	Client::getNickname() const
@@ -83,3 +83,19 @@ void Client::acceptFully()
 {
 	_isFullyAccepted = true;
 }
+
+std::string const & Client::getResponse() const
+{
+	return _response;
+}
+
+void Client::appendResponse(std::string newMessage)
+{
+	_response.append(newMessage);
+}
+
+void Client::clearResponse()
+{
+	_response.clear();
+}
+

@@ -1,16 +1,58 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   commands.cpp                                       :+:      :+:    :+:   */
+/*   serverCommands.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:49:06 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/18 15:56:56 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/18 17:19:19 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Server.hpp"
+
+void Server::_readBuffer(size_t index, std::string & buffer)
+{
+	Client &client = *_clients[index - 1];
+	std::string response;
+	std::string message;
+
+	while (!(message = _getNextLine(index, buffer)).empty())
+	{
+		std::cout << "[Client] Message received from client " << client.getClientSocket()->fd << std::endl;
+		std::cout << _allSockets[index].fd << " << " << message << std::endl;
+
+		enum Commands commandCase = _getCommand(message);
+		switch (commandCase) {
+			case PASS:
+				response = _handlePassCommand(client, message);
+				break;
+			case NICK:
+				response = _handleNickCommand(client, message);
+				break;
+			case USER:
+				response = _handleUserCommand(client, message);
+				break;
+			case PRIVMSG:
+				response = _handlePrivmsgCommand(client, message);
+				break;
+			case INVALID:
+				response = client.getNickname() + ' ' + message + " :Unknown command\r\n";
+		}
+
+		if (!response.empty() && _allSockets[index].revents & POLLOUT) {
+			send(_allSockets[index].fd, response.c_str(), response.size(), 0);
+		}
+	}
+
+	std::cout << std::endl << "***list of clients***" << std::endl;
+	for (size_t j = 0; j < _clients.size(); j++)
+	{
+		std::cout << "_clients[" << j << "].fd = " << _clients[j]->getClientSocket()->fd << std::endl;
+	}
+	std::cout << "***" << std::endl << std::endl;
+}
 
 Commands Server::_getCommand(std::string & message)
 {

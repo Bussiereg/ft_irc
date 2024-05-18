@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:43:26 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/18 16:20:57 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/18 17:25:23 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,14 +42,11 @@ enum Commands {
 class Server
 {
 private:
-	std::vector<Client> _clients;
-	pollfd				_serverSocket;
+	std::vector<Client*> _clients;
 	std::vector<pollfd> _allSockets;
 	int					_port;
 	std::string			_password;
 
-	void 	_initAllSockets();
-	int 	_pollSockets();
 	void 	_acceptNewClient();
 	void	_delClient(size_t index);
 	void 	_checkClients();

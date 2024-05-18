@@ -6,7 +6,7 @@
 #    By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/12 15:36:14 by mwallage          #+#    #+#              #
-#    Updated: 2024/05/17 15:43:51 by mwallage         ###   ########.fr        #
+#    Updated: 2024/05/18 17:16:34 by mwallage         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,8 +17,10 @@ INCDIR	:= inc
 OBJDIR	:= obj
 SRC		:= main.cpp \
 			Server.cpp \
+			serverCommands.cpp \
+			serverExceptions.cpp \
+			serverPolling.cpp \
 			serverUtils.cpp \
-			commands.cpp \
 			Client.cpp
 SRC		:= $(addprefix $(SRCDIR)/, $(SRC))
 OBJ		:= $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRC))

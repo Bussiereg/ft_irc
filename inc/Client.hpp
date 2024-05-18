@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 17:26:30 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/17 13:34:40 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/18 17:29:38 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,19 +20,21 @@
 
 class Client {
 private:
-	int const		_socketFd;
+	pollfd*			_socket;
 	std::string 	_nickname;
 	std::string 	_username;
 	std::string 	_hostname;
 	bool			_isPassedWord;
 	bool			_isFullyAccepted;
+
+	std::string		_response;
 public:
-	Client(int socketFd);
+	Client(pollfd * socket);
 	Client(Client const &);
 	Client & operator=(Client const &);
 	~Client();
 
-	int const & 		getClientFd() const;
+	pollfd const * 		getClientSocket() const;
 	std::string const &	getNickname() const;
 	void				setNickname(std::string const &);
 	std::string const & getUsername() const;
@@ -41,4 +43,8 @@ public:
 	void				acceptPassword();
 	bool 				isFullyAccepted() const;
 	void				acceptFully();
+
+	std::string const & getResponse() const;
+	void				appendResponse(std::string newMessage);
+	void				clearResponse();
 };
