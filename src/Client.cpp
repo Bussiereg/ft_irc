@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 17:32:08 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/17 16:38:33 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/18 16:07:54 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ Client::Client(int socketFd) : _socketFd(socketFd), _isPassedWord(false),  _isFu
 }
 
 Client::Client(Client const & other)
-	: _socketFd(other._socketFd), _nickname(other._nickname), _username(other._username), _hostname(other._hostname)
+	: _socketFd(other._socketFd), _nickname(other._nickname), _username(other._username), _hostname(other._hostname), _isPassedWord(other._isPassedWord), _isFullyAccepted(other._isFullyAccepted)
 {
 }
 
@@ -29,6 +29,8 @@ Client & Client::operator=(Client const & other)
 		_nickname = other._nickname;
 		_username = other._username;
 		_hostname = other._hostname;
+		_isPassedWord = other._isPassedWord;
+		_isFullyAccepted = other._isFullyAccepted;
 	}
 	return *this;
 }

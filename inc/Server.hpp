@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:43:26 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/17 16:35:22 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/18 16:20:57 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 #include <fcntl.h>
 #include <cstring>
 #include <algorithm>
+#include <utility>
 #include "Client.hpp"
 #include "replies.hpp"
 
@@ -43,7 +44,7 @@ class Server
 private:
 	std::vector<Client> _clients;
 	pollfd				_serverSocket;
-	std::vector<pollfd>	_allSockets;
+	std::vector<pollfd> _allSockets;
 	int					_port;
 	std::string			_password;
 

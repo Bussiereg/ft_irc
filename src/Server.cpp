@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:49:06 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/17 16:37:25 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/18 16:15:42 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,7 +110,7 @@ void Server::_acceptNewClient()
 	fcntl(clientFd, F_SETFL, O_NONBLOCK);
 
 	Client newClient(clientFd);
-	_clients.push_back(newClient);
+	_clients.push_back(clientFd);
 
 	pollfd newClientPoll;
 	newClientPoll.fd = clientFd;
@@ -150,7 +150,7 @@ void Server::_readBuffer(size_t index, std::string & buffer)
 
 	while (!(message = _getNextLine(index, buffer)).empty())
 	{
-		std::cout << "[Client] Message received from client " << std::endl;
+		std::cout << "[Client] Message received from client " << client.getClientFd() << std::endl;
 		std::cout << _allSockets[index].fd << " << " << message << std::endl;
 
 		enum Commands commandCase = _getCommand(message);
