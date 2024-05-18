@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:49:06 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/18 17:46:04 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/18 18:38:07 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,22 +19,22 @@ void Server::_readBuffer(size_t index, std::string & buffer)
 
 	while (!(message = _getNextLine(index, buffer)).empty())
 	{
-		std::cout << "[Client] Message received from client " << client.getClientSocket().fd << std::endl;
+		std::cout << "[Client] Message received from client " << client.getClientSocket()->fd << std::endl;
 		std::cout << _allSockets[index].fd << " << " << message << std::endl;
 
 		enum Commands commandCase = _getCommand(message);
 		switch (commandCase) {
 			case PASS:
-				client.appendResponse(_handlePassCommand(client, message));
+				_handlePassCommand(client, message);
 				break;
 			case NICK:
-				client.appendResponse(_handleNickCommand(client, message));
+				_handleNickCommand(client, message);
 				break;
 			case USER:
-				client.appendResponse(_handleUserCommand(client, message));
+				_handleUserCommand(client, message);
 				break;
 			case PRIVMSG:
-				client.appendResponse(_handlePrivmsgCommand(client, message));
+				_handlePrivmsgCommand(client, message);
 				break;
 			case INVALID:
 				client.appendResponse(client.getNickname() + ' ' + message + " :Unknown command\r\n");
@@ -44,7 +44,8 @@ void Server::_readBuffer(size_t index, std::string & buffer)
 	std::cout << std::endl << "***list of clients***" << std::endl;
 	for (size_t j = 0; j < _clients.size(); j++)
 	{
-		std::cout << "_clients[" << j << "].fd = " << _clients[j]->getClientSocket().fd << std::endl;
+		std::cout << "_clients[" << j << "].fd = " << _clients[j]->getClientSocket()->fd << std::endl;
+		std::cout << "_allSockets[" << j + 1 << "].fd = " << _allSockets[j + 1].fd << std::endl;;
 	}
 	std::cout << "***" << std::endl << std::endl;
 }
@@ -63,57 +64,60 @@ Commands Server::_getCommand(std::string & message)
 	return INVALID;
 }
 
-std::string Server::_handlePassCommand(Client & client, std::string & message)
+void Server::_handlePassCommand(Client & client, std::string & message)
 {
 	if (client.isPassedWord()) {
-		return ("462 :You may not reregister\r\n");
+		client.appendResponse("462 :You may not reregister\r\n");
 	}
 
 	if (message.substr(5) != _password)
 	{
-		return ("464 :Password incorrect\r\n");
+		client.appendResponse("464 :Password incorrect\r\n");
 	}
 	std::cout << "[Server] Password accepted for " << client.getNickname() << std::endl;
 	client.acceptPassword();
-	return "";
 }
 
-std::string Server::_handleNickCommand(Client & client, std::string & message)
+void Server::_handleNickCommand(Client & client, std::string & message)
 {
 	std::string response;
 	std::string nickname = message.substr(5);
 	if (nickname.empty())
-		return ERR_NONICKNAMEGIVEN;
+		client.appendResponse(ERR_NONICKNAMEGIVEN);
 	if (_isNickInUse(nickname))
-        return ERR_NICKNAMEINUSE(nickname);
+        client.appendResponse(ERR_NICKNAMEINUSE(nickname));
 	if (client.getNickname().empty()) {
 		std::cout << "[Server] Nickname accepted for " << nickname << std::endl;
 		client.setNickname(nickname);
-		return "";
 	}
 	std::string oldNick = client.getNickname();
 	client.setNickname(nickname);
-	return RPL_NICK(oldNick, nickname);
+	client.appendResponse(RPL_NICK(oldNick, nickname));
 }
 
-std::string Server::_handleUserCommand(Client & client, std::string & message)
+void Server::_handleUserCommand(Client & client, std::string & message)
 {
 	std::string username = message.substr(5);
 	if (username.empty())
 	{
-		return ":localhost 461 " + client.getNickname() + " USER :Not enough parameters\r\n";
+		client.appendResponse(":localhost 461 " + client.getNickname() + " USER :Not enough parameters\r\n");
 	}
 	client.setUsername(username);
 	if (!client.isFullyAccepted()) {
 		std::cout << "[Server] Username accepted for " << client.getNickname() << std::endl;
 		client.acceptFully();
-		return RPL_WELCOME(client.getNickname(), client.getUsername(), "localhost");
+		client.appendResponse(RPL_WELCOME(client.getNickname(), client.getUsername(), "localhost"));
 	} else {
-		return ":localhost 001 * :Username accepted\r\n";
+		client.appendResponse(":localhost 001 * :Username accepted\r\n");
 	}
 }
 
-std::string Server::_handlePrivmsgCommand(Client & , std::string & message)
+void Server::_handlePrivmsgCommand(Client & client, std::string & message)
 {
-	return message;
+	std::string forward = client.getNickname() + " :" + message.substr(5) + "\r\n";
+	for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+	{
+		if (*it != &client)
+			(*it)->appendResponse(forward);
+	}
 }

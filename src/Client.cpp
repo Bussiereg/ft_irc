@@ -6,13 +6,13 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 17:32:08 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/18 17:31:21 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/18 18:35:48 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Client.hpp"
 
-Client::Client(pollfd const & socket) : _socket(socket), _isPassedWord(false),  _isFullyAccepted(false)
+Client::Client(pollfd * socket) : _socket(socket), _isPassedWord(false),  _isFullyAccepted(false)
 {
 }
 
@@ -25,7 +25,7 @@ Client & Client::operator=(Client const & other)
 {
 	if (this != &other)
 	{
-		// cannot copy because const: _socket = other._socket;
+		_socket = other._socket;
 		_nickname = other._nickname;
 		_username = other._username;
 		_hostname = other._hostname;
@@ -37,9 +37,10 @@ Client & Client::operator=(Client const & other)
 
 Client::~Client()
 {
+	delete _socket;
 }
 
-pollfd const & Client::getClientSocket() const
+pollfd const * Client::getClientSocket() const
 {
 	return _socket;
 }

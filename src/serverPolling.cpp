@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/18 16:35:02 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/18 17:48:49 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/18 18:37:04 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,13 +41,13 @@ void Server::_acceptNewClient()
 	std::cout << "Accepting new client " << clientFd << std::endl;
 	fcntl(clientFd, F_SETFL, O_NONBLOCK);
 
-	pollfd	newClientSocket;
-	newClientSocket.fd = clientFd;
-	newClientSocket.events = POLLIN | POLLOUT;
-	newClientSocket.revents = 0;
-	_allSockets.push_back(newClientSocket);
+	pollfd* clientSocket = new pollfd;
+	clientSocket->fd = clientFd;
+	clientSocket->events = POLLIN | POLLOUT;
+	clientSocket->revents = 0;
+	_allSockets.push_back(*clientSocket);
 
-	Client* newClient = new Client(_allSockets.back());
+	Client* newClient = new Client(clientSocket);
 	_clients.push_back(newClient);
 }
 
@@ -58,11 +58,10 @@ void Server::_checkClients()
 		if (_allSockets[i].revents & POLLIN)
 		{
 			std::string buffer;
- 			if (_fillBuffer(i, buffer) > 0) {
+ 			if (_fillBuffer(i, buffer) > 0)
 				_readBuffer(i, buffer);
-			} else {
+			else
 				_delClient(i);
-			}
 		}
 		std::string const & response = _clients[i - 1]->getResponse();
 		if (!response.empty() && _allSockets[i].revents & POLLOUT) {

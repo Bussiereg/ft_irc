@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:43:26 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/18 17:25:23 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/18 18:09:11 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,10 +58,10 @@ private:
 	std::string _getNextLine(size_t & index, std::string & buffer);
 
 	Commands 	_getCommand(std::string &);
-	std::string	_handlePassCommand(Client &, std::string &);
-	std::string	_handleNickCommand(Client &, std::string &);
-	std::string	_handleUserCommand(Client &, std::string &);
-	std::string	_handlePrivmsgCommand(Client &, std::string &);
+	void		_handlePassCommand(Client &, std::string &);
+	void		_handleNickCommand(Client &, std::string &);
+	void		_handleUserCommand(Client &, std::string &);
+	void		_handlePrivmsgCommand(Client &, std::string &);
 public:
 	Server(int port, std::string password);
 	Server(Server const &);
