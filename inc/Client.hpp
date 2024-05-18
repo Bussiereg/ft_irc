@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 17:26:30 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/18 17:29:38 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/18 17:30:46 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 
 class Client {
 private:
-	pollfd*			_socket;
+	pollfd const &	_socket;
 	std::string 	_nickname;
 	std::string 	_username;
 	std::string 	_hostname;
@@ -29,12 +29,12 @@ private:
 
 	std::string		_response;
 public:
-	Client(pollfd * socket);
+	Client(pollfd const & socket);
 	Client(Client const &);
 	Client & operator=(Client const &);
 	~Client();
 
-	pollfd const * 		getClientSocket() const;
+	pollfd const & 		getClientSocket() const;
 	std::string const &	getNickname() const;
 	void				setNickname(std::string const &);
 	std::string const & getUsername() const;

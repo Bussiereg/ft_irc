@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/18 16:35:02 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/18 17:26:49 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/18 17:31:55 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ void Server::_acceptNewClient()
 	newClientSocket.revents = 0;
 	_allSockets.push_back(newClientSocket);
 
-	Client* newClient = new Client(&_allSockets.back());
+	Client* newClient = new Client(_allSockets.back());
 	_clients.push_back(newClient);
 }
 
