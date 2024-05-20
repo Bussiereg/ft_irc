@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <utility>
 #include "Client.hpp"
+#include "Channel.hpp"
 #include "replies.hpp"
 
 extern bool	g_quit;
@@ -42,6 +43,7 @@ enum Commands {
 class Server
 {
 private:
+	std::vector<Channel*> _channelList;
 	std::vector<Client*> _clients;
 	std::vector<pollfd> _allSockets;
 	int					_port;
