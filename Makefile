@@ -11,7 +11,8 @@
 # **************************************************************************** #
 
 CPP		:= c++
-FLAGS	:= -std=c++98 -Wall -Wextra -Werror
+FLAGS	:= -std=c++98 -Wall -Wextra -Werror -fsanitize=address -g
+#FLAGS	:= -std=c++98 -Wall -Wextra -Werror
 SRCDIR	:= src
 INCDIR	:= inc
 OBJDIR	:= obj

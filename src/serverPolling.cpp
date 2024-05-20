@@ -75,7 +75,6 @@ void Server::_delClient(size_t index)
 {
 	std::cerr << "[Server] Client fd " << _allSockets[index].fd << " just disconnected" << std::endl;
 	_allSockets.erase(_allSockets.begin() + index);
-	delete _clients[index - 1];
 	_clients.erase(_clients.begin() + index - 1);
 }
 
