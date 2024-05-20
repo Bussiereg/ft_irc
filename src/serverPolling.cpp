@@ -34,11 +34,11 @@ void Server::_acceptNewClient()
 	int clientFd = accept(_allSockets[0].fd, reinterpret_cast<sockaddr *>(&clientAddress), &clientAddressSize);
 	if (clientFd == -1)
 	{
-		std::cerr << color::RED << "failed to accept new connection" << color::RESET << std::endl;
+		std::cerr << RED << "failed to accept new connection" << RESET << std::endl;
 		return;
 	}
 
-	std::cout << color::GREEN <<"Accepting new client " << clientFd << color::RESET << std::endl;
+	std::cout << GREEN <<"Accepting new client " << clientFd << RESET << std::endl;
 	fcntl(clientFd, F_SETFL, O_NONBLOCK);
 
 	pollfd* clientSocket = new pollfd;
@@ -73,7 +73,7 @@ void Server::_checkClients()
 
 void Server::_delClient(size_t index)
 {
-	std::cerr << color::RED << "[Server] Client fd " << _allSockets[index].fd << " just disconnected" << color::RESET << std::endl;
+	std::cerr << RED << "[Server] Client fd " << _allSockets[index].fd << " just disconnected" << RESET << std::endl;
 	_allSockets.erase(_allSockets.begin() + index);
 	delete _clients[index - 1];
 	_clients.erase(_clients.begin() + index - 1);

@@ -12,5 +12,7 @@ namespace color
 	const std::string WHITE   = "\033[37m";
 }
 
+using namespace color;
+
 //To be use to print colored message like this :
-//std::cout << color::RED << I'm an important message << color::RESET << std::endl;
+//std::cout << RED << I'm an important message << RESET << std::endl;

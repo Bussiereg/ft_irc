@@ -43,7 +43,7 @@ Server::Server(int port, std::string password) : _port(port), _password(password
 	serverSocket.events = POLLIN;
 	serverSocket.revents = 0;
 	_allSockets.push_back(serverSocket);
-	std::cout << color::YELLOW << "Server listening on port " << port << "\n" << color::RESET << std::endl;
+	std::cout << YELLOW << "Server listening on port " << port << "\n" << RESET << std::endl;
 }
 
 Server::Server(Server const &other)
