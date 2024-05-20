@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:49:06 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/18 17:16:03 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/20 14:28:57 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,21 +35,21 @@ ssize_t	Server::_fillBuffer(size_t index, std::string & buffer)
 	return bytesRead;
 }
 
-std::string Server::_getNextLine(size_t & , std::string & buffer)
+std::string Server::_getNextLine(size_t & index, std::string & buffer)
 {
 	std::size_t pos;
-	/*     while ((pos = buffer.find("\r\n")) == std::string::npos) {
+	while ((pos = buffer.find("\r\n")) == std::string::npos) {
         if (_fillBuffer(index, buffer) <= 0) {
         	std::cerr << "[Server] Client fd " << _allSockets[index].fd << " just disconnected" << std::endl;
-			index += _delClient(index);
+			_delClient(index);
 			return "";
 		}
-	}*/
+	}
 
-	pos = buffer.find("\r\n");
+/* 	pos = buffer.find("\r\n");
 	if (pos == std::string::npos) {
 		return "";
-	}
+	} */
     std::string line = buffer.substr(0, pos);
     buffer.erase(0, pos + 2); // Remove the line including \r\n
     return line;

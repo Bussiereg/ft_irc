@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 17:26:30 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/18 18:38:47 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/20 14:43:10 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,8 @@ private:
 	bool			_isFullyAccepted;
 
 	std::string		_response;
+	std::string		_buffer;
+//	bool			_isBufferFull;
 public:
 	Client(pollfd * socket);
 	Client(Client const &);
