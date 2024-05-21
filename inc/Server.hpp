@@ -38,7 +38,6 @@ enum Commands {
 	NICK,
 	USER,
 	PRIVMSG,
-	PING,
 	INVALID
 };
 
