@@ -22,6 +22,21 @@ bool	Server::_isNickInUse(std::string const & nick)
 	return false;
 }
 
+void Server::_printBuffer(char* buff)
+{
+	std::cout << "|buffer| " << MAGENTA;
+	for (int j = 0; buff[j] != 0; ++j) {
+		if (std::isprint(buff[j])) {
+			std::cout << buff[j];
+		} else {
+			std::cout << "\\x" << std::hex << std::setw(2) << std::setfill('0') << (int)(unsigned char)buff[j];
+		}
+	}
+	std::cout << RESET << std::endl;
+	//std::cout << "\n|----- end --------|\n\n" << std::endl;
+	//std::cout << "|-- buffer ascii :|\n" << buff << "|----- end --------|\n" <<std::endl;
+}
+
 ssize_t	Server::_fillBuffer(size_t index, std::string & buffer)
 {
 	char temp[BUFFER_SIZE];
@@ -30,6 +45,7 @@ ssize_t	Server::_fillBuffer(size_t index, std::string & buffer)
 	counter++;
 	std::cout << "Call number " << counter << " to recv\n";
 	ssize_t bytesRead = recv(_allSockets[index].fd, temp, BUFFER_SIZE, 0);
+	_printBuffer(temp);
 	if (bytesRead > 0)
 		buffer.append(temp);
 	return bytesRead;
@@ -38,19 +54,10 @@ ssize_t	Server::_fillBuffer(size_t index, std::string & buffer)
 std::string Server::_getNextLine(size_t & index, std::string & buffer)
 {
 	std::size_t pos;
-	while ((pos = buffer.find("\r\n")) == std::string::npos) {
-        if (_fillBuffer(index, buffer) <= 0) {
-        	std::cerr << "[Server] Client fd " << _allSockets[index].fd << " just disconnected" << std::endl;
-			_delClient(index);
-			return "";
-		}
-	}
-
-/* 	pos = buffer.find("\r\n");
-	if (pos == std::string::npos) {
+	if ((pos = buffer.find("\r\n")) == std::string::npos)
 		return "";
-	} */
-    std::string line = buffer.substr(0, pos);
-    buffer.erase(0, pos + 2); // Remove the line including \r\n
-    return line;
+	(void)index; // to remove later is not needed
+	std::string line = buffer.substr(0, pos);
+	buffer.erase(0, pos + 2); // Remove the line including \r\n
+	return line;
 }
