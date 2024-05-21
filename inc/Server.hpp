@@ -16,6 +16,7 @@
 #include <string>
 #include <stdexcept>
 #include <poll.h>
+#include <iomanip>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
@@ -37,6 +38,7 @@ enum Commands {
 	NICK,
 	USER,
 	PRIVMSG,
+	PING,
 	INVALID
 };
 
@@ -54,6 +56,7 @@ private:
 	void 	_readBuffer(size_t index, std::string & buffer);
 	void	_handleNickCommand(Client& client, const std::string & nickname);
 	bool	_isNickInUse(std::string const & nick);
+	void	_printBuffer(char* buff);
 
 	ssize_t		_fillBuffer(size_t index, std::string & buffer);
 	std::string _getNextLine(size_t & index, std::string & buffer);
