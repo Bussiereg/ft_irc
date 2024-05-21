@@ -26,6 +26,7 @@
 #include <utility>
 #include "Client.hpp"
 #include "replies.hpp"
+#include "ColorPrint.hpp"
 
 extern bool	g_quit;
 
