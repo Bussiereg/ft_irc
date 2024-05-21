@@ -19,7 +19,7 @@ void Server::_readBuffer(size_t index, std::string & buffer)
 
 	while (!(message = _getNextLine(index, buffer)).empty())
 	{
-		std::cout << "[Client] Message received from client " << client.getClientSocket()->fd << std::endl;
+		std::cout << "[Client] Message received from client fd " << client.getClientSocket()->fd << std::endl;
 		std::cout << "    " <<_allSockets[index].fd << " << " << CYAN << message << RESET << std::endl;
 
 		enum Commands commandCase = _getCommand(message);

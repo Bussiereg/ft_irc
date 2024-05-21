@@ -38,7 +38,7 @@ void Server::_acceptNewClient()
 		return;
 	}
 
-	std::cout << GREEN <<"Accepting new client " << clientFd << RESET << std::endl;
+	std::cout << GREEN <<"Accepting new client fd " << clientFd << RESET << std::endl;
 	fcntl(clientFd, F_SETFL, O_NONBLOCK);
 
 	pollfd* clientSocket = new pollfd;
@@ -57,6 +57,7 @@ void Server::_checkClients()
 	{
 		if (_allSockets[i].revents & POLLIN)
 		{
+			std::cout << "i = " << i << std::endl;
 			std::string buffer;
  			if (_fillBuffer(i, buffer) > 0)
 				_readBuffer(i, buffer);
