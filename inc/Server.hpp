@@ -27,6 +27,7 @@
 #include "Client.hpp"
 #include "Channel.hpp"
 #include "replies.hpp"
+#include "ColorPrint.hpp"
 
 extern bool	g_quit;
 
