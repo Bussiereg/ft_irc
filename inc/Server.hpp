@@ -24,6 +24,7 @@
 #include <fcntl.h>
 #include <cstring>
 #include <algorithm>
+#include <sstream>
 #include <utility>
 #include "Client.hpp"
 #include "Channel.hpp"
@@ -59,6 +60,7 @@ private:
 	void	_handleNickCommand(Client& client, const std::string & nickname);
 	bool	_isNickInUse(std::string const & nick);
 	void	_printBuffer(char* buff);
+	std::vector<std::string> _splitString(const std::string & str, char separator);
 
 	ssize_t		_fillBuffer(size_t index, std::string & buffer);
 	std::string _getNextLine(size_t & index, std::string & buffer);

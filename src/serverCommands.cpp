@@ -129,9 +129,3 @@ void Server::_handlePrivmsgCommand(Client & client, std::string & message)
 			(*it)->appendResponse(forward);
 	}
 }
-
-void Server::_handleJoinCommand(Client & client, std::string & message){
-	if 
-	(void)client;
-	(void)message;
-}
