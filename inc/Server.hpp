@@ -37,6 +37,7 @@ enum Commands {
 	NICK,
 	USER,
 	PRIVMSG,
+	JOIN,
 	INVALID
 };
 
@@ -64,6 +65,7 @@ private:
 	void		_handleNickCommand(Client &, std::string &);
 	void		_handleUserCommand(Client &, std::string &);
 	void		_handlePrivmsgCommand(Client &, std::string &);
+	void		_handleJoinCommand(Client &, std::string &);
 public:
 	Server(int port, std::string password);
 	Server(Server const &);

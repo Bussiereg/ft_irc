@@ -36,6 +36,9 @@ void Server::_readBuffer(size_t index, std::string & buffer)
 			case PRIVMSG:
 				_handlePrivmsgCommand(client, message);
 				break;
+			case JOIN:
+				_handleJoinCommand(client, message);
+				break;
 			case INVALID:
 				client.appendResponse(client.getNickname() + ' ' + message + " :Unknown command\r\n");
 		}
@@ -60,6 +63,8 @@ Commands Server::_getCommand(std::string & message)
 		return USER;
 	} else if (message.find("PRIVMSG") == 0) {
 		return PRIVMSG;
+	}else if (message.find("JOIN") == 0) {
+		return JOIN;
 	}
 	return INVALID;
 }
@@ -123,4 +128,8 @@ void Server::_handlePrivmsgCommand(Client & client, std::string & message)
 		if (*it != &client)
 			(*it)->appendResponse(forward);
 	}
+}
+
+void Server::_handleJoinCommand(Client & client, std::string & message){
+	
 }
