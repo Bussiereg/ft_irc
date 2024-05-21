@@ -38,7 +38,7 @@ void Server::_acceptNewClient()
 		return;
 	}
 
-	std::cout << GREEN <<"Accepting new client " << clientFd << RESET << std::endl;
+	std::cout << GREEN <<"Accepting new client fd " << clientFd << RESET << std::endl;
 	fcntl(clientFd, F_SETFL, O_NONBLOCK);
 
 	pollfd* clientSocket = new pollfd;
