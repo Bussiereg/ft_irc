@@ -131,5 +131,7 @@ void Server::_handlePrivmsgCommand(Client & client, std::string & message)
 }
 
 void Server::_handleJoinCommand(Client & client, std::string & message){
-	
+	if 
+	(void)client;
+	(void)message;
 }
