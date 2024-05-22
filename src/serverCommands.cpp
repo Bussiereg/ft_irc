@@ -76,25 +76,36 @@ Commands Server::_getCommand(std::string & message)
 
 void Server::_handlePassCommand(Client & client, std::string & message)
 {
-	if (client.isPassedWord()) {
+	std::vector<std::string> params = _splitString(message, ' ');
+	if (client.isPassedWord())
 		client.appendResponse("462 :You may not reregister\r\n");
-	} else if (message.substr(5) != _password) {
+	else if (client.passWordAttempted())
+		client.appendResponse("you only get one password try\r\n");
+	else if (params.size() != 2)
+		client.appendResponse("wrong amount of arguments\r\n");
+	else if (params[1] != _password)
 		client.appendResponse("464 :Password incorrect\r\n");
-	} else {
+	else {
 		std::cout << "[Server  ] Password accepted for " << client.getNickname() << std::endl;
 		client.acceptPassword();
 	}
+	client.passWordAttempt();
 }
 
 void Server::_handleNickCommand(Client & client, std::string & message)
 {
-	std::string response;
 	std::string nickname = message.substr(5);
-	if (nickname.empty())
+	if (!client.isPassedWord())
+	{
+		client.appendResponse("No password given as first command");
+		client.passWordAttempt();
+	}
+	else if (nickname.empty())
 		client.appendResponse(ERR_NONICKNAMEGIVEN);
 	else if (_isNickInUse(nickname))
 		client.appendResponse(ERR_NICKNAMEINUSE(nickname));
-	else if (client.getNickname().empty()) {
+	else if (client.getNickname().empty())
+	{
 		std::cout << "[Server  ] Nickname accepted for " << nickname << std::endl;
 		client.setNickname(nickname);
 	}
@@ -109,14 +120,24 @@ void Server::_handleNickCommand(Client & client, std::string & message)
 
 void Server::_handleUserCommand(Client & client, std::string & message)
 {
+	std::vector<std::string> params = _splitString(message, ' ');
 	std::string username = message.substr(5);
-	if (username.empty())
+	if (!client.isPassedWord())
+	{
+		client.appendResponse("No password given as first command");
+		client.passWordAttempt();
+	}
+	else if (params.size() < 2)
 	{
 		client.appendResponse(":localhost 461 " + client.getNickname() + " USER :Not enough parameters\r\n");
 	}
-	else 
+	else
 	{
-		client.setUsername(username);
+		client.setUsername(params[1]);
+		if (params.size() > 4)
+			client.setHostname(params[3]);
+		if (params.size() > 5)
+			client.setRealname(concatenateTokens(params, 4));
 		if (!client.isFullyAccepted()) {
 			std::cout << "[Server  ] Username accepted for " << client.getNickname() << std::endl;
 			client.acceptFully();

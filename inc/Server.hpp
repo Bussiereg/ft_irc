@@ -48,21 +48,22 @@ enum Commands {
 class Server
 {
 private:
-	std::vector<Channel*> _channelList;
-	std::vector<Client*> _clients;
-	std::vector<pollfd> _allSockets;
-	int					_port;
-	std::string			_password;
+	std::vector<Channel*>	_channelList;
+	std::vector<Client*>	_clients;
+	std::vector<pollfd>		_allSockets;
+	int						_port;
+	std::string				_password;
 
 	void 	_acceptNewClient();
 	void	_delClient(size_t index);
 	void 	_checkClients();
 	void	_handleNickCommand(Client& client, const std::string & nickname);
 	bool	_isNickInUse(std::string const & nick);
-	void	_printBuffer(const char* buff, int recevied);
-	std::vector<std::string> _splitString(const std::string & str, char separator);
 
+	void	_printBuffer(const char* buff, int recevied);
 	ssize_t		_fillBuffer(size_t index, std::string & buffer);
+	std::vector<std::string> _splitString(const std::string & str, char separator);
+	std::string concatenateTokens(const std::vector<std::string>& tokens, size_t startPos);
 	std::string _getNextLine(std::string & buffer);
 
 	void 		_readBuffer(size_t index, std::string & buffer);
