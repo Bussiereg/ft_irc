@@ -24,8 +24,10 @@
 #include <fcntl.h>
 #include <cstring>
 #include <algorithm>
+#include <sstream>
 #include <utility>
 #include "Client.hpp"
+#include "Channel.hpp"
 #include "replies.hpp"
 #include "ColorPrint.hpp"
 
@@ -38,12 +40,14 @@ enum Commands {
 	NICK,
 	USER,
 	PRIVMSG,
+	JOIN,
 	INVALID
 };
 
 class Server
 {
 private:
+	std::vector<Channel*> _channelList;
 	std::vector<Client*> _clients;
 	std::vector<pollfd> _allSockets;
 	int					_port;
@@ -56,6 +60,7 @@ private:
 	void	_handleNickCommand(Client& client, const std::string & nickname);
 	bool	_isNickInUse(std::string const & nick);
 	void	_printBuffer(char* buff);
+	std::vector<std::string> _splitString(const std::string & str, char separator);
 
 	ssize_t		_fillBuffer(size_t index, std::string & buffer);
 	std::string _getNextLine(size_t & index, std::string & buffer);
@@ -65,6 +70,7 @@ private:
 	void		_handleNickCommand(Client &, std::string &);
 	void		_handleUserCommand(Client &, std::string &);
 	void		_handlePrivmsgCommand(Client &, std::string &);
+	void		_handleJoinCommand(Client &, std::string &);
 public:
 	Server(int port, std::string password);
 	Server(Server const &);
