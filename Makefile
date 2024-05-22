@@ -22,6 +22,7 @@ SRC		:= main.cpp \
 			serverExceptions.cpp \
 			serverPolling.cpp \
 			serverUtils.cpp \
+			channelOperations.cpp \
 			Client.cpp
 SRC		:= $(addprefix $(SRCDIR)/, $(SRC))
 OBJ		:= $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRC))
