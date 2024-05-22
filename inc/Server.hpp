@@ -38,6 +38,7 @@ enum Commands {
 	NICK,
 	USER,
 	PRIVMSG,
+	PING,
 	INVALID
 };
 
@@ -55,7 +56,7 @@ private:
 	void 	_readBuffer(size_t index, std::string & buffer);
 	void	_handleNickCommand(Client& client, const std::string & nickname);
 	bool	_isNickInUse(std::string const & nick);
-	void	_printBuffer(char* buff);
+	void	_printBuffer(const char* buff, int recevied);
 
 	ssize_t		_fillBuffer(size_t index, std::string & buffer);
 	std::string _getNextLine(size_t & index, std::string & buffer);
@@ -65,6 +66,7 @@ private:
 	void		_handleNickCommand(Client &, std::string &);
 	void		_handleUserCommand(Client &, std::string &);
 	void		_handlePrivmsgCommand(Client &, std::string &);
+	void		_handlePongCommand(Client & client);
 public:
 	Server(int port, std::string password);
 	Server(Server const &);

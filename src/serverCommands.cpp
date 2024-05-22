@@ -19,8 +19,8 @@ void Server::_readBuffer(size_t index, std::string & buffer)
 
 	while (!(message = _getNextLine(index, buffer)).empty())
 	{
-		std::cout << "[Client] Message received from client fd " << client.getClientSocket()->fd << std::endl;
-		std::cout << "    " <<_allSockets[index].fd << " << " << CYAN << message << RESET << std::endl;
+		std::cout << "[Client " << index << "] Message received from client " << std::endl;
+		std::cout << "     FD " <<_allSockets[index].fd << "< " << CYAN << message << RESET << std::endl;
 
 		enum Commands commandCase = _getCommand(message);
 		switch (commandCase) {
@@ -36,31 +36,36 @@ void Server::_readBuffer(size_t index, std::string & buffer)
 			case PRIVMSG:
 				_handlePrivmsgCommand(client, message);
 				break;
+			case PING:
+				_handlePongCommand(client);
+				break;
 			case INVALID:
-				client.appendResponse(client.getNickname() + ' ' + message + " :Unknown command\r\n");
+				(void)message;
+				//client.appendResponse(client.getNickname() + ' ' + message + " :Unknown command\r\n");
 		}
 	}
 
-	std::cout << std::endl << "***list of clients***" << std::endl;
+	std::cout << std::endl << "***list of clients***\n*" << std::endl;
 	for (size_t j = 0; j < _clients.size(); j++)
 	{
-		std::cout << "_clients[" << j << "].fd = " << _clients[j]->getClientSocket()->fd << std::endl;
+		std::cout << "* _clients[" << j << "].fd = " << _clients[j]->getClientSocket()->fd << "  ";
 		std::cout << "_allSockets[" << j + 1 << "].fd = " << _allSockets[j + 1].fd << std::endl;;
 	}
-	std::cout << "***" << std::endl << std::endl;
+	std::cout << "*\n*********************" << std::endl << std::endl;
 }
 
 Commands Server::_getCommand(std::string & message)
 {
-	if (message.find("PASS") == 0) {
+	if (message.find("PASS") == 0)
 		return PASS;
-	} else if (message.find("NICK") == 0) {
+	else if (message.find("NICK") == 0)
 		return NICK;
-	} else if (message.find("USER") == 0) {
+	else if (message.find("USER") == 0)
 		return USER;
-	} else if (message.find("PRIVMSG") == 0) {
+	else if (message.find("PRIVMSG") == 0)
 		return PRIVMSG;
-	}
+	else if (message.find("PING") == 0)
+		return PING;
 	return INVALID;
 }
 
@@ -71,7 +76,7 @@ void Server::_handlePassCommand(Client & client, std::string & message)
 	} else if (message.substr(5) != _password) {
 		client.appendResponse("464 :Password incorrect\r\n");
 	} else {
-		std::cout << "[Server] Password accepted for " << client.getNickname() << std::endl;
+		std::cout << "[Server  ] Password accepted for " << client.getNickname() << std::endl;
 		client.acceptPassword();
 	}
 }
@@ -83,9 +88,9 @@ void Server::_handleNickCommand(Client & client, std::string & message)
 	if (nickname.empty())
 		client.appendResponse(ERR_NONICKNAMEGIVEN);
 	else if (_isNickInUse(nickname))
-        client.appendResponse(ERR_NICKNAMEINUSE(nickname));
+		client.appendResponse(ERR_NICKNAMEINUSE(nickname));
 	else if (client.getNickname().empty()) {
-		std::cout << "[Server] Nickname accepted for " << nickname << std::endl;
+		std::cout << "[Server  ] Nickname accepted for " << nickname << std::endl;
 		client.setNickname(nickname);
 	}
 	else
@@ -108,7 +113,7 @@ void Server::_handleUserCommand(Client & client, std::string & message)
 	{
 		client.setUsername(username);
 		if (!client.isFullyAccepted()) {
-			std::cout << "[Server] Username accepted for " << client.getNickname() << std::endl;
+			std::cout << "[Server  ] Username accepted for " << client.getNickname() << std::endl;
 			client.acceptFully();
 			client.appendResponse(RPL_WELCOME(client.getNickname(), client.getUsername(), "localhost"));
 		}
@@ -123,4 +128,10 @@ void Server::_handlePrivmsgCommand(Client & client, std::string & message)
 		if (*it != &client)
 			(*it)->appendResponse(forward);
 	}
+}
+
+void Server::_handlePongCommand(Client & client)
+{
+	std::string str = "localhost";
+	client.appendResponse(PONG(str));
 }

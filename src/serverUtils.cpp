@@ -22,9 +22,12 @@ bool	Server::_isNickInUse(std::string const & nick)
 	return false;
 }
 
-void Server::_printBuffer(char* buff)
+void Server::_printBuffer(const char* buff, int received)
 {
-	std::cout << "|buffer| " << MAGENTA;
+	if (received)
+		std::cout << "[buff  in] " << MAGENTA;
+	else
+		std::cout << "[buff out] " << YELLOW;
 	for (int j = 0; buff[j] != 0; ++j) {
 		if (std::isprint(buff[j])) {
 			std::cout << buff[j];
@@ -45,7 +48,7 @@ ssize_t	Server::_fillBuffer(size_t index, std::string & buffer)
 	counter++;
 	std::cout << "Call number " << counter << " to recv\n";
 	ssize_t bytesRead = recv(_allSockets[index].fd, temp, BUFFER_SIZE, 0);
-	_printBuffer(temp);
+	_printBuffer(temp, 1);
 	if (bytesRead > 0)
 		buffer.append(temp);
 	return bytesRead;

@@ -57,7 +57,6 @@ void Server::_checkClients()
 	{
 		if (_allSockets[i].revents & POLLIN)
 		{
-			std::cout << "i = " << i << std::endl;
 			std::string buffer;
  			if (_fillBuffer(i, buffer) > 0)
 				_readBuffer(i, buffer);
@@ -65,7 +64,9 @@ void Server::_checkClients()
 				_delClient(i);
 		}
 		std::string const & response = _clients[i - 1]->getResponse();
-		if (!response.empty() && _allSockets[i].revents & POLLOUT) {
+		if (!response.empty() && _allSockets[i].revents & POLLOUT)
+		{
+			_printBuffer(response.c_str(), 0);
 			send(_allSockets[i].fd, response.c_str(), response.size(), 0);
 			_clients[i - 1]->clearResponse();
 		}
