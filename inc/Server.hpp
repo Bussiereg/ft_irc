@@ -43,6 +43,7 @@ enum Commands {
 	PRIVMSG,
 	PING,
 	JOIN,
+	TOPIC,
 	INVALID
 };
 
@@ -74,6 +75,7 @@ private:
 	void		_handleUserCommand(Client &, std::string &);
 	void		_handlePrivmsgCommand(Client &, std::string &);
 	void		_handleJoinCommand(Client &, std::string &);
+	void		_handleTopicCommand(Client &, std::string &);
 	void		_handlePongCommand(Client & client);
 public:
 	Server(int port, std::string password);

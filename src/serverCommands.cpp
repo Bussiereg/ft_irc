@@ -39,6 +39,9 @@ void Server::_readBuffer(size_t index, std::string & buffer)
 			case PING:
 				_handlePongCommand(client);
 				break;
+			case TOPIC:
+				_handleTopicCommand(client, message);
+				break;
 			case JOIN:
 				_handleJoinCommand(client, message);
 				break;
@@ -68,6 +71,8 @@ Commands Server::_getCommand(std::string & message)
 		return PRIVMSG;
 	else if (message.find("PING") == 0)
 		return PING;
+	else if (message.find("TOPIC") == 0)
+		return TOPIC;
 	else if (message.find("JOIN") == 0) {
 		return JOIN;
 	}

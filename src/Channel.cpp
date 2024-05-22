@@ -2,6 +2,7 @@
 
 Channel::Channel(std::string & name, Client & client) : _channelName(name){
 	_clientList.insert(std::pair<Client*, bool>(&client, true));
+	_topic = "example of topics";
 	_mode['i'] = false;
 	_mode['t'] = false;
 	_mode['k'] = false;

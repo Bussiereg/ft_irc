@@ -64,3 +64,33 @@ void Server::_handleJoinCommand(Client & client, std::string & message){
 std::vector<Channel> Server::getChannelList(){
 	return _channelList;
 }
+
+void		Server::_handleTopicCommand(Client & client, std::string & input){
+	std::vector<std::string> paramTopic = _splitString(input, ' ');
+	if (paramTopic.size() < 2){
+		std::string topic = "TOPIC";
+		std::string response1 = ERR_NEEDMOREPARAMS(topic);
+		send(client.getClientSocket()->fd, response1.c_str(), response1.size(), 0);
+		return ;
+	}
+	std::vector<Channel>::iterator it;
+	for (it = _channelList.begin(); it != _channelList.end(); ++it){
+		if (it->getChannelName() == paramTopic[1]){
+			if (!it->getClientList()[&client]){
+				std::string response2 = ERR_NOTONCHANNEL(it->getChannelName());	
+				send(client.getClientSocket()->fd, response2.c_str(), response2.size(), 0);
+				return ;
+			}
+			else{
+				std::string response3;
+				if (it->getTopic().empty())
+					response3 = RPL_NOTOPIC(client.getNickname(), client.getUsername(), client.gethostname(),  it->getChannelName());
+				else
+					response3 = RPL_TOPIC(client.getNickname(), client.getUsername(), client.gethostname(),  it->getChannelName(), it->getTopic());	
+				send(client.getClientSocket()->fd, response3.c_str(), response3.size(), 0);
+				return;
+			}
+		}
+
+	}
+}
