@@ -39,7 +39,7 @@ clean:
 
 fclean: clean
 	@echo "$(COLOR_YELLOW)Removing $(NAME)$(COLOR_RESET)"
-	@rm -f $(EXEC)
+	@rm -f $(NAME)
 
 re: fclean all
 
