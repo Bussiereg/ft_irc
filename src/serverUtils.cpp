@@ -64,3 +64,18 @@ std::string Server::_getNextLine(size_t & index, std::string & buffer)
 	buffer.erase(0, pos + 2); // Remove the line including \r\n
 	return line;
 }
+
+std::string Server::concatenateTokens(const std::vector<std::string>& tokens, size_t startPos)
+{
+	std::string result;
+
+	for (size_t i = startPos; i < tokens.size(); ++i) {
+		result += tokens[i];
+		if (i != tokens.size() - 1) {
+			result += " ";
+		}
+	}
+	result += ":";
+
+	return result;
+}

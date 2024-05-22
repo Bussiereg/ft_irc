@@ -24,6 +24,7 @@ private:
 	std::string 	_nickname;
 	std::string 	_username;
 	std::string 	_hostname;
+	std::string 	_realname;
 	bool			_isPassedWord;
 	bool			_isFullyAccepted;
 	bool			_passWordAttempted;
@@ -42,6 +43,10 @@ public:
 	void				setNickname(std::string const &);
 	std::string const & getUsername() const;
 	void				setUsername(std::string const &);
+	std::string const & getHostname() const;
+	void				setHostname(std::string const &);
+	std::string const & getRealname() const;
+	void				setRealname(std::string const &);
 	bool				passWordAttempted() const;
 	void				passWordAttempt();
 	bool				isPassedWord() const;

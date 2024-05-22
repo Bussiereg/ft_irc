@@ -65,6 +65,7 @@ private:
 	ssize_t		_fillBuffer(size_t index, std::string & buffer);
 	std::string _getNextLine(size_t & index, std::string & buffer);
 	std::vector<std::string> _splitString(const std::string & str, char separator);
+	std::string concatenateTokens(const std::vector<std::string>& tokens, size_t startPos);
 
 	Commands 	_getCommand(std::string &);
 	void		_handlePassCommand(Client &, std::string &);

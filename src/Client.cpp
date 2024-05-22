@@ -66,6 +66,26 @@ void Client::setUsername(std::string const & username)
 	_username = username;
 }
 
+std::string const & Client::getHostname() const
+{
+	return _hostname;
+}
+
+void Client::setHostname(std::string const & hostname)
+{
+	_hostname = hostname;
+}
+
+std::string const & Client::getRealname() const
+{
+	return _realname;
+}
+
+void Client::setRealname(std::string const & realname)
+{
+	_realname = realname;
+}
+
 bool Client::isPassedWord() const
 {
 	return _isPassedWord;
