@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/Server.hpp"
+#include "Server.hpp"
 
 void Server::_readBuffer(size_t index, std::string & buffer)
 {
@@ -38,6 +38,7 @@ void Server::_readBuffer(size_t index, std::string & buffer)
 				break;
 			case PING:
 				_handlePongCommand(client);
+				break;
 			case JOIN:
 				_handleJoinCommand(client, message);
 				break;
@@ -68,7 +69,7 @@ Commands Server::_getCommand(std::string & message)
 		return PRIVMSG;
 	else if (message.find("PING") == 0)
 		return PING;
-	}else if (message.find("JOIN") == 0) {
+	else if (message.find("JOIN") == 0) {
 		return JOIN;
 	}
 	return INVALID;
