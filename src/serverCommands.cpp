@@ -77,14 +77,20 @@ Commands Server::_getCommand(std::string & message)
 
 void Server::_handlePassCommand(Client & client, std::string & message)
 {
-	if (client.isPassedWord()) {
+	std::vector<std::string> params = _splitString(message, ' ');
+	if (client.isPassedWord())
 		client.appendResponse("462 :You may not reregister\r\n");
-	} else if (message.substr(5) != _password) {
+	else if (client.passWordAttempted())
+		client.appendResponse("you only get one password try\r\n");
+	else if (params.size() != 2)
+		client.appendResponse("wrong amount of arguments\r\n");
+	else if (params[1] != _password)
 		client.appendResponse("464 :Password incorrect\r\n");
-	} else {
+	else {
 		std::cout << "[Server  ] Password accepted for " << client.getNickname() << std::endl;
 		client.acceptPassword();
 	}
+	client.passWordAttempt();
 }
 
 void Server::_handleNickCommand(Client & client, std::string & message)

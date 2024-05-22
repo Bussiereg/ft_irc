@@ -26,6 +26,7 @@ private:
 	std::string 	_hostname;
 	bool			_isPassedWord;
 	bool			_isFullyAccepted;
+	bool			_passWordAttempted;
 
 	std::string		_response;
 	std::string		_buffer;
@@ -41,6 +42,8 @@ public:
 	void				setNickname(std::string const &);
 	std::string const & getUsername() const;
 	void				setUsername(std::string const &);
+	bool				passWordAttempted() const;
+	void				passWordAttempt();
 	bool				isPassedWord() const;
 	void				acceptPassword();
 	bool 				isFullyAccepted() const;
