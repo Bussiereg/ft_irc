@@ -9,16 +9,16 @@
 class Channel
 {
 private:
-	std::string _channelName;
-	std::map<char, bool> _mode;
-	std::string _topic;
-	std::vector<Client*> _clientList;
-	std::vector<Client*> _operator;
+	std::string					_channelName;
+	std::map<char, bool>		_mode;
+	std::string					_topic;
+	std::map<Client*, bool>		_clientList;
 public:
 	Channel(std::string & name, Client & client);
 	~Channel();
-	std::string	getTopic() const;
-	void	setTopic(Client & lhs, std::string & newTopic);
-	void	setChannelMode(char mode, bool status);
-	std::string getChannelName() const;
+	void						setTopic(Client & lhs, std::string & newTopic);
+	void						setChannelMode(char mode, bool status);
+	std::string					getTopic() const;
+	std::string 				getChannelName() const;
+	std::map<Client*, bool>		getClientList();
 };

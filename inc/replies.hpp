@@ -16,7 +16,7 @@
 
 # define RPL_NICK(old_nick, nick) (":" + old_nick + " NICK " + nick + "\r\n")
 
-# define ERR_NEEDMOREPARAMS(cmd) (cmd + ":Not enough parameters\r\n")
+# define ERR_NEEDMOREPARAMS(cmd) ("461 " + cmd + " :Not enough parameters\r\n")
 
 # define RPL_WELCOME(nick, user, host) ("001 " + nick + " :Welcome to the Internet Relay Network " + nick + "!" + user + "@" + host + "\r\n")
 

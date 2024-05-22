@@ -32,6 +32,7 @@
 #include "ColorPrint.hpp"
 
 extern bool	g_quit;
+class Channel;
 
 #define BUFFER_SIZE 512
 
@@ -48,7 +49,7 @@ enum Commands {
 class Server
 {
 private:
-	std::vector<Channel*> _channelList;
+	std::vector<Channel> _channelList;
 	std::vector<Client*> _clients;
 	std::vector<pollfd> _allSockets;
 	int					_port;
@@ -78,6 +79,8 @@ public:
 	Server(Server const &);
 	Server & operator=(Server const &);
 	~Server();
+
+	std::vector<Channel> getChannelList();
 	
 	void startPolling();
 	

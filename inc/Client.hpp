@@ -40,6 +40,9 @@ public:
 	std::string const &	getNickname() const;
 	void				setNickname(std::string const &);
 	std::string const & getUsername() const;
+	std::string const & gethostname() const{
+		return _hostname;
+	}
 	void				setUsername(std::string const &);
 	bool				isPassedWord() const;
 	void				acceptPassword();

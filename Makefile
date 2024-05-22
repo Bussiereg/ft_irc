@@ -12,6 +12,7 @@ SRC		:= main.cpp \
 			serverPolling.cpp \
 			serverUtils.cpp \
 			channelOperations.cpp \
+			Channel.cpp \
 			Client.cpp
 SRC		:= $(addprefix $(SRCDIR)/, $(SRC))
 OBJ		:= $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SRC))

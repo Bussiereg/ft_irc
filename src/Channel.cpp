@@ -1,7 +1,7 @@
 #include "Channel.hpp"
 
 Channel::Channel(std::string & name, Client & client) : _channelName(name){
-	_operator.push_back(&client);
+	_clientList.insert(std::pair<Client*, bool>(&client, true));
 	_mode['i'] = false;
 	_mode['t'] = false;
 	_mode['k'] = false;
@@ -21,10 +21,14 @@ std::string	Channel::getTopic() const{
 }
 
 void	Channel::setTopic(Client & lhs, std::string & newTopic){
-	std::vector<Client*>::iterator it = _operator.begin();
-	std::vector<Client*>::iterator ite = _operator.end();
-	if (_mode['o'] && std::find(it, ite, lhs) != ite)
+	if (!_mode['t'])
 		_topic  = newTopic;
+	else if (_mode['t'] && _clientList[&lhs])
+		_topic  = newTopic;
+}
+
+std::map<Client*, bool> Channel::getClientList(){
+	return _clientList;
 }
 
 
