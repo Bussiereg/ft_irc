@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:49:06 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/20 14:28:57 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/22 15:42:27 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,12 +54,11 @@ ssize_t	Server::_fillBuffer(size_t index, std::string & buffer)
 	return bytesRead;
 }
 
-std::string Server::_getNextLine(size_t & index, std::string & buffer)
+std::string Server::_getNextLine(std::string & buffer)
 {
 	std::size_t pos;
 	if ((pos = buffer.find("\r\n")) == std::string::npos)
 		return "";
-	(void)index; // to remove later is not needed
 	std::string line = buffer.substr(0, pos);
 	buffer.erase(0, pos + 2); // Remove the line including \r\n
 	return line;
