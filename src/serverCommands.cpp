@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:49:06 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/18 18:49:46 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/22 15:45:13 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ void Server::_readBuffer(size_t index, std::string & buffer)
 	Client &client = *_clients[index - 1];
 	std::string message;
 
-	while (!(message = _getNextLine(index, buffer)).empty())
+	while (!(message = _getNextLine(buffer)).empty())
 	{
 		std::cout << "[Client " << index << "] Message received from client " << std::endl;
 		std::cout << "     FD " <<_allSockets[index].fd << "< " << CYAN << message << RESET << std::endl;
@@ -43,8 +43,7 @@ void Server::_readBuffer(size_t index, std::string & buffer)
 				_handleJoinCommand(client, message);
 				break;
 			case INVALID:
-				(void)message;
-				//client.appendResponse(client.getNickname() + ' ' + message + " :Unknown command\r\n");
+				std::cout << "Invalid command :" << message << std::endl;
 		}
 	}
 

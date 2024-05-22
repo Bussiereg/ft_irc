@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/18 16:35:02 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/21 18:01:48 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/22 15:41:16 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,12 +58,11 @@ void Server::_checkClients()
 		if (_allSockets[i].revents & POLLIN)
 		{
 			std::string buffer;
- 			if (_fillBuffer(i, buffer) > 0)
-				_readBuffer(i, buffer);
-			else {
+ 			if (_fillBuffer(i, buffer) <= 0) {
 				_delClient(i);
 				continue ;
 			}
+			_readBuffer(i, buffer);
 		}
 		std::string const & response = _clients[i - 1]->getResponse();
 		if (!response.empty() && _allSockets[i].revents & POLLOUT)

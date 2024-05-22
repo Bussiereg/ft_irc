@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:43:26 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/18 18:09:11 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/22 15:42:55 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@
 
 extern bool	g_quit;
 
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 512
 
 enum Commands {
 	PASS,
@@ -57,16 +57,16 @@ private:
 	void 	_acceptNewClient();
 	void	_delClient(size_t index);
 	void 	_checkClients();
-	void 	_readBuffer(size_t index, std::string & buffer);
 	void	_handleNickCommand(Client& client, const std::string & nickname);
 	bool	_isNickInUse(std::string const & nick);
 
 	void	_printBuffer(const char* buff, int recevied);
 	ssize_t		_fillBuffer(size_t index, std::string & buffer);
-	std::string _getNextLine(size_t & index, std::string & buffer);
 	std::vector<std::string> _splitString(const std::string & str, char separator);
 	std::string concatenateTokens(const std::vector<std::string>& tokens, size_t startPos);
+	std::string _getNextLine(std::string & buffer);
 
+	void 		_readBuffer(size_t index, std::string & buffer);
 	Commands 	_getCommand(std::string &);
 	void		_handlePassCommand(Client &, std::string &);
 	void		_handleNickCommand(Client &, std::string &);
