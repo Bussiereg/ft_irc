@@ -20,7 +20,8 @@
 
 # define RPL_WELCOME(nick, user, host) ("001 " + nick + " :Welcome to the Internet Relay Network " + nick + "!" + user + "@" + host + "\r\n")
 
-# define PONG(server) ("PONG :" + server + "\r\n")
+/* # define PONG(server) ("PONG :" + server + "\r\n") */ // Emili's version
+# define PONG(server) ("PONG " + server + "\r\n") // the manual recommand without the :
 
 # define ERR_NOORIGIN(cmd) (cmd + ":No origin specified\r\n")
 
