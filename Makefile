@@ -1,15 +1,4 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    Makefile                                           :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/05/12 15:36:14 by mwallage          #+#    #+#              #
-#    Updated: 2024/05/18 17:16:34 by mwallage         ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
-
+NAME	:= ircserv
 CPP		:= c++
 #FLAGS	:= -std=c++98 -Wall -Wextra -Werror -fsanitize=address -g
 FLAGS	:= -std=c++98 -Wall -Wextra -Werror
@@ -25,29 +14,34 @@ SRC		:= main.cpp \
 			channelOperations.cpp \
 			Client.cpp
 SRC		:= $(addprefix $(SRCDIR)/, $(SRC))
-OBJ		:= $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRC))
-HPP		:= Server.hpp \
-			Client.hpp
-HPP		:= $(addprefix $(INCDIR)/, $(HPP))
-HEADER	:= -I$(INCDIR)
-EXEC	:= ircserv
+OBJ		:= $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SRC))
+HEADER	:= -I $(INCDIR)
 
-all: $(EXEC)
+COLOR_GREEN := \033[0;32m
+COLOR_YELLOW := \033[0;33m
+COLOR_RESET := \033[0m
 
-$(EXEC): $(OBJ)
-	$(CPP) $(FLAGS) $^ -o $@
+all: $(NAME)
 
-%.o: %.cpp $(HPP)
-	$(CPP) $(FLAGS) $(HEADER) -c $< -o $@ 
+$(NAME): $(OBJ)
+	@$(CPP) $(FLAGS) $(HEADER) $^ -o $@
+	@echo "$(COLOR_GREEN)IRC was successfully compiled!$(COLOR_RESET)"
+
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
+	@$(CPP) $(FLAGS) $(HEADER) -c $< -o $@
+
+$(OBJDIR):
+	@mkdir -p $(OBJDIR)
 
 clean:
-	rm -f *.o
+	@echo "$(COLOR_YELLOW)Removing obj/ directory$(COLOR_RESET)"
+	@rm -fr $(OBJDIR)
 
 fclean: clean
-	rm -f $(EXEC)
+	@echo "$(COLOR_YELLOW)Removing $(NAME)$(COLOR_RESET)"
+	@rm -f $(EXEC)
 
-re: fclean
-	make
+re: fclean all
 
 .PHONY: all, clean, fclean, re
 

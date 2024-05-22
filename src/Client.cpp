@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/Client.hpp"
+#include "Client.hpp"
 
 Client::Client(pollfd * socket) : _socket(socket), _isPassedWord(false),  _isFullyAccepted(false)
 {

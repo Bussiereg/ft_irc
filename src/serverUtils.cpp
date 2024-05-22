@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/Server.hpp"
+#include "Server.hpp"
 
 bool	Server::_isNickInUse(std::string const & nick)
 {

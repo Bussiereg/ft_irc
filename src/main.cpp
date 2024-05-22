@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/Server.hpp"
-#include "../inc/Client.hpp"
+#include "Server.hpp"
+#include "Client.hpp"
 #include <csignal>
 #include <sstream>
 

@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/Server.hpp"
+#include "Server.hpp"
 
 void Server::startPolling()
 {

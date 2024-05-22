@@ -31,4 +31,8 @@
 *.out
 *.app
 
+
+# Others
 .vscode
+RFC
+ft_irc.pdf

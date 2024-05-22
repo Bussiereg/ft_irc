@@ -1,4 +1,4 @@
-#include "../inc/Server.hpp"
+#include "Server.hpp"
 
 std::vector<std::string> Server::_splitString(const std::string & str, char separator) {
     std::vector<std::string> result;
