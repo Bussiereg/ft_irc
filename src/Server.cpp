@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/18 16:31:12 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/23 15:35:45 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/23 17:05:49 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,11 +53,12 @@ void Server::_initCommandMap()
 	_commandMap["PASS"] = &Server::_handlePassCommand;
 	_commandMap["NICK"] = &Server::_handleNickCommand;
 	_commandMap["USER"] = &Server::_handleUserCommand;
-	_commandMap["PRIVMSG"] = &Server::_handlePMsgCommand;
+	_commandMap["PRIVMSG"] = &Server::_handlePrivmsgCommand;
 	_commandMap["PING"] = &Server::_handlePingCommand;
 	_commandMap["JOIN"] = &Server::_handleJoinCommand;
+	_commandMap["QUIT"] = &Server::_handleQuitCommand;
+	_commandMap["INVALID"] = &Server::_handleInvalidCommand;
 }
-
 
 Server::Server(Server const &other)
 	: _clients(other._clients), _allSockets(other._allSockets), _port(other._port), _password(other._password)
