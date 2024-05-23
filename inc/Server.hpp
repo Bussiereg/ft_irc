@@ -58,7 +58,6 @@ private:
 	void 	_acceptNewClient();
 	void	_delClient(size_t index);
 	void 	_checkClients();
-	void	_handleNickCommand(Client& client, const std::string & nickname);
 	bool	_isNickInUse(std::string const & nick);
 
 	void	_printBuffer(const char* buff, int recevied);
@@ -75,7 +74,7 @@ private:
 	void		_handlePrivmsgCommand(Client &, std::string &);
 	void		_handleJoinCommand(Client &, std::string &);
 	void		_handlePongCommand(Client & client);
-	void		_handleQuitCommand(Client &, std::string &);
+	void		_handleQuitCommand(Client &, std::string &, size_t index);
 public:
 	Server(int port, std::string password);
 	Server(Server const &);

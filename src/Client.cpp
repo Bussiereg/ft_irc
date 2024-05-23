@@ -132,3 +132,7 @@ void Client::clearResponse()
 	_response.clear();
 }
 
+std::vector<int> const & Client::getPrvtmsgContactFDList()
+{
+	return _prvtmsgContactFDList;
+}

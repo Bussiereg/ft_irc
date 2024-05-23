@@ -45,9 +45,10 @@ ssize_t	Server::_fillBuffer(size_t index, std::string & buffer)
 	char temp[BUFFER_SIZE];
 	static int counter;
 
+	memset(temp, 0, BUFFER_SIZE);
 	counter++;
 	std::cout << "Call number " << counter << " to recv\n";
-	ssize_t bytesRead = recv(_allSockets[index].fd, temp, BUFFER_SIZE, 0);
+	ssize_t bytesRead = recv(_allSockets[index].fd, temp, BUFFER_SIZE - 1, 0);
 	_printBuffer(temp, 1);
 	if (bytesRead > 0)
 		buffer.append(temp);
