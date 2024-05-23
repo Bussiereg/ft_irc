@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:43:26 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/23 15:37:58 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/23 17:05:31 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,10 +65,11 @@ private:
 	void		_handlePassCommand(Client &, std::string &);
 	void		_handleNickCommand(Client &, std::string &);
 	void		_handleUserCommand(Client &, std::string &);
-	void		_handlePMsgCommand(Client &, std::string &);
+	void		_handlePrivmsgCommand(Client &, std::string &);
 	void		_handleJoinCommand(Client &, std::string &);
 	void		_handlePingCommand(Client &, std::string &);
 	void		_handleQuitCommand(Client &, std::string &);
+	void		_handleInvalidCommand(Client &, std::string &);
 public:
 	Server(int port, std::string password);
 	Server(Server const &);
