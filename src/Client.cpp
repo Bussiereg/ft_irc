@@ -132,6 +132,14 @@ void Client::clearResponse()
 	_response.clear();
 }
 
+std::string const & Client::gethostname() const{
+	return _hostname;
+}
+
+std::vector<Channel> & Client::getChannelJoined(){
+	return _channelJoined;
+}
+
 std::vector<int> const & Client::getContactList()
 {
 	return _contactList;

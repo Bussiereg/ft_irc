@@ -18,6 +18,9 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <vector>
+#include "Channel.hpp"
+
+class Channel;
 
 class Client {
 private:
@@ -31,8 +34,9 @@ private:
 	bool				_passWordAttempted;
 	std::vector<int>	_contactList;
 
-	std::string		_response;
-	std::string		_buffer;
+	std::vector<Channel>		_channelJoined;
+	std::string					_response;
+	std::string					_buffer;
 //	bool			_isBufferFull;
 public:
 	Client(pollfd * socket);
@@ -44,6 +48,9 @@ public:
 	std::string const &	getNickname() const;
 	void				setNickname(std::string const &);
 	std::string const & getUsername() const;
+	std::string const & gethostname() const;
+	std::vector<Channel> & getChannelJoined();
+
 	void				setUsername(std::string const &);
 	std::string const & getHostname() const;
 	void				setHostname(std::string const &);

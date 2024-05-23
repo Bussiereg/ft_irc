@@ -12,6 +12,7 @@ SRC		:= main.cpp \
 			serverPolling.cpp \
 			serverUtils.cpp \
 			channelOperations.cpp \
+			Channel.cpp \
 			Client.cpp
 SRC		:= $(addprefix $(SRCDIR)/, $(SRC))
 OBJ		:= $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SRC))
@@ -32,6 +33,9 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
 
 $(OBJDIR):
 	@mkdir -p $(OBJDIR)
+
+log:
+	@git log -n 10 --pretty=format:"%C(yellow)Branch: %D%n%C(red)Author: %an%n%C(green)Date: %ad%n%C(cyan)Commit ID: %H%n%C(magenta)Comment: %s%n%C(reset)%n" --date=format:"%d/%m/%Y à %H:%M"
 
 clean:
 	@echo "$(COLOR_YELLOW)Removing obj/ directory$(COLOR_RESET)"
