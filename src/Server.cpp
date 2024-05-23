@@ -53,7 +53,7 @@ void Server::_initCommandMap()
 	_commandMap["PASS"] = &Server::_handlePassCommand;
 	_commandMap["NICK"] = &Server::_handleNickCommand;
 	_commandMap["USER"] = &Server::_handleUserCommand;
-	_commandMap["PRIVMSG"] = &Server::_handlePrivmsgCommand;
+	_commandMap["PRIVMSG"] = &Server::_handlePMsgCommand;
 	_commandMap["PING"] = &Server::_handlePingCommand;
 	_commandMap["JOIN"] = &Server::_handleJoinCommand;
 }
