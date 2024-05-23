@@ -41,6 +41,8 @@ public:
 	void				setNickname(std::string const &);
 	std::string const & getUsername() const;
 	void				setUsername(std::string const &);
+	std::string const & getHostname() const;
+	void				setHostname(std::string const &);
 	bool				isPassedWord() const;
 	void				acceptPassword();
 	bool 				isFullyAccepted() const;

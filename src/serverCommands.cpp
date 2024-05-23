@@ -42,6 +42,9 @@ void Server::_readBuffer(size_t index, std::string & buffer)
 			case JOIN:
 				_handleJoinCommand(client, message);
 				break;
+			case QUIT:
+				_handleQuitCommand(client, message);
+				break;
 			case INVALID:
 				(void)message;
 				//client.appendResponse(client.getNickname() + ' ' + message + " :Unknown command\r\n");
@@ -69,9 +72,10 @@ Commands Server::_getCommand(std::string & message)
 		return PRIVMSG;
 	else if (message.find("PING") == 0)
 		return PING;
-	else if (message.find("JOIN") == 0) {
+	else if (message.find("JOIN") == 0)
 		return JOIN;
-	}
+	else if (message.find("QUIT") == 0)
+		return QUIT;
 	return INVALID;
 }
 
@@ -140,4 +144,9 @@ void Server::_handlePongCommand(Client & client)
 {
 	std::string str = "localhost";
 	client.appendResponse(PONG(str));
+}
+
+void Server::_handleQuitCommand(Client & client, std::string & message)
+{
+	client.appendResponse(QUIT_REASON(client.getNickname(), client.getUsername(), client.getHostname(), message.substr(5)));
 }
