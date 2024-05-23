@@ -71,6 +71,7 @@ private:
 	void						_handleJoinCommand(Client &, std::string &);
 	void						_handleTopicCommand(Client &, std::string &);
 	void						_handlePingCommand(Client &, std::string &);
+	void						_handleCapCommand(Client &, std::string &);
 	void		_handleQuitCommand(Client &, std::string &);
 	void		_handleInvalidCommand(Client &, std::string &);
 public:

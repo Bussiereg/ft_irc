@@ -159,3 +159,7 @@ void Server::_handleInvalidCommand(Client & client, std::string & message)
 	std::string command = message.substr(0, pos);
 	client.appendResponse(ERR_UNKNOWNCOMMAND(command));
 }
+
+void Server::_handleCapCommand(Client &, std::string &){
+
+}
