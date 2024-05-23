@@ -122,22 +122,27 @@ void Server::_handlePrivmsgCommand(Client & client, std::string & message)
 	}
 	std::string forward = client.getNickname() + " :" + message.substr(pos + 2) + "\r\n";
 	for (std::vector<std::string>::iterator it = receivers.begin(); it != receivers.end(); ++it) {
-		std::vector<Client*>::iterator ite = _clients.begin();
-		for (; ite != _clients.end(); ++ite)
-			if ((*ite)->getNickname() == *it) {
-				(*ite)->appendResponse(forward);
-				break ;
-			}
-		if (ite == _clients.end()) {
-			std::vector<Channel>::iterator iter = _channelList.begin();
-			for (; iter != _channelList.end(); ++iter) {
-				if (iter->getChannelName() == *it) {
-					iter->relayMessage(client, message);
-					std::cout << "Server relayed the message" << std::endl;
+		if ((*it)[0] == '#') {
+			std::vector<Channel>::iterator ite = _channelList.begin();
+			for (; ite != _channelList.end(); ++ite) {
+				if (ite->getChannelName() == *it) {
+					if (ite->isMember(client))
+						ite->relayMessage(client, forward);
+					else
+						client.appendResponse(ERR_NOTONCHANNEL(_serverName, ite->getChannelName()));
 					break ;
 				}
 			}
-			if (iter == _channelList.end())
+			if (ite == _channelList.end())
+				client.appendResponse(ERR_NOSUCHNICK(_serverName, client.getNickname(), *it));
+		} else {
+			std::vector<Client*>::iterator ite = _clients.begin();
+			for (; ite != _clients.end(); ++ite)
+				if ((*ite)->getNickname() == *it) {
+					(*ite)->appendResponse(forward);
+					break ;
+				}
+			if (ite == _clients.end())
 				client.appendResponse(ERR_NOSUCHNICK(_serverName, client.getNickname(), *it));
 		}
 	}

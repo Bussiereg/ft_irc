@@ -17,6 +17,7 @@ void Channel::relayMessage(Client & sender, std::string const & message)
 {
  	for (std::map<Client*, bool>::iterator it = _clientList.begin(); it != _clientList.end(); ++it)
 	{
+		std::cout << "Relaying message to " << it->first->getNickname() << std::endl;
 		if ((it->first) != &sender)
 			it->first->appendResponse(message);
 	}
@@ -41,6 +42,16 @@ void	Channel::setTopic(Client & lhs, std::string & newTopic){
 
 std::map<Client*, bool> Channel::getClientList(){
 	return _clientList;
+}
+
+void	Channel::addClient(Client & client, bool isOperator){
+	_clientList.insert(std::pair<Client*, bool>(&client, isOperator));
+}
+
+bool Channel::isMember(Client & client){
+	if (_clientList.find(&client) != _clientList.end())
+		return true;
+	return false;
 }
 
 std::string 	Channel::getChannelName() const{

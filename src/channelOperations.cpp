@@ -50,7 +50,7 @@ void Server::_handleJoinCommand(Client & client, std::string & message){
 			Channel newChannel(it->first, client);
 			std::string response6 = RPL_NAMREPLY(client.getNickname(), client.getUsername(), client.gethostname(),  newChannel.getChannelName());
 			client.appendResponse(response6);
-			newChannel.getClientList().insert(std::pair<Client*, bool>(&client, true)); // add the client as operator in the CHANNEL client list
+			newChannel.addClient(client, true);
 			_channelList.push_back(newChannel); // add the channel to the SERVER channel list
 			client.getChannelJoined().push_back(newChannel); // add the channel to the CLIENT channel joined list
 		}

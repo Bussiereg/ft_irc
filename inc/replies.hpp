@@ -32,7 +32,7 @@
 # define ERR_NICKNAMEINUSE(nick) ("433 " + nick + " :Nickname already in use\r\n")
 # define ERR_NICKNAMEISUSE(nick) ("433 NICK :" + nick + "\r\n")
 
-# define ERR_NOTONCHANNEL(channel) ("442 " + channel + " :You're not on that channel\r\n")
+# define ERR_NOTONCHANNEL(server, channel) (":" + server + " 442 " + channel + " :You're not on that channel\r\n")
 
 # define RPL_TOPIC(nick, user, host, channel, topic) ("332 " + nick + "!" + user + "@" + host + " " + channel + " :" + topic + "\r\n")
 
