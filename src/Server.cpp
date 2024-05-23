@@ -56,6 +56,7 @@ void Server::_initCommandMap()
 	_commandMap["PRIVMSG"] = &Server::_handlePrivmsgCommand;
 	_commandMap["PING"] = &Server::_handlePingCommand;
 	_commandMap["JOIN"] = &Server::_handleJoinCommand;
+	_commandMap["MODE"] = &Server::_handleModeCommand;
 	_commandMap["QUIT"] = &Server::_handleQuitCommand;
 	_commandMap["CAP"] = &Server::_handleCapCommand;
 	_commandMap["INVALID"] = &Server::_handleInvalidCommand;

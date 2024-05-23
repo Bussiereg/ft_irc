@@ -24,6 +24,7 @@
 #include <fcntl.h>
 #include <cstring>
 #include <map>
+#include <set>
 #include <algorithm>
 #include <sstream>
 #include <utility>
@@ -70,6 +71,7 @@ private:
 	void						_handlePrivmsgCommand(Client &, std::string &);
 	void						_handleJoinCommand(Client &, std::string &);
 	void						_handleTopicCommand(Client &, std::string &);
+	void						_handleModeCommand(Client &, std::string &);
 	void						_handlePingCommand(Client &, std::string &);
 	void						_handleCapCommand(Client &, std::string &);
 	void		_handleQuitCommand(Client &, std::string &);

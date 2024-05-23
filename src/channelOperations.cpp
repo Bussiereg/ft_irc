@@ -101,3 +101,28 @@ void		Server::_handleTopicCommand(Client & client, std::string & input){
 
 	}
 }
+
+void	Server::_handleModeCommand(Client & client, std::string & input){
+	std::vector<std::string> modeSplit = _splitString(input, ' ');
+	
+	if (modeSplit.size() <= 2){
+		std::string mode = "MODE";
+		std::string response1 = ERR_NEEDMOREPARAMS(mode);
+		client.appendResponse(response1);
+	}
+	else if (modeSplit.size() == 3){
+		if (modeSplit[2][0] == '+'){
+			for (int i = 1; i < modeSplit[2].size(); i++){
+				_channelList[];
+			}
+		}
+		else if((modeSplit[1][0] == '-')){
+
+		}
+	}
+	else if (modeSplit.size() == 4){
+	}
+	// (void)client;	
+	// (void)input;
+
+}
