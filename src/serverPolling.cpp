@@ -57,9 +57,9 @@ void Server::_checkClients()
 		{
 			_printBuffer(response.c_str(), 0);
 			if (send(_allSockets[i].fd, response.c_str(), response.size(), 0) > -1)
-				std::cout << "send succesfully" << std::endl;
+				std::cout << "sent succesfully" << std::endl;
 			else
-				std::cout << "send error" << std::endl;
+				std::cout << "send error" << std::endl; // should throw an exception
 			_clients[i - 1]->clearResponse();
 		}
 	}

@@ -10,15 +10,16 @@ Channel::Channel(std::string name, Client & client) : _channelName(name){
 	_mode['l'] = false;
 }
 
-void Channel::relayMessage(Client const & , std::string const & ) const
+/// @brief relay message to all clients in channel, except to the sender
+/// @param sender  the user who is sending the message
+/// @param message the message that needs to be relayed
+void Channel::relayMessage(Client & sender, std::string const & message)
 {
-/* 	for (std::vector<Client*, bool>::iterator it = _clientList.begin(); it != _clientList.end(); ++it)
+ 	for (std::map<Client*, bool>::iterator it = _clientList.begin(); it != _clientList.end(); ++it)
 	{
-		if (*(it->first) != &sender)
+		if ((it->first) != &sender)
 			it->first->appendResponse(message);
-	} */
-	// send message to all clients in channel
-	// it would help if there is a list of *clients, not a map with also a bool
+	}
 }
 
 void	Channel::setChannelMode(char mode, bool status){

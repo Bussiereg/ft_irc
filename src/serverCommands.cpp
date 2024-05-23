@@ -129,9 +129,16 @@ void Server::_handlePrivmsgCommand(Client & client, std::string & message)
 				break ;
 			}
 		if (ite == _clients.end()) {
-			// should check if there is a channel or username with this name
-			client.appendResponse(ERR_NOSUCHNICK(_serverName, client.getNickname(), *it));
-			continue ;
+			std::vector<Channel>::iterator iter = _channelList.begin();
+			for (; iter != _channelList.end(); ++iter) {
+				if (iter->getChannelName() == *it) {
+					iter->relayMessage(client, message);
+					std::cout << "Server relayed the message" << std::endl;
+					break ;
+				}
+			}
+			if (iter == _channelList.end())
+				client.appendResponse(ERR_NOSUCHNICK(_serverName, client.getNickname(), *it));
 		}
 	}
 }
