@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/18 16:31:12 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/18 17:27:31 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/23 15:35:45 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,11 +40,24 @@ Server::Server(int port, std::string password) : _port(port), _password(password
 		throw SocketListeningException();
 	}
 
+	_initCommandMap();
+
 	serverSocket.events = POLLIN;
 	serverSocket.revents = 0;
 	_allSockets.push_back(serverSocket);
 	std::cout << YELLOW << "Server listening on port " << port << "\n" << RESET << std::endl;
 }
+
+void Server::_initCommandMap()
+{
+	_commandMap["PASS"] = &Server::_handlePassCommand;
+	_commandMap["NICK"] = &Server::_handleNickCommand;
+	_commandMap["USER"] = &Server::_handleUserCommand;
+	_commandMap["PRIVMSG"] = &Server::_handlePMsgCommand;
+	_commandMap["PING"] = &Server::_handlePingCommand;
+	_commandMap["JOIN"] = &Server::_handleJoinCommand;
+}
+
 
 Server::Server(Server const &other)
 	: _clients(other._clients), _allSockets(other._allSockets), _port(other._port), _password(other._password)

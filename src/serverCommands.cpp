@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:49:06 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/22 15:45:13 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/23 15:42:41 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,32 +22,12 @@ void Server::_readBuffer(size_t index, std::string & buffer)
 		std::cout << "[Client " << index << "] Message received from client " << std::endl;
 		std::cout << "     FD " <<_allSockets[index].fd << "< " << CYAN << message << RESET << std::endl;
 
-		enum Commands commandCase = _getCommand(message);
-		switch (commandCase) {
-			case PASS:
-				_handlePassCommand(client, message);
-				break;
-			case NICK:
-				_handleNickCommand(client, message);
-				break;
-			case USER:
-				_handleUserCommand(client, message);
-				break;
-			case PRIVMSG:
-				_handlePMsgCommand(client, message);
-				break;
-			case PING:
-				_handlePongCommand(client, message);
-				break;
-			case JOIN:
-				_handleJoinCommand(client, message);
-				break;
-			case QUIT:
-				_handleQuitCommand(client, message);
-				break;
-			case INVALID:
-				std::cout << "Invalid command :" << message << std::endl;
-		}
+		std::string command = _getCommand(message);
+		std::map<std::string, CommandFunction>::iterator it = _commandMap.find(command);
+		if (it != _commandMap.end())
+			(this->*_commandMap[command])(client, message);
+		else 
+			std::cout << "Invalid command :" << message << std::endl;
 	}
 
 	std::cout << std::endl << "***list of clients***\n*" << std::endl;
@@ -59,23 +39,12 @@ void Server::_readBuffer(size_t index, std::string & buffer)
 	std::cout << "*\n*********************" << std::endl << std::endl;
 }
 
-Commands Server::_getCommand(std::string & message)
+std::string Server::_getCommand(std::string & message)
 {
-	if (message.find("PASS") == 0)
-		return PASS;
-	else if (message.find("NICK") == 0)
-		return NICK;
-	else if (message.find("USER") == 0)
-		return USER;
-	else if (message.find("PRIVMSG") == 0)
-		return PRIVMSG;
-	else if (message.find("PING") == 0)
-		return PING;
-	else if (message.find("JOIN") == 0)
-		return JOIN;
-	else if (message.find("QUIT") == 0)
-		return QUIT;
-	return INVALID;
+	size_t pos = message.find(" ");
+	if (pos != std::string::npos)
+		return message.substr(0, pos);
+	return "INVALID";
 }
 
 void Server::_handlePassCommand(Client & client, std::string & message)
@@ -160,7 +129,7 @@ void Server::_handlePMsgCommand(Client & client, std::string & message)
 	}
 }
 
-void Server::_handlePongCommand(Client & client, std::string & message)
+void Server::_handlePingCommand(Client & client, std::string & message)
 {
 	client.appendResponse(PONG(message.substr(5)));
 }
