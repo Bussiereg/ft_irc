@@ -24,14 +24,15 @@ class Channel;
 
 class Client {
 private:
-	pollfd *					_socket;
-	std::string 				_nickname;
-	std::string 				_username;
-	std::string 				_hostname;
-	std::string 				_realname;
-	bool						_isPassedWord;
-	bool						_isFullyAccepted;
-	bool						_passWordAttempted;
+	pollfd *			_socket;
+	std::string			_nickname;
+	std::string			_username;
+	std::string			_hostname;
+	std::string			_realname;
+	bool				_isPassedWord;
+	bool				_isFullyAccepted;
+	bool				_passWordAttempted;
+	std::vector<int>	_contactList;
 
 	std::vector<Channel>		_channelJoined;
 	std::string					_response;
@@ -62,7 +63,8 @@ public:
 	bool 				isFullyAccepted() const;
 	void				acceptFully();
 
-	std::string const & getResponse() const;
-	void				appendResponse(std::string newMessage);
-	void				clearResponse();
+	std::string const &			getResponse() const;
+	std::vector<int> const &	getPrvtmsgContactFDList();
+	void						appendResponse(std::string newMessage);
+	void						clearResponse();
 };

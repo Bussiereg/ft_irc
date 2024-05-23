@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:43:26 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/23 15:37:58 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/23 17:05:31 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,9 +52,8 @@ private:
 
 	void	_initCommandMap();
 	void 	_acceptNewClient();
-	void	_delClient(size_t index);
+	void	_delClient(Client & client);
 	void 	_checkClients();
-	void	_handleNickCommand(Client& client, const std::string & nickname);
 	bool	_isNickInUse(std::string const & nick);
 
 	void						_printBuffer(const char* buff, int recevied);
@@ -71,7 +70,9 @@ private:
 	void						_handlePrivmsgCommand(Client &, std::string &);
 	void						_handleJoinCommand(Client &, std::string &);
 	void						_handleTopicCommand(Client &, std::string &);
-	void						_handlePingCommand(Client & client, std::string &);
+	void						_handlePingCommand(Client &, std::string &);
+	void		_handleQuitCommand(Client &, std::string &);
+	void		_handleInvalidCommand(Client &, std::string &);
 public:
 	Server(int port, std::string password);
 	Server(Server const &);

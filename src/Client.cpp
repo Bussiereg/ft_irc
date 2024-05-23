@@ -140,3 +140,7 @@ std::vector<Channel> & Client::getChannelJoined(){
 	return _channelJoined;
 }
 
+std::vector<int> const & Client::getPrvtmsgContactFDList()
+{
+	return _contactList;
+}

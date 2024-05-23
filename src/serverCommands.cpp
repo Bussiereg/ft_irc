@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:49:06 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/23 15:42:41 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/23 17:15:58 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,11 +23,7 @@ void Server::_readBuffer(size_t index, std::string & buffer)
 		std::cout << "     FD " <<_allSockets[index].fd << "< " << CYAN << message << RESET << std::endl;
 
 		std::string command = _getCommand(message);
-		std::map<std::string, CommandFunction>::iterator it = _commandMap.find(command);
-		if (it != _commandMap.end())
-			(this->*_commandMap[command])(client, message);
-		else 
-			std::cout << "Invalid command :" << message << std::endl;
+		(this->*_commandMap[command])(client, message);
 	}
 
 	std::cout << std::endl << "***list of clients***\n*" << std::endl;
@@ -42,9 +38,9 @@ void Server::_readBuffer(size_t index, std::string & buffer)
 std::string Server::_getCommand(std::string & message)
 {
 	size_t pos = message.find(" ");
-	if (pos != std::string::npos)
-		return message.substr(0, pos);
-	return "INVALID";
+	std::string command = message.substr(0, pos);
+	std::map<std::string, CommandFunction>::iterator it = _commandMap.find(command);
+	return it != _commandMap.end() ? command : "INVALID";
 }
 
 void Server::_handlePassCommand(Client & client, std::string & message)
@@ -129,8 +125,37 @@ void Server::_handlePrivmsgCommand(Client & client, std::string & message)
 	}
 }
 
-void Server::_handlePingCommand(Client & client, std::string &)
+void Server::_handlePingCommand(Client & client, std::string & message)
 {
-	std::string str = "localhost";
-	client.appendResponse(PONG(str));
+	client.appendResponse(PONG(message.substr(5)));
+}
+
+void Server::_handleQuitCommand(Client & client, std::string & message)
+{
+	for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+	{
+		if (*it != &client)
+		{
+			std::vector<int>::const_iterator ContactFDListBegin = (*it)->getPrvtmsgContactFDList().begin();
+			std::vector<int>::const_iterator ContactFDListEnd = (*it)->getPrvtmsgContactFDList().begin();
+			if (std::find(ContactFDListBegin, ContactFDListEnd, (*it)->getClientSocket()->fd) != ContactFDListEnd)
+				(*it)->appendResponse(QUIT_REASON(client.getNickname(), client.getUsername(), client.getHostname(), message.substr(6)));
+			//else if ( both client are part of the same channel)
+			// {
+			//	Channel Notifications: Users in the same channels as the quitting user receive a notification. 
+			// 	Channel Member List: The user's name will be removed from the list of channel members.
+			// 	Potential Channel Events: Depending on the server configuration and channel settings, 
+			// 	additional events might be triggered. For example, if the user held special privileges
+			// 	(like being an operator), the server might handle the redistribution of those privileges.
+			// }
+		}
+	}
+	_delClient(client);
+}
+
+void Server::_handleInvalidCommand(Client & client, std::string & message)
+{
+	size_t pos = message.find(" ");
+	std::string command = message.substr(0, pos);
+	client.appendResponse(ERR_UNKNOWNCOMMAND(command));
 }
