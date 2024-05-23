@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:43:26 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/23 17:08:54 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/23 19:41:24 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@
 
 # define JOIN(nick, user, host, channel) (":" + nick + "!" + user + "@" + host  + " JOIN " + channel + "\r\n")
 
-# define ERR_NONICKNAMEGIVEN ("NICK :No nickname given\r\n")
+# define ERR_NONICKNAMEGIVEN(server) (":" + server + " 431 * :No nickname given\r\n")
 
 # define ERR_NICKNAMEINUSE(nick) ("433 " + nick + " :Nickname already in use\r\n")
 # define ERR_NICKNAMEISUSE(nick) ("433 NICK :" + nick + "\r\n")
@@ -54,9 +54,9 @@
 
 # define RPL_CHANNELMODEIS(server, nick, channel, mode) (":" + server + " 324 " + nick + " " + channel + " " + mode + "\r\n")
 
-# define ERR_UNKNOWNMODE(servername, nick, mode) (":" + servername + " 472 " + nick + " " + mode + " :is unknown mode char to me\r\n")
+# define ERR_UNKNOWNMODE(server, nick, mode) (":" + server + " 472 " + nick + " " + mode + " :is unknown mode char to me\r\n")
 
-# define ERR_UNKNOWNCOMMAND(command) (command + " :Unknown command\r\n")
+# define ERR_UNKNOWNCOMMAND(server, nick, command) (":" + server + " 421 " + nick + " " + command + " :Unknown command\r\n")
 
 # define ERR_ERRONEUSNICKNAME(nick) ("432 " + nick + " :Erroneous nickname\r\n")
 

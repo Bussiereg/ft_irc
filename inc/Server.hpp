@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:43:26 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/23 17:05:31 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/23 19:32:54 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,8 +47,10 @@ private:
 	std::vector<Channel>	_channelList;
 	std::vector<Client*>	_clients;
 	std::vector<pollfd>		_allSockets;
+
+	std::string	const		_serverName;
 	int						_port;
-	std::string				_password;
+	std::string const		_password;
 
 	void		_initCommandMap();
 	void		_acceptNewClient();
@@ -75,7 +77,7 @@ private:
 	void		_handleQuitCommand(Client &, std::string &);
 	void		_handleInvalidCommand(Client &, std::string &);
 public:
-	Server(int port, std::string password);
+	Server(int port, std::string password, std::string serverName);
 	Server(Server const &);
 	Server & operator=(Server const &);
 	~Server();

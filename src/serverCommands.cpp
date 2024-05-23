@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   serverCommands.cpp                                 :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/12 16:49:06 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/23 17:15:58 by mwallage         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "Server.hpp"
 
 void Server::_readBuffer(size_t index, std::string & buffer)
@@ -63,15 +51,18 @@ void Server::_handlePassCommand(Client & client, std::string & message)
 
 void Server::_handleNickCommand(Client & client, std::string & message)
 {
-	std::string nickname = message.substr(5);
 	if (!client.isPassedWord())
 	{
 		client.appendResponse("No password given as first command");
 		client.passWordAttempt();
+		return ;
 	}
-	else if (nickname.empty())
-		client.appendResponse(ERR_NONICKNAMEGIVEN);
-	else if (_isNickInUse(nickname))
+	if (message.length() < 6) {
+		client.appendResponse(ERR_NONICKNAMEGIVEN(_serverName));
+		return ;
+	}
+	std::string nickname = message.substr(5);
+	if (_isNickInUse(nickname))
 		client.appendResponse(ERR_NICKNAMEINUSE(nickname));
 	else if (client.getNickname().empty())
 	{
@@ -159,7 +150,7 @@ void Server::_handleInvalidCommand(Client & client, std::string & message)
 {
 	size_t pos = message.find(" ");
 	std::string command = message.substr(0, pos);
-	client.appendResponse(ERR_UNKNOWNCOMMAND(command));
+	client.appendResponse(ERR_UNKNOWNCOMMAND(_serverName, client.getNickname(), command));
 }
 
 void Server::_handleCapCommand(Client &, std::string &){

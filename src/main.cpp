@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 16:01:57 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/22 16:04:30 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/23 19:32:34 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 	
 	signal(SIGINT, signal_handler);
 	try {
-		Server server(port, argv[2]);
+		Server server(port, argv[2], "ft_irc");
 		server.startPolling();
 	} catch (std::exception & e) {
 		std::cerr << "ircserver: " << e.what() << std::endl;

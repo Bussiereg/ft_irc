@@ -6,13 +6,13 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/18 16:31:12 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/23 17:05:49 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/23 19:32:26 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
-Server::Server(int port, std::string password) : _port(port), _password(password)
+Server::Server(int port, std::string password, std::string serverName) : _serverName(serverName), _port(port), _password(password)
 {
 	pollfd	serverSocket;
 	serverSocket.fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -62,7 +62,7 @@ void Server::_initCommandMap()
 }
 
 Server::Server(Server const &other)
-	: _clients(other._clients), _allSockets(other._allSockets), _port(other._port), _password(other._password)
+	: _clients(other._clients), _allSockets(other._allSockets), _serverName(other._serverName), _port(other._port), _password(other._password)
 {
 }
 
@@ -73,7 +73,6 @@ Server &Server::operator=(Server const &other)
 		_clients = other._clients;
 		_allSockets = other._allSockets;
 		_port = other._port;
-		_password = other._password;
 	}
 	return *this;
 }
