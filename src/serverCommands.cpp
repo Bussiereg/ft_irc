@@ -110,16 +110,35 @@ void Server::_handleUserCommand(Client & client, std::string & message)
 
 void Server::_handlePrivmsgCommand(Client & client, std::string & message)
 {
-	std::string forward = client.getNickname() + " :" + message.substr(8) + "\r\n";
-	for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it)
-	{
-		if (*it != &client)
-			(*it)->appendResponse(forward);
+	std::vector<std::string> receivers = _parseReceivers(message);
+	if (receivers.empty()) {
+		client.appendResponse(ERR_NORECIPIENT(_serverName, client.getNickname(), message.substr(0,7)));
+		return ;
+	}
+	size_t pos = message.find(" :");
+	if (pos == std::string::npos) {
+		client.appendResponse(ERR_NOTEXTTOSEND(_serverName, client.getNickname()));
+		return ;
+	}
+	std::string forward = client.getNickname() + " :" + message.substr(pos + 2) + "\r\n";
+	for (std::vector<std::string>::iterator it = receivers.begin(); it != receivers.end(); ++it) {
+		std::vector<Client*>::iterator ite = _clients.begin();
+		for (; ite != _clients.end(); ++ite)
+			if ((*ite)->getNickname() == *it) {
+				(*ite)->appendResponse(forward);
+				break ;
+			}
+		if (ite == _clients.end()) {
+			// should check if there is a channel or username with this name
+			client.appendResponse(ERR_NOSUCHNICK(_serverName, client.getNickname(), *it));
+			continue ;
+		}
 	}
 }
 
 void Server::_handlePingCommand(Client & client, std::string & message)
 {
+	// should check if servername is given, otherwise error
 	client.appendResponse(PONG(message.substr(5)));
 }
 

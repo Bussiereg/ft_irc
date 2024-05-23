@@ -10,6 +10,16 @@ Channel::Channel(std::string name, Client & client) : _channelName(name){
 	_mode['l'] = false;
 }
 
+void Channel::relayMessage(Client const & , std::string const & ) const
+{
+/* 	for (std::vector<Client*, bool>::iterator it = _clientList.begin(); it != _clientList.end(); ++it)
+	{
+		if (*(it->first) != &sender)
+			it->first->appendResponse(message);
+	} */
+	// send message to all clients in channel
+	// it would help if there is a list of *clients, not a map with also a bool
+}
 
 void	Channel::setChannelMode(char mode, bool status){
 	if (_mode.find(mode) != _mode.end()) {

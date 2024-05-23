@@ -1,16 +1,5 @@
 #include "Server.hpp"
 
-std::vector<std::string> Server::_splitString(const std::string & str, char separator) {
-    std::vector<std::string> result;
-    std::stringstream ss(str);
-    std::string word;
-
-    while (std::getline(ss, word, separator)) {
-        result.push_back(word);
-    }
-    return result;
-}
-
 void Server::_handleJoinCommand(Client & client, std::string & message){
 	std::vector<std::string> joinSplit = _splitString(message, ' ');
 	std::map<std::string, std::string> joinParams;

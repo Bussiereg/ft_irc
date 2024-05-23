@@ -64,3 +64,31 @@ std::string Server::concatenateTokens(const std::vector<std::string>& tokens, si
 
 	return result;
 }
+
+std::vector<std::string> Server::_splitString(const std::string & str, char separator) {
+    std::vector<std::string> result;
+    std::stringstream ss(str);
+    std::string word;
+
+    while (std::getline(ss, word, separator)) {
+        result.push_back(word);
+    }
+    return result;
+}
+
+/// @brief parse the recipients from a PRIVMSG message
+/// @param message 
+/// @return vector of all the recipients
+std::vector<std::string> Server::_parseReceivers(const std::string& message) {
+    std::vector<std::string> receivers;
+
+    std::string::size_type start = message.find(' ') + 1;
+    std::string::size_type end = message.find(' ', start);
+    
+    if (start != std::string::npos && end != std::string::npos) {
+        std::string receiverList = message.substr(start, end - start);
+        receivers = _splitString(receiverList, ',');
+    }
+
+    return receivers;
+}
