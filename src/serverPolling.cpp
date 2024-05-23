@@ -68,7 +68,10 @@ void Server::_checkClients()
 		if (!response.empty() && _allSockets[i].revents & POLLOUT)
 		{
 			_printBuffer(response.c_str(), 0);
-			send(_allSockets[i].fd, response.c_str(), response.size(), 0);
+			if (send(_allSockets[i].fd, response.c_str(), response.size(), 0) > -1)
+				std::cout << "send succesfully" << std::endl;
+			else
+				std::cout << "send error" << std::endl;
 			_clients[i - 1]->clearResponse();
 		}
 	}

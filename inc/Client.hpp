@@ -64,7 +64,7 @@ public:
 	void				acceptFully();
 
 	std::string const &			getResponse() const;
-	std::vector<int> const &	getPrvtmsgContactFDList();
+	std::vector<int> const &	getContactList();
 	void						appendResponse(std::string newMessage);
 	void						clearResponse();
 };

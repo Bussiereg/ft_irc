@@ -91,7 +91,9 @@ void Server::_handleUserCommand(Client & client, std::string & message)
 {
 	std::vector<std::string> params = _splitString(message, ' ');
 	std::string username = message.substr(5);
-	if (!client.isPassedWord())
+	if (client.getNickname().empty())
+		return;
+	else if (!client.isPassedWord())
 	{
 		client.appendResponse("No password given as first command");
 		client.passWordAttempt();
@@ -136,8 +138,8 @@ void Server::_handleQuitCommand(Client & client, std::string & message)
 	{
 		if (*it != &client)
 		{
-			std::vector<int>::const_iterator ContactFDListBegin = (*it)->getPrvtmsgContactFDList().begin();
-			std::vector<int>::const_iterator ContactFDListEnd = (*it)->getPrvtmsgContactFDList().begin();
+			std::vector<int>::const_iterator ContactFDListBegin = (*it)->getContactList().begin();
+			std::vector<int>::const_iterator ContactFDListEnd = (*it)->getContactList().begin();
 			if (std::find(ContactFDListBegin, ContactFDListEnd, (*it)->getClientSocket()->fd) != ContactFDListEnd)
 				(*it)->appendResponse(QUIT_REASON(client.getNickname(), client.getUsername(), client.getHostname(), message.substr(6)));
 			//else if ( both client are part of the same channel)
