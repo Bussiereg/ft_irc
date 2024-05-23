@@ -59,7 +59,7 @@ void Server::_checkClients()
 		{
 			std::string buffer;
  			if (_fillBuffer(i, buffer) <= 0) {
-				_delClient(i);
+				_delClient(*_clients[i - 1]);
 				continue ;
 			}
 			_readBuffer(i, buffer);
@@ -74,11 +74,19 @@ void Server::_checkClients()
 	}
 }
 
-void Server::_delClient(size_t index)
+void Server::_delClient(Client & client)
 {
-	std::cerr << RED << "[Server] Client fd " << _allSockets[index].fd << " just disconnected" << RESET << std::endl;
-	_allSockets.erase(_allSockets.begin() + index);
-	delete _clients[index - 1];
-	_clients.erase(_clients.begin() + index - 1);
+	size_t index = 0;
+	for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+	{
+		if ((*it)->getClientSocket()->fd == client.getClientSocket()->fd)
+			break;
+		index++;
+	}
+
+	std::cerr << RED << "[Server] Client fd " << _allSockets[index + 1].fd << " just disconnected" << RESET << std::endl;
+	_allSockets.erase(_allSockets.begin() + index + 1);
+	delete _clients[index];
+	_clients.erase(_clients.begin() + index);
 }
 

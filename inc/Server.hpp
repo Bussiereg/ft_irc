@@ -56,7 +56,7 @@ private:
 	std::string				_password;
 
 	void 	_acceptNewClient();
-	void	_delClient(size_t index);
+	void	_delClient(Client & client);
 	void 	_checkClients();
 	bool	_isNickInUse(std::string const & nick);
 
@@ -68,13 +68,14 @@ private:
 
 	void 		_readBuffer(size_t index, std::string & buffer);
 	Commands 	_getCommand(std::string &);
+
 	void		_handlePassCommand(Client &, std::string &);
 	void		_handleNickCommand(Client &, std::string &);
 	void		_handleUserCommand(Client &, std::string &);
-	void		_handlePrivmsgCommand(Client &, std::string &);
+	void		_handlePMsgCommand(Client &, std::string &);
 	void		_handleJoinCommand(Client &, std::string &);
-	void		_handlePongCommand(Client & client);
-	void		_handleQuitCommand(Client &, std::string &, size_t index);
+	void		_handlePongCommand(Client &, std::string &);
+	void		_handleQuitCommand(Client &, std::string &);
 public:
 	Server(int port, std::string password);
 	Server(Server const &);

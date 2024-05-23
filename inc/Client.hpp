@@ -29,7 +29,7 @@ private:
 	bool				_isPassedWord;
 	bool				_isFullyAccepted;
 	bool				_passWordAttempted;
-	std::vector<int>	_prvtmsgContactFDList;
+	std::vector<int>	_contactList;
 
 	std::string		_response;
 	std::string		_buffer;

@@ -34,16 +34,16 @@ void Server::_readBuffer(size_t index, std::string & buffer)
 				_handleUserCommand(client, message);
 				break;
 			case PRIVMSG:
-				_handlePrivmsgCommand(client, message);
+				_handlePMsgCommand(client, message);
 				break;
 			case PING:
-				_handlePongCommand(client);
+				_handlePongCommand(client, message);
 				break;
 			case JOIN:
 				_handleJoinCommand(client, message);
 				break;
 			case QUIT:
-				_handleQuitCommand(client, message, index);
+				_handleQuitCommand(client, message);
 				break;
 			case INVALID:
 				std::cout << "Invalid command :" << message << std::endl;
@@ -150,7 +150,7 @@ void Server::_handleUserCommand(Client & client, std::string & message)
 	}
 }
 
-void Server::_handlePrivmsgCommand(Client & client, std::string & message)
+void Server::_handlePMsgCommand(Client & client, std::string & message)
 {
 	std::string forward = client.getNickname() + " :" + message.substr(8) + "\r\n";
 	for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it)
@@ -160,13 +160,12 @@ void Server::_handlePrivmsgCommand(Client & client, std::string & message)
 	}
 }
 
-void Server::_handlePongCommand(Client & client)
+void Server::_handlePongCommand(Client & client, std::string & message)
 {
-	std::string str = "localhost";
-	client.appendResponse(PONG(str));
+	client.appendResponse(PONG(message.substr(5)));
 }
 
-void Server::_handleQuitCommand(Client & client, std::string & message, size_t index)
+void Server::_handleQuitCommand(Client & client, std::string & message)
 {
 	for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it)
 	{
@@ -186,5 +185,5 @@ void Server::_handleQuitCommand(Client & client, std::string & message, size_t i
 			// }
 		}
 	}
-	_delClient(index);
+	_delClient(client);
 }
