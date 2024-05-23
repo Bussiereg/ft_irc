@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:43:26 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/22 15:42:55 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/23 15:37:58 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 #include <cstdlib>
 #include <fcntl.h>
 #include <cstring>
+#include <map>
 #include <algorithm>
 #include <sstream>
 #include <utility>
@@ -35,25 +36,19 @@ extern bool	g_quit;
 
 #define BUFFER_SIZE 512
 
-enum Commands {
-	PASS,
-	NICK,
-	USER,
-	PRIVMSG,
-	PING,
-	JOIN,
-	INVALID
-};
-
 class Server
 {
 private:
+	typedef void (Server::*CommandFunction)(Client &, std::string &);
+	std::map<std::string, CommandFunction> _commandMap;
+
 	std::vector<Channel*>	_channelList;
 	std::vector<Client*>	_clients;
 	std::vector<pollfd>		_allSockets;
 	int						_port;
 	std::string				_password;
 
+	void	_initCommandMap();
 	void 	_acceptNewClient();
 	void	_delClient(size_t index);
 	void 	_checkClients();
@@ -67,13 +62,13 @@ private:
 	std::string _getNextLine(std::string & buffer);
 
 	void 		_readBuffer(size_t index, std::string & buffer);
-	Commands 	_getCommand(std::string &);
+	std::string _getCommand(std::string &);
 	void		_handlePassCommand(Client &, std::string &);
 	void		_handleNickCommand(Client &, std::string &);
 	void		_handleUserCommand(Client &, std::string &);
 	void		_handlePrivmsgCommand(Client &, std::string &);
 	void		_handleJoinCommand(Client &, std::string &);
-	void		_handlePongCommand(Client & client);
+	void		_handlePingCommand(Client & client, std::string &);
 public:
 	Server(int port, std::string password);
 	Server(Server const &);
