@@ -17,20 +17,25 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#include <vector>
+#include "Channel.hpp"
+
+class Channel;
 
 class Client {
 private:
-	pollfd *		_socket;
-	std::string 	_nickname;
-	std::string 	_username;
-	std::string 	_hostname;
-	std::string 	_realname;
-	bool			_isPassedWord;
-	bool			_isFullyAccepted;
-	bool			_passWordAttempted;
+	pollfd *					_socket;
+	std::string 				_nickname;
+	std::string 				_username;
+	std::string 				_hostname;
+	std::string 				_realname;
+	bool						_isPassedWord;
+	bool						_isFullyAccepted;
+	bool						_passWordAttempted;
 
-	std::string		_response;
-	std::string		_buffer;
+	std::vector<Channel>		_channelJoined;
+	std::string					_response;
+	std::string					_buffer;
 //	bool			_isBufferFull;
 public:
 	Client(pollfd * socket);
@@ -42,9 +47,9 @@ public:
 	std::string const &	getNickname() const;
 	void				setNickname(std::string const &);
 	std::string const & getUsername() const;
-	std::string const & gethostname() const{
-		return _hostname;
-	}
+	std::string const & gethostname() const;
+	std::vector<Channel> & getChannelJoined();
+
 	void				setUsername(std::string const &);
 	std::string const & getHostname() const;
 	void				setHostname(std::string const &);

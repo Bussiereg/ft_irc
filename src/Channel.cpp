@@ -1,6 +1,6 @@
 #include "Channel.hpp"
 
-Channel::Channel(std::string & name, Client & client) : _channelName(name){
+Channel::Channel(std::string name, Client & client) : _channelName(name){
 	_clientList.insert(std::pair<Client*, bool>(&client, true));
 	_topic = "example of topics";
 	_mode['i'] = false;
@@ -32,11 +32,13 @@ std::map<Client*, bool> Channel::getClientList(){
 	return _clientList;
 }
 
-
-Channel::~Channel(){
-}
-
-
 std::string 	Channel::getChannelName() const{
 	return _channelName;
+}
+
+std::string 	Channel::getChannelPassword() const{
+	return _channelPassword;
+}
+
+Channel::~Channel(){
 }

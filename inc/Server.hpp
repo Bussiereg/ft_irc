@@ -33,6 +33,7 @@
 
 extern bool	g_quit;
 class Channel;
+class Client;
 
 #define BUFFER_SIZE 512
 
@@ -50,11 +51,11 @@ enum Commands {
 class Server
 {
 private:
-	std::vector<Channel> _channelList;
-	std::vector<Client*> _clients;
-	std::vector<pollfd> _allSockets;
-	int					_port;
-	std::string			_password;
+	std::vector<Channel>	_channelList;
+	std::vector<Client*>	_clients;
+	std::vector<pollfd>		_allSockets;
+	int						_port;
+	std::string				_password;
 
 	void 	_acceptNewClient();
 	void	_delClient(size_t index);
@@ -62,30 +63,29 @@ private:
 	void	_handleNickCommand(Client& client, const std::string & nickname);
 	bool	_isNickInUse(std::string const & nick);
 
-	void	_printBuffer(const char* buff, int recevied);
-	ssize_t		_fillBuffer(size_t index, std::string & buffer);
-	std::vector<std::string> _splitString(const std::string & str, char separator);
-	std::string concatenateTokens(const std::vector<std::string>& tokens, size_t startPos);
-	std::string _getNextLine(std::string & buffer);
+	void						_printBuffer(const char* buff, int recevied);
+	ssize_t						_fillBuffer(size_t index, std::string & buffer);
+	std::vector<std::string>	_splitString(const std::string & str, char separator);
+	std::string					concatenateTokens(const std::vector<std::string>& tokens, size_t startPos);
+	std::string					_getNextLine(std::string & buffer);
 
-	void 		_readBuffer(size_t index, std::string & buffer);
-	Commands 	_getCommand(std::string &);
-	void		_handlePassCommand(Client &, std::string &);
-	void		_handleNickCommand(Client &, std::string &);
-	void		_handleUserCommand(Client &, std::string &);
-	void		_handlePrivmsgCommand(Client &, std::string &);
-	void		_handleJoinCommand(Client &, std::string &);
-	void		_handleTopicCommand(Client &, std::string &);
-	void		_handlePongCommand(Client & client);
+	void 						_readBuffer(size_t index, std::string & buffer);
+	Commands 					_getCommand(std::string &);
+	void						_handlePassCommand(Client &, std::string &);
+	void						_handleNickCommand(Client &, std::string &);
+	void						_handleUserCommand(Client &, std::string &);
+	void						_handlePrivmsgCommand(Client &, std::string &);
+	void						_handleJoinCommand(Client &, std::string &);
+	void						_handleTopicCommand(Client &, std::string &);
+	void						_handlePongCommand(Client & client);
 public:
 	Server(int port, std::string password);
 	Server(Server const &);
 	Server & operator=(Server const &);
 	~Server();
 
-	std::vector<Channel> getChannelList();
-	
-	void startPolling();
+	std::vector<Channel> 	getChannelList();
+	void 					startPolling();
 	
 	class SocketCreationException : public std::exception {
 		virtual const char *what() const throw();
