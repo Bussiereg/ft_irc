@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:49:06 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/23 15:38:49 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/23 17:13:53 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,11 +43,8 @@ void Server::_printBuffer(const char* buff, int received)
 ssize_t	Server::_fillBuffer(size_t index, std::string & buffer)
 {
 	char temp[BUFFER_SIZE];
-	static int counter;
 
 	memset(temp, 0, BUFFER_SIZE);
-	counter++;
-	std::cout << "Call number " << counter << " to recv\n";
 	ssize_t bytesRead = recv(_allSockets[index].fd, temp, BUFFER_SIZE - 1, 0);
 	_printBuffer(temp, 1);
 	if (bytesRead > 0)
