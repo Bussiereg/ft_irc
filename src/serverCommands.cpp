@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:49:06 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/18 18:49:46 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/22 15:45:13 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ void Server::_readBuffer(size_t index, std::string & buffer)
 	Client &client = *_clients[index - 1];
 	std::string message;
 
-	while (!(message = _getNextLine(index, buffer)).empty())
+	while (!(message = _getNextLine(buffer)).empty())
 	{
 		std::cout << "[Client " << index << "] Message received from client " << std::endl;
 		std::cout << "     FD " <<_allSockets[index].fd << "< " << CYAN << message << RESET << std::endl;
@@ -46,8 +46,7 @@ void Server::_readBuffer(size_t index, std::string & buffer)
 				_handleQuitCommand(client, message);
 				break;
 			case INVALID:
-				(void)message;
-				//client.appendResponse(client.getNickname() + ' ' + message + " :Unknown command\r\n");
+				std::cout << "Invalid command :" << message << std::endl;
 		}
 	}
 
@@ -81,25 +80,36 @@ Commands Server::_getCommand(std::string & message)
 
 void Server::_handlePassCommand(Client & client, std::string & message)
 {
-	if (client.isPassedWord()) {
+	std::vector<std::string> params = _splitString(message, ' ');
+	if (client.isPassedWord())
 		client.appendResponse("462 :You may not reregister\r\n");
-	} else if (message.substr(5) != _password) {
+	else if (client.passWordAttempted())
+		client.appendResponse("you only get one password try\r\n");
+	else if (params.size() != 2)
+		client.appendResponse("wrong amount of arguments\r\n");
+	else if (params[1] != _password)
 		client.appendResponse("464 :Password incorrect\r\n");
-	} else {
+	else {
 		std::cout << "[Server  ] Password accepted for " << client.getNickname() << std::endl;
 		client.acceptPassword();
 	}
+	client.passWordAttempt();
 }
 
 void Server::_handleNickCommand(Client & client, std::string & message)
 {
-	std::string response;
 	std::string nickname = message.substr(5);
-	if (nickname.empty())
+	if (!client.isPassedWord())
+	{
+		client.appendResponse("No password given as first command");
+		client.passWordAttempt();
+	}
+	else if (nickname.empty())
 		client.appendResponse(ERR_NONICKNAMEGIVEN);
 	else if (_isNickInUse(nickname))
 		client.appendResponse(ERR_NICKNAMEINUSE(nickname));
-	else if (client.getNickname().empty()) {
+	else if (client.getNickname().empty())
+	{
 		std::cout << "[Server  ] Nickname accepted for " << nickname << std::endl;
 		client.setNickname(nickname);
 	}
@@ -114,14 +124,24 @@ void Server::_handleNickCommand(Client & client, std::string & message)
 
 void Server::_handleUserCommand(Client & client, std::string & message)
 {
+	std::vector<std::string> params = _splitString(message, ' ');
 	std::string username = message.substr(5);
-	if (username.empty())
+	if (!client.isPassedWord())
+	{
+		client.appendResponse("No password given as first command");
+		client.passWordAttempt();
+	}
+	else if (params.size() < 2)
 	{
 		client.appendResponse(":localhost 461 " + client.getNickname() + " USER :Not enough parameters\r\n");
 	}
-	else 
+	else
 	{
-		client.setUsername(username);
+		client.setUsername(params[1]);
+		if (params.size() > 4)
+			client.setHostname(params[3]);
+		if (params.size() > 5)
+			client.setRealname(concatenateTokens(params, 4));
 		if (!client.isFullyAccepted()) {
 			std::cout << "[Server  ] Username accepted for " << client.getNickname() << std::endl;
 			client.acceptFully();
