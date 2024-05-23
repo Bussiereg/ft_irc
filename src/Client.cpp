@@ -12,7 +12,7 @@
 
 #include "Client.hpp"
 
-Client::Client(pollfd * socket) : _socket(socket), _isPassedWord(false), _isFullyAccepted(false), _passWordAttempted(false)
+Client::Client(pollfd * socket) : _socket(socket), _nickname(""), _isPassedWord(false), _isFullyAccepted(false), _passWordAttempted(false)
 {
 }
 
@@ -132,7 +132,7 @@ void Client::clearResponse()
 	_response.clear();
 }
 
-std::vector<int> const & Client::getPrvtmsgContactFDList()
+std::vector<int> const & Client::getContactList()
 {
 	return _contactList;
 }

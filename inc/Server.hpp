@@ -48,13 +48,13 @@ private:
 	int						_port;
 	std::string				_password;
 
-	void	_initCommandMap();
-	void 	_acceptNewClient();
-	void	_delClient(Client & client);
-	void 	_checkClients();
-	bool	_isNickInUse(std::string const & nick);
+	void		_initCommandMap();
+	void		_acceptNewClient();
+	void		_delClient(Client & client);
+	void		_checkClients();
+	bool		_isNickInUse(std::string const & nick);
 
-	void	_printBuffer(const char* buff, int recevied);
+	void		_printBuffer(const char* buff, int recevied);
 	ssize_t		_fillBuffer(size_t index, std::string & buffer);
 	std::vector<std::string> _splitString(const std::string & str, char separator);
 	std::string concatenateTokens(const std::vector<std::string>& tokens, size_t startPos);
