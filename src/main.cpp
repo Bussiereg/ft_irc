@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 16:01:57 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/15 15:17:47 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/22 16:04:30 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ bool g_quit = false;
 
 void signal_handler(int )
 {
-	g_quit = true;	
+	g_quit = true;
 }
 
 int main(int argc, char *argv[])

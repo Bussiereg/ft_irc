@@ -18,7 +18,7 @@ void Server::_handleJoinCommand(Client & client, std::string & message){
 	if (joinSplit.size() <= 1){
 		std::string join = "JOIN";
 		std::string response1 = ERR_NEEDMOREPARAMS(join);
-		send(client.getClientSocket()->fd, response1.c_str(), response1.size(), 0);
+		client.appendResponse(response1);
 		return ;
 	}
 	else if (joinSplit.size() == 2){
@@ -47,20 +47,20 @@ void Server::_handleJoinCommand(Client & client, std::string & message){
 		if (itch != _channelList.end()){ //channel already exist
 			if (itch->getChannelPassword() == it->second){// Check password password
 				std::string response3 = RPL_TOPIC(client.getNickname(), client.getUsername(), client.gethostname(),  itch->getChannelName(), itch->getTopic());
-				send(client.getClientSocket()->fd, response3.c_str(), response3.size(), 0);
-				std::string reponse4 = RPL_NAMREPLY(client.getNickname(), client.getUsername(), client.gethostname(),  itch->getChannelName());
-				send(client.getClientSocket()->fd, reponse4.c_str(), reponse4.size(), 0);
+				client.appendResponse(response3);
+				std::string response4 = RPL_NAMREPLY(client.getNickname(), client.getUsername(), client.gethostname(),  itch->getChannelName());
+				client.appendResponse(response4);
 				itch->getClientList().insert(std::pair<Client*, bool>(&client, false));
 			}
 			else{ // Password was wrong
-				std::string reponse5 = ERR_BADCHANNELKEY(client.getNickname(), itch->getChannelName());
-				send(client.getClientSocket()->fd, reponse5.c_str(), reponse5.size(), 0);
+				std::string response5 = ERR_BADCHANNELKEY(client.getNickname(), itch->getChannelName());
+				client.appendResponse(response5);
 			}
 		}
 		else{ // new channel
 			Channel newChannel(it->first, client);
 			std::string response6 = RPL_NAMREPLY(client.getNickname(), client.getUsername(), client.gethostname(),  newChannel.getChannelName());
-			send(client.getClientSocket()->fd, response6.c_str(), response6.size(), 0);
+			client.appendResponse(response6);
 			newChannel.getClientList().insert(std::pair<Client*, bool>(&client, true)); // add the client as operator in the CHANNEL client list
 			_channelList.push_back(newChannel); // add the channel to the SERVER channel list
 			client.getChannelJoined().push_back(newChannel); // add the channel to the CLIENT channel joined list
@@ -77,15 +77,15 @@ void		Server::_handleTopicCommand(Client & client, std::string & input){
 	if (paramTopic.size() < 2){
 		std::string topic = "TOPIC";
 		std::string response1 = ERR_NEEDMOREPARAMS(topic);
-		send(client.getClientSocket()->fd, response1.c_str(), response1.size(), 0);
+		client.appendResponse(response1);
 		return ;
 	}
 	std::vector<Channel>::iterator it;
 	for (it = _channelList.begin(); it != _channelList.end(); ++it){
 		if (it->getChannelName() == paramTopic[1]){
 			if (!it->getClientList()[&client]){
-				std::string response2 = ERR_NOTONCHANNEL(it->getChannelName());	
-				send(client.getClientSocket()->fd, response2.c_str(), response2.size(), 0);
+				std::string response2 = ERR_NOTONCHANNEL(it->getChannelName());
+				client.appendResponse(response2);
 				return ;
 			}
 			else{
@@ -94,7 +94,7 @@ void		Server::_handleTopicCommand(Client & client, std::string & input){
 					response3 = RPL_NOTOPIC(client.getNickname(), client.getUsername(), client.gethostname(),  it->getChannelName());
 				else
 					response3 = RPL_TOPIC(client.getNickname(), client.getUsername(), client.gethostname(),  it->getChannelName(), it->getTopic());	
-				send(client.getClientSocket()->fd, response3.c_str(), response3.size(), 0);
+				client.appendResponse(response3);
 				return;
 			}
 		}
