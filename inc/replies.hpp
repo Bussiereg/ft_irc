@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:43:26 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/23 17:08:54 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/23 20:27:44 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,12 +27,12 @@
 
 # define JOIN(nick, user, host, channel) (":" + nick + "!" + user + "@" + host  + " JOIN " + channel + "\r\n")
 
-# define ERR_NONICKNAMEGIVEN ("NICK :No nickname given\r\n")
+# define ERR_NONICKNAMEGIVEN(server) (":" + server + " 431 * :No nickname given\r\n")
 
 # define ERR_NICKNAMEINUSE(nick) ("433 " + nick + " :Nickname already in use\r\n")
 # define ERR_NICKNAMEISUSE(nick) ("433 NICK :" + nick + "\r\n")
 
-# define ERR_NOTONCHANNEL(channel) ("442 " + channel + " :You're not on that channel\r\n")
+# define ERR_NOTONCHANNEL(server, channel) (":" + server + " 442 " + channel + " :You're not on that channel\r\n")
 
 # define RPL_TOPIC(nick, user, host, channel, topic) ("332 " + nick + "!" + user + "@" + host + " " + channel + " :" + topic + "\r\n")
 
@@ -46,6 +46,10 @@
 
 # define PRIVMSG(nick, user, host, channel, msg) (":" + nick + "!" + user + "@" + host + " PRIVMSG " + channel + " :" + msg + "\r\n")
 
+# define ERR_NORECIPIENT(server, nick, command) (":" + server + " 411 " + nick + " :No recipient given(" + command + ")\r\n")
+
+# define ERR_NOTEXTTOSEND(server, nick) (":" + server + " 412 " + nick + " :No text to send\r\n")
+
 # define PART(nick, user, host, chan) (":" + nick + "!" + user + "@" + host + " PART " + chan + "\r\n")
 
 # define PART_REASON(nick, user, host, chan, reason) (":" + nick + "!" + user + "@" + host + " PART " + chan + " :" + reason + "\r\n")
@@ -54,9 +58,9 @@
 
 # define RPL_CHANNELMODEIS(server, nick, channel, mode) (":" + server + " 324 " + nick + " " + channel + " " + mode + "\r\n")
 
-# define ERR_UNKNOWNMODE(servername, nick, mode) (":" + servername + " 472 " + nick + " " + mode + " :is unknown mode char to me\r\n")
+# define ERR_UNKNOWNMODE(server, nick, mode) (":" + server + " 472 " + nick + " " + mode + " :is unknown mode char to me\r\n")
 
-# define ERR_UNKNOWNCOMMAND(command) (command + " :Unknown command\r\n")
+# define ERR_UNKNOWNCOMMAND(server, nick, command) (":" + server + " 421 " + nick + " " + command + " :Unknown command\r\n")
 
 # define ERR_ERRONEUSNICKNAME(nick) ("432 " + nick + " :Erroneous nickname\r\n")
 
@@ -66,7 +70,7 @@
 
 # define INVITE(nick, user, host, nickinvite, channel)  (":" + nick + "!" + user + "@" + host + " INVITE " + nickinvite + " " + channel + "\r\n")
 
-# define ERR_NOSUCHNICK(invitenick) ("401 " + invitenick + " :No such nick/channel\r\n")
+# define ERR_NOSUCHNICK(server, sender, receiver) (":" + server + " 401 " + sender + " " + receiver + " :No such nick/channel\r\n")
 
 # define ERR_USERONCHANNEL(nick, invitenick, chan) ("443 " + nick + " " + invitenick + " " + chan + ":is already on channel\r\n")
 

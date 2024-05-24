@@ -10,6 +10,18 @@ Channel::Channel(std::string name, Client & client) : _channelName(name){
 	_mode['l'] = false;
 }
 
+/// @brief relay message to all clients in channel, except to the sender
+/// @param sender  the user who is sending the message
+/// @param message the message that needs to be relayed
+void Channel::relayMessage(Client & sender, std::string const & message)
+{
+ 	for (std::map<Client*, bool>::iterator it = _clientList.begin(); it != _clientList.end(); ++it)
+	{
+		std::cout << "Relaying message to " << it->first->getNickname() << std::endl;
+		if ((it->first) != &sender)
+			it->first->appendResponse(message);
+	}
+}
 
 void	Channel::setChannelMode(char mode, bool status){
 	if (_mode.find(mode) != _mode.end()) {
@@ -30,6 +42,16 @@ void	Channel::setTopic(Client & lhs, std::string & newTopic){
 
 std::map<Client*, bool> Channel::getClientList(){
 	return _clientList;
+}
+
+void	Channel::addClient(Client & client, bool isOperator){
+	_clientList.insert(std::pair<Client*, bool>(&client, isOperator));
+}
+
+bool Channel::isMember(Client & client){
+	if (_clientList.find(&client) != _clientList.end())
+		return true;
+	return false;
 }
 
 std::string 	Channel::getChannelName() const{
