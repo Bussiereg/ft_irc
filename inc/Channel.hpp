@@ -1,9 +1,9 @@
 #pragma once
 #include <map>
 #include <algorithm>
+#include "Server.hpp"
 #include "Client.hpp"
 #include "replies.hpp"
-#include "Server.hpp"
 
 class Client;
 
@@ -22,9 +22,9 @@ public:
 	void						setTopic(Client & lhs, std::string & newTopic);
 	void						setChannelMode(char mode, bool status);
 	unsigned int				getLimitUsers();
-	std::string					getTopic() const;
-	std::string 				getChannelName() const;
-	std::string 				getChannelPassword() const;
+	std::string	const &			getTopic() const;
+	std::string const & 		getChannelName() const;
+	std::string const &			getChannelPassword() const;
 	std::map<Client*, bool> &	getClientList();
 	void						setClientList(Client &, bool);
 	void						addClient(Client & client, bool isOperator);
