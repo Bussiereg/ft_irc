@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   serverCommands.cpp                                 :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/12 16:49:06 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/23 17:15:58 by mwallage         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "Server.hpp"
 
 void Server::_readBuffer(size_t index, std::string & buffer)
@@ -63,15 +51,18 @@ void Server::_handlePassCommand(Client & client, std::string & message)
 
 void Server::_handleNickCommand(Client & client, std::string & message)
 {
-	std::string nickname = message.substr(5);
 	if (!client.isPassedWord())
 	{
 		client.appendResponse("No password given as first command");
 		client.passWordAttempt();
+		return ;
 	}
-	else if (nickname.empty())
-		client.appendResponse(ERR_NONICKNAMEGIVEN);
-	else if (_isNickInUse(nickname))
+	if (message.length() < 6) {
+		client.appendResponse(ERR_NONICKNAMEGIVEN(_serverName));
+		return ;
+	}
+	std::string nickname = message.substr(5);
+	if (_isNickInUse(nickname))
 		client.appendResponse(ERR_NICKNAMEINUSE(nickname));
 	else if (client.getNickname().empty())
 	{
@@ -119,16 +110,47 @@ void Server::_handleUserCommand(Client & client, std::string & message)
 
 void Server::_handlePrivmsgCommand(Client & client, std::string & message)
 {
-	std::string forward = client.getNickname() + " :" + message.substr(8) + "\r\n";
-	for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it)
-	{
-		if (*it != &client)
-			(*it)->appendResponse(forward);
+	std::vector<std::string> receivers = _parseReceivers(message);
+	if (receivers.empty()) {
+		client.appendResponse(ERR_NORECIPIENT(_serverName, client.getNickname(), message.substr(0,7)));
+		return ;
+	}
+	size_t pos = message.find(" :");
+	if (pos == std::string::npos) {
+		client.appendResponse(ERR_NOTEXTTOSEND(_serverName, client.getNickname()));
+		return ;
+	}
+	std::string forward = client.getNickname() + " :" + message.substr(pos + 2) + "\r\n";
+	for (std::vector<std::string>::iterator it = receivers.begin(); it != receivers.end(); ++it) {
+		if ((*it)[0] == '#') {
+			std::vector<Channel>::iterator ite = _channelList.begin();
+			for (; ite != _channelList.end(); ++ite) {
+				if (ite->getChannelName() == *it) {
+					if (ite->isMember(client))
+						ite->relayMessage(client, forward);
+					else
+						client.appendResponse(ERR_NOTONCHANNEL(_serverName, ite->getChannelName()));
+					break ;
+				}
+			}
+			if (ite == _channelList.end())
+				client.appendResponse(ERR_NOSUCHNICK(_serverName, client.getNickname(), *it));
+		} else {
+			std::vector<Client*>::iterator ite = _clients.begin();
+			for (; ite != _clients.end(); ++ite)
+				if ((*ite)->getNickname() == *it) {
+					(*ite)->appendResponse(forward);
+					break ;
+				}
+			if (ite == _clients.end())
+				client.appendResponse(ERR_NOSUCHNICK(_serverName, client.getNickname(), *it));
+		}
 	}
 }
 
 void Server::_handlePingCommand(Client & client, std::string & message)
 {
+	// should check if servername is given, otherwise error
 	client.appendResponse(PONG(message.substr(5)));
 }
 
@@ -159,7 +181,7 @@ void Server::_handleInvalidCommand(Client & client, std::string & message)
 {
 	size_t pos = message.find(" ");
 	std::string command = message.substr(0, pos);
-	client.appendResponse(ERR_UNKNOWNCOMMAND(command));
+	client.appendResponse(ERR_UNKNOWNCOMMAND(_serverName, client.getNickname(), command));
 }
 
 void Server::_handleCapCommand(Client &, std::string &){

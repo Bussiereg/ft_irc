@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:43:26 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/23 17:05:31 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/23 20:06:00 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,8 +48,10 @@ private:
 	std::vector<Channel>	_channelList;
 	std::vector<Client*>	_clients;
 	std::vector<pollfd>		_allSockets;
+
+	std::string	const		_serverName;
 	int						_port;
-	std::string				_password;
+	std::string const		_password;
 
 	void		_initCommandMap();
 	void		_acceptNewClient();
@@ -59,9 +61,6 @@ private:
 
 	void						_printBuffer(const char* buff, int recevied);
 	ssize_t						_fillBuffer(size_t index, std::string & buffer);
-	std::vector<std::string>	_splitString(const std::string & str, char separator);
-	std::string					concatenateTokens(const std::vector<std::string>& tokens, size_t startPos);
-	std::string					_getNextLine(std::string & buffer);
 
 	void 						_readBuffer(size_t index, std::string & buffer);
 	std::string 				_getCommand(std::string &);
@@ -76,8 +75,14 @@ private:
 	void						_handleCapCommand(Client &, std::string &);
 	void		_handleQuitCommand(Client &, std::string &);
 	void		_handleInvalidCommand(Client &, std::string &);
+
+	// utils
+	static std::vector<std::string>	_splitString(const std::string & str, char separator);
+	std::string					concatenateTokens(const std::vector<std::string>& tokens, size_t startPos);
+	std::string					_getNextLine(std::string & buffer);
+	static std::vector<std::string>	_parseReceivers(const std::string& message);
 public:
-	Server(int port, std::string password);
+	Server(int port, std::string password, std::string serverName);
 	Server(Server const &);
 	Server & operator=(Server const &);
 	~Server();
