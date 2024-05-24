@@ -120,8 +120,8 @@ void Server::_handlePrivmsgCommand(Client & client, std::string & message)
 		client.appendResponse(ERR_NOTEXTTOSEND(_serverName, client.getNickname()));
 		return ;
 	}
-	std::string forward = client.getNickname() + " :" + message.substr(pos + 2) + "\r\n";
 	for (std::vector<std::string>::iterator it = receivers.begin(); it != receivers.end(); ++it) {
+		std::string forward = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.gethostname() + " PRIVMSG " + *it + " :" + message.substr(pos + 2) + "\r\n";
 		if ((*it)[0] == '#') {
 			std::vector<Channel*>::iterator ite = _channelList.begin();
 			for (; ite != _channelList.end(); ++ite) {

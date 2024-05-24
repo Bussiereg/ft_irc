@@ -2,6 +2,7 @@
 
 Client::Client(pollfd * socket) : _socket(socket), _nickname(""), _isPassedWord(false), _isFullyAccepted(false), _passWordAttempted(false)
 {
+	_hostname = "localhost";
 }
 
 Client::Client(Client const & other)
