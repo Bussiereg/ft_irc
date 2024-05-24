@@ -124,7 +124,7 @@ std::string const & Client::gethostname() const{
 	return _hostname;
 }
 
-std::vector<Channel> & Client::getChannelJoined(){
+std::vector<Channel*> & Client::getChannelJoined(){
 	return _channelJoined;
 }
 

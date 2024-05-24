@@ -45,7 +45,7 @@ private:
 	typedef void (Server::*CommandFunction)(Client &, std::string &);
 	std::map<std::string, CommandFunction> _commandMap;
 
-	std::vector<Channel>	_channelList;
+	std::vector<Channel*>	_channelList;
 	std::vector<Client*>	_clients;
 	std::vector<pollfd>		_allSockets;
 
@@ -87,7 +87,7 @@ public:
 	Server & operator=(Server const &);
 	~Server();
 
-	std::vector<Channel> 	getChannelList();
+	std::vector<Channel*> 	getChannelList();
 	void 					startPolling();
 	
 	class SocketCreationException : public std::exception {

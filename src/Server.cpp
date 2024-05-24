@@ -75,5 +75,9 @@ Server::~Server()
 		close(_allSockets[i].fd);
 		delete _clients[i - 1];
 	}
+    for (std::vector<Channel*>::iterator it = _channelList.begin(); it != _channelList.end(); ++it) {
+        delete *it;
+    }
+    _channelList.clear();
 	_clients.clear();
 }
