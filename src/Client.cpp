@@ -124,11 +124,15 @@ std::string const & Client::gethostname() const{
 	return _hostname;
 }
 
-std::vector<Channel> & Client::getChannelJoined(){
+std::vector<Channel*> & Client::getChannelJoined(){
 	return _channelJoined;
 }
 
 std::vector<int> const & Client::getContactList()
 {
 	return _contactList;
+}
+
+void				Client::setChannelJoined(Channel* channelToAdd){
+	_channelJoined.push_back(channelToAdd);
 }

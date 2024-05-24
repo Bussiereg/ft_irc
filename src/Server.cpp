@@ -44,6 +44,7 @@ void Server::_initCommandMap()
 	_commandMap["PRIVMSG"] = &Server::_handlePrivmsgCommand;
 	_commandMap["PING"] = &Server::_handlePingCommand;
 	_commandMap["JOIN"] = &Server::_handleJoinCommand;
+	_commandMap["MODE"] = &Server::_handleModeCommand;
 	_commandMap["QUIT"] = &Server::_handleQuitCommand;
 	_commandMap["CAP"] = &Server::_handleCapCommand;
 	_commandMap["INVALID"] = &Server::_handleInvalidCommand;
@@ -74,5 +75,9 @@ Server::~Server()
 		close(_allSockets[i].fd);
 		delete _clients[i - 1];
 	}
+    for (std::vector<Channel*>::iterator it = _channelList.begin(); it != _channelList.end(); ++it) {
+        delete *it;
+    }
+    _channelList.clear();
 	_clients.clear();
 }

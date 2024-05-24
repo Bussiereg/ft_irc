@@ -24,6 +24,7 @@
 #include <fcntl.h>
 #include <cstring>
 #include <map>
+#include <set>
 #include <algorithm>
 #include <sstream>
 #include <utility>
@@ -44,7 +45,7 @@ private:
 	typedef void (Server::*CommandFunction)(Client &, std::string &);
 	std::map<std::string, CommandFunction> _commandMap;
 
-	std::vector<Channel>	_channelList;
+	std::vector<Channel*>	_channelList;
 	std::vector<Client*>	_clients;
 	std::vector<pollfd>		_allSockets;
 
@@ -69,6 +70,7 @@ private:
 	void						_handlePrivmsgCommand(Client &, std::string &);
 	void						_handleJoinCommand(Client &, std::string &);
 	void						_handleTopicCommand(Client &, std::string &);
+	void						_handleModeCommand(Client &, std::string &);
 	void						_handlePingCommand(Client &, std::string &);
 	void						_handleCapCommand(Client &, std::string &);
 	void		_handleQuitCommand(Client &, std::string &);
@@ -85,7 +87,7 @@ public:
 	Server & operator=(Server const &);
 	~Server();
 
-	std::vector<Channel> 	getChannelList();
+	std::vector<Channel*> 	getChannelList();
 	void 					startPolling();
 	
 	class SocketCreationException : public std::exception {

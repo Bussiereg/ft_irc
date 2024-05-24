@@ -123,13 +123,13 @@ void Server::_handlePrivmsgCommand(Client & client, std::string & message)
 	std::string forward = client.getNickname() + " :" + message.substr(pos + 2) + "\r\n";
 	for (std::vector<std::string>::iterator it = receivers.begin(); it != receivers.end(); ++it) {
 		if ((*it)[0] == '#') {
-			std::vector<Channel>::iterator ite = _channelList.begin();
+			std::vector<Channel*>::iterator ite = _channelList.begin();
 			for (; ite != _channelList.end(); ++ite) {
-				if (ite->getChannelName() == *it) {
-					if (ite->isMember(client))
-						ite->relayMessage(client, forward);
+				if ((*ite)->getChannelName() == *it) {
+					if ((*ite)->isMember(client))
+						(*ite)->relayMessage(client, forward);
 					else
-						client.appendResponse(ERR_NOTONCHANNEL(_serverName, ite->getChannelName()));
+						client.appendResponse(ERR_NOTONCHANNEL(_serverName, (*ite)->getChannelName()));
 					break ;
 				}
 			}
