@@ -72,8 +72,8 @@
 
 # define ERR_BADCHANMASK(nick, chan) ("476 " + nick + " " + chan + " :Bad Channel Mask\r\n")
 
-# define RPL_NAMREPLY(nick, user, host, channel) ("353 " + nick + "!" + user + "@" + host + " = " + channel + " :")
-// # define RPL_NAMREPLY(nick, user, host, channel, nickList) ("353 " + nick + "!" + user + "@" + host + " = " + channel + " :" + nickList)
+// # define RPL_NAMREPLY(nick, user, host, channel) ("353 " + nick + "!" + user + "@" + host + " = " + channel + " :")
+# define RPL_NAMREPLY(nick, user, host, channel, nickList) ("353 " + nick + "!" + user + "@" + host + " = " + channel + " :" + nickList + "\r\n")
 
 # define RPL_ENDOFNAMES(nick, user, host, channel) ("366 " + nick + "!" + user + "@" + host + " " + channel + " :End of NAMES list\r\n")
 

@@ -36,8 +36,20 @@ void Server::_handleJoinCommand(Client & client, std::string & message){
 			if ((*itch)->getChannelPassword() == it->second){// Check password password
 				std::string response3 = RPL_TOPIC(client.getNickname(), client.getUsername(), client.gethostname(),  it->first, (*itch)->getTopic());
 				client.appendResponse(response3);
-				// std::string response4 = RPL_NAMREPLY(client.getNickname(), client.getUsername(), client.gethostname(),  (*itch)->getChannelName());
-				// client.appendResponse(response4);
+
+				std::string usersInChannel = "";
+				std::map<Client*, bool>::iterator it2;
+				for (it2 = (*itch)->getClientList().begin(); it2 != (*itch)->getClientList().end(); ++it2) {
+					if (it2->second == true){
+						usersInChannel += '@' + it2->first->getNickname() + " ";
+					}
+					else{
+						usersInChannel += it2->first->getNickname() + " ";
+					}
+				}
+				
+				std::string response4 = RPL_NAMREPLY(client.getNickname(), client.getUsername(), client.gethostname(),  (*itch)->getChannelName(), usersInChannel);
+				client.appendResponse(response4);
 				(*itch)->setClientList(client, false);
 			}
 			else{ // Password was wrong
@@ -47,7 +59,8 @@ void Server::_handleJoinCommand(Client & client, std::string & message){
 		}
 		else{ // new channel
 			Channel *newChannel = new Channel(it->first, client);
-			std::string response6 = RPL_NAMREPLY(client.getNickname(), client.getUsername(), client.gethostname(),  newChannel->getChannelName());
+			std::string usersInChannel = "@" + client.getNickname();
+			std::string response6 = RPL_NAMREPLY(client.getNickname(), client.getUsername(), client.gethostname(),  newChannel->getChannelName(), usersInChannel);
 			client.appendResponse(response6);
 			newChannel->addClient(client, true);
 			_channelList.push_back(newChannel); // add the channel to the SERVER channel list
