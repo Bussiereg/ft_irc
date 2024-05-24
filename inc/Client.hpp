@@ -57,3 +57,15 @@ public:
 	void						appendResponse(std::string newMessage);
 	void						clearResponse();
 };
+
+class MatchNickname {
+public:
+    MatchNickname(const std::string& nickname) : nickname_(nickname) {}
+
+    bool operator()(const Client* user) const {
+        return user->getNickname() == nickname_;
+    }
+
+private:
+    std::string nickname_;
+};

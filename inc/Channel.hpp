@@ -31,3 +31,15 @@ public:
 	bool						isMember(Client & client);
 	void						relayMessage(Client & sender, std::string const & message);
 };
+
+class MatchChannelName {
+public:
+    MatchChannelName(const std::string& name) : name_(name) {}
+
+    bool operator()(Channel* const channel) const {
+        return channel->getChannelName() == name_;
+    }
+
+private:
+    std::string name_;
+};

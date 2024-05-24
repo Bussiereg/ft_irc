@@ -35,35 +35,10 @@
 
 extern bool	g_quit;
 
-class Channel;
 class Client;
+class Channel;
 
 #define BUFFER_SIZE 512
-
-class MatchChannelName {
-public:
-    MatchChannelName(const std::string& name) : name_(name) {}
-
-    bool operator()(const Channel* channel) const {
-        return channel->getChannelName() == name_;
-    }
-
-private:
-    std::string name_;
-};
-
-
-class MatchNickname {
-public:
-    MatchNickname(const std::string& nickname) : nickname_(nickname) {}
-
-    bool operator()(const Client* user) const {
-        return user->getNickname() == nickname_;
-    }
-
-private:
-    std::string nickname_;
-};
 
 class Server
 {
