@@ -73,7 +73,7 @@ void		Server::_handleTopicCommand(Client & client, std::string & input){
 	for (it = _channelList.begin(); it != _channelList.end(); ++it){
 		if (it->getChannelName() == paramTopic[1]){
 			if (!it->getClientList()[&client]){
-				std::string response2 = ERR_NOTONCHANNEL(it->getChannelName());
+				std::string response2 = ERR_NOTONCHANNEL(_serverName ,it->getChannelName());
 				client.appendResponse(response2);
 				return ;
 			}
