@@ -2,7 +2,7 @@
 
 Channel::Channel(std::string name, Client & client) : _channelName(name){
 	_clientList.insert(std::pair<Client*, bool>(&client, true));
-	_topic = "example of topics";
+	_topic = "this is the default Topics of the channel: " + _channelName;
 	_mode['i'] = false;
 	_mode['t'] = false;
 	_mode['k'] = false;
@@ -40,7 +40,7 @@ void	Channel::setTopic(Client & lhs, std::string & newTopic){
 		_topic  = newTopic;
 }
 
-std::map<Client*, bool> Channel::getClientList(){
+std::map<Client*, bool> & Channel::getClientList(){
 	return _clientList;
 }
 
@@ -60,6 +60,10 @@ std::string 	Channel::getChannelName() const{
 
 std::string 	Channel::getChannelPassword() const{
 	return _channelPassword;
+}
+
+void	Channel::setClientList(Client & client, bool isOperator){
+	_clientList.insert(std::pair<Client*, bool>(&client, isOperator));
 }
 
 Channel::~Channel(){

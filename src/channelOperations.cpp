@@ -26,7 +26,6 @@ void Server::_handleJoinCommand(Client & client, std::string & message){
 				joinParams.insert(std::pair<std::string, std::string>(newChannelList[i], newChannelKey[i]));
 		}
 	}
-
 	for (std::map<std::string, std::string>::iterator it = joinParams.begin(); it != joinParams.end(); ++it){
 		std::vector<Channel*>::iterator itch;
 		for (itch = _channelList.begin(); itch != _channelList.end(); ++itch){ // search if the channelname already exist
@@ -35,11 +34,11 @@ void Server::_handleJoinCommand(Client & client, std::string & message){
 		}
 		if (itch != _channelList.end()){ //channel already exist
 			if ((*itch)->getChannelPassword() == it->second){// Check password password
-				std::string response3 = RPL_TOPIC(client.getNickname(), client.getUsername(), client.gethostname(),  (*itch)->getChannelName(), (*itch)->getTopic());
+				std::string response3 = RPL_TOPIC(client.getNickname(), client.getUsername(), client.gethostname(),  it->first, (*itch)->getTopic());
 				client.appendResponse(response3);
-				std::string response4 = RPL_NAMREPLY(client.getNickname(), client.getUsername(), client.gethostname(),  (*itch)->getChannelName());
-				client.appendResponse(response4);
-				(*itch)->getClientList().insert(std::pair<Client*, bool>(&client, false));
+				// std::string response4 = RPL_NAMREPLY(client.getNickname(), client.getUsername(), client.gethostname(),  (*itch)->getChannelName());
+				// client.appendResponse(response4);
+				(*itch)->setClientList(client, false);
 			}
 			else{ // Password was wrong
 				std::string response5 = ERR_BADCHANNELKEY(client.getNickname(), (*itch)->getChannelName());
@@ -52,9 +51,20 @@ void Server::_handleJoinCommand(Client & client, std::string & message){
 			client.appendResponse(response6);
 			newChannel->addClient(client, true);
 			_channelList.push_back(newChannel); // add the channel to the SERVER channel list
-			client.getChannelJoined().push_back(newChannel); // add the channel to the CLIENT channel joined list
+			client.setChannelJoined(newChannel); // add the channel to the CLIENT channel joined list
 		}
 	}
+	// std::cout << GREEN << "List of channels: " << std::endl;
+    // int i = 0;
+    // for (std::vector<Channel*>::iterator it = _channelList.begin(); it != _channelList.end(); it++) {
+    //     std::cout << GREEN << "Channel " << i++ << ": " << (*it)->getChannelName() << std::endl;
+    //     std::cout << BLUE << "    List of Clients: " << std::endl;
+    //     std::map<Client*, bool>::iterator it2;
+    //     for (it2 = (*it)->getClientList().begin(); it2 != (*it)->getClientList().end(); ++it2) {
+    //         std::cout << "		Client Nickname: " << it2->first->getNickname() << std::endl;
+    //     }
+    // }
+    // std::cout << RESET;
 }
 
 std::vector<Channel*> Server::getChannelList(){

@@ -132,3 +132,7 @@ std::vector<int> const & Client::getContactList()
 {
 	return _contactList;
 }
+
+void				Client::setChannelJoined(Channel* channelToAdd){
+	_channelJoined.push_back(channelToAdd);
+}

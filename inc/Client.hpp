@@ -38,6 +38,7 @@ public:
 	std::string const & getUsername() const;
 	std::string const & gethostname() const;
 	std::vector<Channel*> & getChannelJoined();
+	void				setChannelJoined(Channel*);
 
 	void				setUsername(std::string const &);
 	std::string const & getHostname() const;

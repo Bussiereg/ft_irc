@@ -25,7 +25,8 @@ public:
 	std::string					getTopic() const;
 	std::string 				getChannelName() const;
 	std::string 				getChannelPassword() const;
-	std::map<Client*, bool>		getClientList();
+	std::map<Client*, bool> &	getClientList();
+	void						setClientList(Client &, bool);
 	void						addClient(Client & client, bool isOperator);
 	bool						isMember(Client & client);
 	void						relayMessage(Client & sender, std::string const & message);
