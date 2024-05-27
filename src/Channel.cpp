@@ -29,7 +29,7 @@ void	Channel::setChannelMode(char mode, bool status){
 	}
 }
 
-std::string	Channel::getTopic() const{
+std::string	const & Channel::getTopic() const{
 	return _topic;
 }
 
@@ -54,11 +54,11 @@ bool Channel::isMember(Client & client){
 	return false;
 }
 
-std::string 	Channel::getChannelName() const{
+std::string const &	Channel::getChannelName() const{
 	return _channelName;
 }
 
-std::string 	Channel::getChannelPassword() const{
+std::string const &	Channel::getChannelPassword() const{
 	return _channelPassword;
 }
 

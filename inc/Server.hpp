@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:43:26 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/23 20:06:00 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/24 17:00:10 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,8 +34,9 @@
 #include "ColorPrint.hpp"
 
 extern bool	g_quit;
-class Channel;
+
 class Client;
+class Channel;
 
 #define BUFFER_SIZE 512
 
