@@ -59,6 +59,10 @@ private:
 	void		_checkClients();
 	bool		_isNickInUse(std::string const & nick);
 
+	// Join
+	void 		_createJoinmap(Client & client, std::string & message, std::map<std::string, std::string> & joinParams);
+	std::vector<Channel*>::iterator		isChannelAlreadyExisting(std::string rhs);
+
 	void						_printBuffer(const char* buff, int recevied);
 	ssize_t						_fillBuffer(size_t index, std::string & buffer);
 
