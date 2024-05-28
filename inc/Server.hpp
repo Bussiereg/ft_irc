@@ -70,7 +70,7 @@ private:
 	void						modeInviteOnly(bool isOperator, Channel & channel);
 	void						modeTopic(bool isOperator, Channel & channel);
 	void						modeKeySet(bool isOperator, std::string key, Channel * channel);
-	void						modeOperatorPriv(bool isOperator, std::string ope, Client & client, Channel & channel);
+	void						modeOperatorPriv(bool isOperator, std::string ope, Client & client, Channel * channel);
 	void						modeSetUserLimit(bool isOperator, std::string limit, Channel & channel);
 
 	void						_printBuffer(const char* buff, int recevied);

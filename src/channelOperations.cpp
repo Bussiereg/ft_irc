@@ -55,9 +55,7 @@ void Server::_handleJoinCommand(Client & client, std::string & message){
 		std::vector<Channel*>::iterator itch = isChannelAlreadyExisting(it->first);
 		if (itch != _channelList.end()){ //channel already exist
 			if ((*itch)->getChannelPassword() == it->second){// Check password password
-				std::cout << YELLOW << "password is: " << (*itch)->getChannelPassword() << RESET << std::endl;	
-				std::cout << YELLOW << "TEST1" << RESET << std::endl;
-				(*itch)->setClientList(client, false);
+				(*itch)->setClientList(&client, false);
 				(*itch)->getUserListInChannel(usersInChannel);
 				client.appendResponse(RPL_TOPIC(client.getNickname(), client.getNickname(), client.gethostname(),  it->first, (*itch)->getTopic()));
 				client.appendResponse(RPL_NAMREPLY( _serverName, client.getNickname(), (*itch)->getChannelName(), usersInChannel));
@@ -114,10 +112,6 @@ void		Server::_handleTopicCommand(Client & client, std::string & input){
 	// }
 }
 
-void _changeMode(){
-
-}
-
 enum mode {
 	INVITE_ONLY,
 	TOPIC,
@@ -145,25 +139,36 @@ void	Server::modeTopic(bool isOperator, Channel & channel){
 }
 
 void	Server::modeKeySet(bool isOperator, std::string key, Channel * channel){
-		channel->setChannelMode('k', isOperator);
+	if (key.empty())
+		channel->setChannelKey("");
+	else
 		channel->setChannelKey(key);
+	channel->setChannelMode('k', isOperator);
 }
 
-void	Server::modeOperatorPriv(bool isOperator, std::string ope, Client & client, Channel & channel){
-		channel.setChannelMode('o', isOperator);
+void	Server::modeOperatorPriv(bool isOperator, std::string ope, Client & client, Channel * channel){
+		if (client.getNickname() == ope){
+			return ;
+		}
+		if (channel->getClientList()[&client] == false){
+			return ;
+		}
+		channel->setChannelMode('o', isOperator);
 		std::map<Client*, bool>::iterator it;
-		for (it = channel.getClientList().begin(); it != channel.getClientList().end(); ++it){
+		for (it = channel->getClientList().begin(); it != channel->getClientList().end(); ++it){
 			if (it->first->getNickname() == ope){
-				channel.setChannelMode('o', isOperator);
+				channel->setClientList(it->first, isOperator);
+				return ;
 			}
 		}
-		if (it == channel.getClientList().end()){
+		if (it == channel->getClientList().end()){
 			client.appendResponse(ERR_NOSUCHNICK(_serverName, client.getNickname(), ope));
 		}
 }
 
 void	Server::modeSetUserLimit(bool isOperator, std::string limit, Channel & channel){
-	channel.setChannelLimit(std::atoi(limit.c_str()));
+	if (!limit.empty())
+		channel.setChannelLimit(std::atoi(limit.c_str()));
 	channel.setChannelMode('l', isOperator);
 }
 
@@ -172,17 +177,29 @@ void	Server::_handleModeCommand(Client & client, std::string & input){
 	std::vector<std::string> modeSplit = _splitString(input, ' ');
 	std::string mode = "MODE";
 	Channel * channelInUse;
-	bool isOperator = false; 
 
 	if (modeSplit[0] != "MODE"){
 		return ;
 	}
 	if (modeSplit.size() <= 2){
-		std::string response1 = ERR_NEEDMOREPARAMS(mode);
-		client.appendResponse(response1);
+		std::vector<Channel*>::iterator itch;
+		for (itch = _channelList.begin(); itch != _channelList.end(); ++itch){ // search if the channelname already exist
+			if ((*itch)->getChannelName() == modeSplit[1]){
+				channelInUse = *itch;
+				break;
+			}
+		}
+		if (itch == _channelList.end()){
+			client.appendResponse(ERR_NOSUCHCHANNEL(modeSplit[1]));
+			return ;
+		}
+		else{
+			client.appendResponse(RPL_CHANNELMODEIS(_serverName, client.getNickname(), channelInUse->getChannelName(), channelInUse->getModeString()));
+			return ;
+		}
+
 	}
 	else if (modeSplit.size() <= 4 ){
-
 		std::vector<Channel*>::iterator itch;
 		for (itch = _channelList.begin(); itch != _channelList.end(); ++itch){ // search if the channelname already exist
 			if ((*itch)->getChannelName() == modeSplit[1]){
@@ -195,34 +212,55 @@ void	Server::_handleModeCommand(Client & client, std::string & input){
 			client.appendResponse(ERR_NOSUCHCHANNEL(modeSplit[1]));
 			return ;
 		}
+		bool isModeOn = false; 
 		if (modeSplit[2][0] == '+')
-			isOperator = true;
+			isModeOn = true;
 		for (unsigned int i = 1; i < modeSplit[2].size(); i++){
 			char m = modeSplit[2][i]; 
-			if ((m == 'k' || m == 'o' || m == 'l') && modeSplit.size() == 3){
+			if ((m == 'k' || m == 'o' || m == 'l') && (modeSplit.size() == 3) && isModeOn){
+				client.appendResponse(ERR_NEEDMOREPARAMS(mode));
+				return ;
+			}
+			else if ((m == 'o') && (modeSplit.size() == 3) && !isModeOn){
 				client.appendResponse(ERR_NEEDMOREPARAMS(mode));
 				return ;
 			}
 			switch (_findMode(m))
 			{
 			case INVITE_ONLY:
-				modeInviteOnly(isOperator, *channelInUse);
+				modeInviteOnly(isModeOn, *channelInUse);
 				break;
 			case TOPIC:
-				modeTopic(isOperator, *channelInUse);
+				modeTopic(isModeOn, *channelInUse);
 				break;
 			case KEY:
-				modeKeySet(isOperator, modeSplit[3], channelInUse);
+				if (isModeOn){
+					modeKeySet(isModeOn, modeSplit[3], channelInUse);
+				}
+				else{
+					modeKeySet(isModeOn, "", channelInUse);
+				}
 				break;
 			case OPERATOR_PRIVILEGE:
-				modeOperatorPriv(isOperator, modeSplit[3], client, *channelInUse);
+				modeOperatorPriv(isModeOn, modeSplit[3], client, channelInUse);
 				break;
 			case LIMIT:
-				modeSetUserLimit(isOperator, modeSplit[3], *channelInUse);
+				if (isModeOn)
+					modeSetUserLimit(isModeOn, modeSplit[3], *channelInUse);
+				else
+					modeSetUserLimit(isModeOn, "", *channelInUse);
 				break;		
 			default:
+				client.appendResponse(ERR_UNKNOWNMODE(_serverName, client.getNickname(), std::string(1, m)));
 				break;
 			}
+			// std::map<Client*, bool>::const_iterator it;
+			// for (it = channelInUse->getClientList().begin(); it != channelInUse->getClientList().end(); ++it) {
+			// 	Client* client = it->first;
+			// 	bool isOperator = it->second;
+			// 	std::cout << "Client: " << client->getNickname() << ", isOperator: " << (isOperator ? "true" : "false") << std::endl;
+			// }
 		}
+		client.appendResponse(RPL_CHANNELMODEIS(_serverName, client.getNickname(), channelInUse->getChannelName(), channelInUse->getModeString()));
 	}
 }

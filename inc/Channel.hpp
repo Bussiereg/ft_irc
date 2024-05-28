@@ -25,11 +25,12 @@ public:
 	void						setChannelKey(std::string key);
 	void						setChannelLimit(unsigned int limit);
 	unsigned int				getLimitUsers();
+	std::string					getModeString();
 	std::string	const &			getTopic() const;
 	std::string const & 		getChannelName() const;
 	std::string const &			getChannelPassword() const;
 	std::map<Client*, bool> &	getClientList();
-	void						setClientList(Client &, bool);
+	void						setClientList(Client *, bool);
 	void						addClient(Client & client, bool isOperator);
 	bool						isMember(Client & client);
 	void						relayMessage(Client & sender, std::string const & message);

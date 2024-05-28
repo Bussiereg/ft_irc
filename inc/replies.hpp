@@ -46,7 +46,7 @@
 
 # define RPL_CHANNELMODEIS(server, nick, channel, mode) (":" + server + " 324 " + nick + " " + channel + " " + mode + "\r\n")
 
-# define ERR_UNKNOWNMODE(server, nick, mode) (":" + server + " 472 " + nick + " " + mode + " :is unknown mode char to me\r\n")
+# define ERR_UNKNOWNMODE(server, nick, mmode) (":" + server + " 472 " + nick + " " + mmode + " :is unknown mode char to me\r\n")
 
 # define ERR_UNKNOWNCOMMAND(server, nick, command) (":" + server + " 421 " + nick + " " + command + " :Unknown command\r\n")
 
