@@ -55,6 +55,8 @@ void Server::_handleJoinCommand(Client & client, std::string & message){
 		std::vector<Channel*>::iterator itch = isChannelAlreadyExisting(it->first);
 		if (itch != _channelList.end()){ //channel already exist
 			if ((*itch)->getChannelPassword() == it->second){// Check password password
+				std::cout << YELLOW << "password is: " << (*itch)->getChannelPassword() << RESET << std::endl;	
+				std::cout << YELLOW << "TEST1" << RESET << std::endl;
 				(*itch)->setClientList(client, false);
 				(*itch)->getUserListInChannel(usersInChannel);
 				client.appendResponse(RPL_TOPIC(client.getNickname(), client.getNickname(), client.gethostname(),  it->first, (*itch)->getTopic()));
@@ -112,27 +114,115 @@ void		Server::_handleTopicCommand(Client & client, std::string & input){
 	// }
 }
 
+void _changeMode(){
+
+}
+
+enum mode {
+	INVITE_ONLY,
+	TOPIC,
+	KEY,
+	OPERATOR_PRIVILEGE,
+	LIMIT
+};
+
+
+unsigned int Server::_findMode(char m){
+	char setMode[] = "itkol";
+	for (int i = 0; setMode[i] != '\0'; i++){
+		if (m == setMode[i])
+			return i;
+	}
+	return 5;
+}
+
+void	Server::modeInviteOnly(bool isOperator, Channel & channel){
+		channel.setChannelMode('i', isOperator);
+}
+
+void	Server::modeTopic(bool isOperator, Channel & channel){
+		channel.setChannelMode('t', isOperator);
+}
+
+void	Server::modeKeySet(bool isOperator, std::string key, Channel * channel){
+		channel->setChannelMode('k', isOperator);
+		channel->setChannelKey(key);
+}
+
+void	Server::modeOperatorPriv(bool isOperator, std::string ope, Client & client, Channel & channel){
+		channel.setChannelMode('o', isOperator);
+		std::map<Client*, bool>::iterator it;
+		for (it = channel.getClientList().begin(); it != channel.getClientList().end(); ++it){
+			if (it->first->getNickname() == ope){
+				channel.setChannelMode('o', isOperator);
+			}
+		}
+		if (it == channel.getClientList().end()){
+			client.appendResponse(ERR_NOSUCHNICK(_serverName, client.getNickname(), ope));
+		}
+}
+
+void	Server::modeSetUserLimit(bool isOperator, std::string limit, Channel & channel){
+	channel.setChannelLimit(std::atoi(limit.c_str()));
+	channel.setChannelMode('l', isOperator);
+}
+
+
 void	Server::_handleModeCommand(Client & client, std::string & input){
-	// std::vector<std::string> modeSplit = _splitString(input, ' ');
+	std::vector<std::string> modeSplit = _splitString(input, ' ');
+	std::string mode = "MODE";
+	Channel * channelInUse;
+	bool isOperator = false; 
+
+	if (modeSplit[0] != "MODE"){
+		return ;
+	}
+	if (modeSplit.size() <= 2){
+		std::string response1 = ERR_NEEDMOREPARAMS(mode);
+		client.appendResponse(response1);
+	}
+	else if (modeSplit.size() <= 4 ){
+
+		std::vector<Channel*>::iterator itch;
+		for (itch = _channelList.begin(); itch != _channelList.end(); ++itch){ // search if the channelname already exist
+			if ((*itch)->getChannelName() == modeSplit[1]){
+				channelInUse = *itch;
+				break;
+			}
+		}
 	
-	// if (modeSplit.size() <= 2){
-	// 	std::string mode = "MODE";
-	// 	std::string response1 = ERR_NEEDMOREPARAMS(mode);
-	// 	client.appendResponse(response1);
-	// }
-	// else if (modeSplit.size() == 3){
-	// 	if (modeSplit[2][0] == '+'){
-	// 		for (int i = 1; i < modeSplit[2].size(); i++){
-	// 			_channelList[];
-	// 		}
-	// 	}
-	// 	else if((modeSplit[1][0] == '-')){
-
-	// 	}
-	// }
-	// else if (modeSplit.size() == 4){
-	// }
-	(void)client;	
-	(void)input;
-
+		if (itch == _channelList.end()){
+			client.appendResponse(ERR_NOSUCHCHANNEL(modeSplit[1]));
+			return ;
+		}
+		if (modeSplit[2][0] == '+')
+			isOperator = true;
+		for (unsigned int i = 1; i < modeSplit[2].size(); i++){
+			char m = modeSplit[2][i]; 
+			if ((m == 'k' || m == 'o' || m == 'l') && modeSplit.size() == 3){
+				client.appendResponse(ERR_NEEDMOREPARAMS(mode));
+				return ;
+			}
+			switch (_findMode(m))
+			{
+			case INVITE_ONLY:
+				modeInviteOnly(isOperator, *channelInUse);
+				break;
+			case TOPIC:
+				modeTopic(isOperator, *channelInUse);
+				break;
+			case KEY:
+				modeKeySet(isOperator, modeSplit[3], channelInUse);
+				break;
+			case OPERATOR_PRIVILEGE:
+				modeOperatorPriv(isOperator, modeSplit[3], client, *channelInUse);
+				break;
+			case LIMIT:
+				modeSetUserLimit(isOperator, modeSplit[3], *channelInUse);
+				break;		
+			default:
+				break;
+			}
+		}
+	}
 }

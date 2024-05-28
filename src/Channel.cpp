@@ -29,6 +29,14 @@ void	Channel::setChannelMode(char mode, bool status){
 	}
 }
 
+void	Channel::setChannelKey(std::string key){
+	_channelPassword = key;
+}
+
+void	Channel::setChannelLimit(unsigned int limit){
+	_limitUsers = limit;
+}
+
 std::string	const & Channel::getTopic() const{
 	return _topic;
 }
