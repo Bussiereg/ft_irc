@@ -48,8 +48,9 @@ void Server::_initCommandMap()
 	_commandMap["QUIT"] = &Server::_handleQuitCommand;
 	_commandMap["TOPIC"] = &Server::_handleTopicCommand;
 	_commandMap["CAP"] = &Server::_handleCapCommand;
-	_commandMap["INVALID"] = &Server::_handleInvalidCommand;
 	_commandMap["WHO"] = &Server::_handleWhoCommand;
+	_commandMap["INVITE"] = &Server::_handleInviteCommand;
+	_commandMap["INVALID"] = &Server::_handleInvalidCommand;
 }
 
 Server::Server(Server const &other)
