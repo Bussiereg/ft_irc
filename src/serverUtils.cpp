@@ -50,7 +50,7 @@ std::string Server::_getNextLine(std::string & buffer)
 	return line;
 }
 
-std::string Server::concatenateTokens(const std::vector<std::string>& tokens, size_t startPos)
+std::string Server::_concatenateTokens(const std::vector<std::string>& tokens, size_t startPos)
 {
 	std::string result;
 

@@ -77,3 +77,7 @@
 # define RPL_ENDOFNAMES(server, nick, channel) (":" + server + " 366 " + nick + " " + channel + " :End of NAMES list\r\n")
 
 # define ERR_NOSUCHCHANNEL(channel) ("403 " + channel + " :No such channel\r\n")
+
+# define RPL_WHP(server, myNick, channel, username, hostname, nick, operator, realname) (":" + server + " 352 " + myNick + " " + channel + " " + username + " " + hostname + " " + server + " "  + nick + " H" + operator + " :0 " + realname + "\r\n")
+
+# define RPL_ENDWHO(server, myNick, channel)(":" + server + " 352 " + myNick + " " + channel + " :End of /WHO list\r\n")
