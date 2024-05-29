@@ -38,6 +38,14 @@ extern bool	g_quit;
 class Client;
 class Channel;
 
+enum mode {
+	INVITE_ONLY,
+	TOPIC,
+	KEY,
+	OPERATOR_PRIVILEGE,
+	LIMIT
+};
+
 #define BUFFER_SIZE 512
 
 class Server
