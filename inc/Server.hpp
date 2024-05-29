@@ -95,14 +95,16 @@ private:
 	void						_handleModeCommand(Client &, std::string &);
 	void						_handlePingCommand(Client &, std::string &);
 	void						_handleCapCommand(Client &, std::string &);
-	void		_handleQuitCommand(Client &, std::string &);
-	void		_handleInvalidCommand(Client &, std::string &);
+	void						_handleQuitCommand(Client &, std::string &);
+	void						_handleInvalidCommand(Client &, std::string &);
+	void						_handleWhoCommand(Client &, std::string &);
 
 	// utils
 	static std::vector<std::string>	_splitString(const std::string & str, char separator);
-	std::string					concatenateTokens(const std::vector<std::string>& tokens, size_t startPos);
-	std::string					_getNextLine(std::string & buffer);
+	std::string						_concatenateTokens(const std::vector<std::string>& tokens, size_t startPos);
+	std::string						_getNextLine(std::string & buffer);
 	static std::vector<std::string>	_parseReceivers(const std::string& message);
+
 public:
 	Server(int port, std::string password, std::string serverName);
 	Server(Server const &);

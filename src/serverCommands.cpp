@@ -103,7 +103,7 @@ void Server::_handleUserCommand(Client &client, std::string &message)
 		if (params.size() > 4)
 			client.setHostname(params[3]);
 		if (params.size() > 5)
-			client.setRealname(concatenateTokens(params, 4));
+			client.setRealname(_concatenateTokens(params, 4));
 		if (!client.isFullyAccepted())
 		{
 			std::cout << "[Server  ] Username accepted for " << client.getNickname() << std::endl;
@@ -192,4 +192,34 @@ void Server::_handleInvalidCommand(Client &client, std::string &message)
 
 void Server::_handleCapCommand(Client &, std::string &)
 {
+}
+
+void Server::_handleWhoCommand(Client & client, std::string & message)
+{
+	std::vector<std::string> params = _splitString(message, ' ');
+	bool found_channel = false;
+	if (params.size() == 2)
+	{
+		for (std::vector<Channel *>::iterator it_ch = _channelList.begin(); it_ch != _channelList.end(); ++it_ch)
+		{
+			if ((*it_ch)->getChannelName() == params[1])
+			{
+				found_channel = true;
+				for (std::map<Client*, bool>::iterator it_cl = (*it_ch)->getClientList().begin(); it_cl != (*it_ch)->getClientList().end(); ++it_cl)
+				{
+					if ((*it_cl).second == true)
+						client.appendResponse(RPL_WHP(_serverName, client.getNickname(), "#all" , (*it_cl).first->getUsername(), (*it_cl).first->getHostname(), (*it_cl).first->getNickname(), "*", (*it_cl).first->getRealname()));
+					else
+						client.appendResponse(RPL_WHP(_serverName, client.getNickname(), "#all" , (*it_cl).first->getUsername(), (*it_cl).first->getHostname(), (*it_cl).first->getNickname(), "", (*it_cl).first->getRealname()));
+				}
+
+			}
+		}
+		if (found_channel == false)
+		{
+			for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+				client.appendResponse(RPL_WHP(_serverName, client.getNickname(), "#all" , (*it)->getUsername(), (*it)->getHostname(), (*it)->getNickname(), "", (*it)->getRealname()));
+		}
+		client.appendResponse(RPL_ENDWHO(_serverName, client.getNickname(), "#all"));
+	}
 }
