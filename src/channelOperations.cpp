@@ -54,6 +54,13 @@ void Server::_handleJoinCommand(Client & client, std::string & message){
 	for (std::map<std::string, std::string>::iterator it = joinParams.begin(); it != joinParams.end(); ++it){
 		std::vector<Channel*>::iterator itch = isChannelAlreadyExisting(it->first);
 		if (itch != _channelList.end()){ //channel already exist
+			if ((*itch)->getChannelMode()['l'] == true && ((*itch)->getLimitUsers() <= (*itch)->getClientList().size())){
+				std::cout << YELLOW << "limit user is: " << (*itch)->getLimitUsers()  << RESET << std::endl;
+				std::cout << YELLOW << "client list size is: " << (*itch)->getClientList().size()  << RESET << std::endl;
+				std::cout << YELLOW << "TEST1" << RESET << std::endl;
+				client.appendResponse(ERR_CHANNELISFULL(client.getNickname(), (*itch)->getChannelName()));
+				return ;
+			}
 			if ((*itch)->getChannelPassword() == it->second){// Check password password
 				(*itch)->setClientList(&client, false);
 				(*itch)->getUserListInChannel(usersInChannel);
@@ -147,13 +154,9 @@ void	Server::modeKeySet(bool isOperator, std::string key, Channel * channel){
 }
 
 void	Server::modeOperatorPriv(bool isOperator, std::string ope, Client & client, Channel * channel){
-		if (client.getNickname() == ope){
-			return ;
-		}
 		if (channel->getClientList()[&client] == false){
 			return ;
 		}
-		channel->setChannelMode('o', isOperator);
 		std::map<Client*, bool>::iterator it;
 		for (it = channel->getClientList().begin(); it != channel->getClientList().end(); ++it){
 			if (it->first->getNickname() == ope){
@@ -189,15 +192,11 @@ void	Server::_handleModeCommand(Client & client, std::string & input){
 				break;
 			}
 		}
-		if (itch == _channelList.end()){
+		if (itch == _channelList.end())
 			client.appendResponse(ERR_NOSUCHCHANNEL(modeSplit[1]));
-			return ;
-		}
-		else{
+		else
 			client.appendResponse(RPL_CHANNELMODEIS(_serverName, client.getNickname(), channelInUse->getChannelName(), channelInUse->getModeString()));
-			return ;
-		}
-
+		return ;
 	}
 	else if (modeSplit.size() <= 4 ){
 		std::vector<Channel*>::iterator itch;
@@ -209,7 +208,10 @@ void	Server::_handleModeCommand(Client & client, std::string & input){
 		}
 	
 		if (itch == _channelList.end()){
-			client.appendResponse(ERR_NOSUCHCHANNEL(modeSplit[1]));
+			// client.appendResponse(RPL_CHANNELMODEIS(_serverName, client.getNickname(), "", "+i"));
+			return ;
+		}
+		if ((*itch)->getClientList()[&client] == false){  // check if the client that try to change the mode is an operator
 			return ;
 		}
 		bool isModeOn = false; 
