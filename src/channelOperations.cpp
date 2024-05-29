@@ -303,11 +303,8 @@ void	Server::_handleInviteCommand(Client & client, std::string & input){
 		client.appendResponse(ERR_NOSUCHNICK2(_serverName, inviteSplit[1]));
 		return ;
 	}
-	std::cout << "Mode +i :" << channelInUse->getChannelMode()['i'] << std::endl;
-	std::cout << "client operator :" << channelInUse->getClientList()[clientInviter->first] << std::endl;
-	if ((channelInUse->getChannelMode()['i'] == true) && (channelInUse->getClientList()[clientInviter->first] == true)){
+	if ((channelInUse->getChannelMode()['i'] == false) || ((channelInUse->getChannelMode()['i'] == true) && (channelInUse->getClientList()[clientInviter->first] == true)) ){
 		channelInUse->setInviteList(inviteSplit[1]);
-		client.appendResponse(RPL_INVITING(_serverName, channelInUse->getChannelName(), inviteSplit[1]));
-		(*it)->appendResponse(RPL_INVITING(_serverName, channelInUse->getChannelName(), inviteSplit[1]));
+		(*it)->appendResponse(INVITE(client.getNickname(), client.getUsername(), client.getHostname(),  inviteSplit[1], channelInUse->getChannelName()));		
 	}
 }
