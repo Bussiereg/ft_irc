@@ -60,6 +60,19 @@ private:
 	void		_checkClients();
 	bool		_isNickInUse(std::string const & nick);
 
+	// Join
+	void 		_createJoinmap(Client & client, std::string & message, std::map<std::string, std::string> & joinParams);
+	std::vector<Channel*>::iterator		isChannelAlreadyExisting(std::string rhs);
+
+
+	// MODE
+	unsigned int				_findMode(char m);
+	void						modeInviteOnly(bool isOperator, Channel & channel);
+	void						modeTopic(bool isOperator, Channel & channel);
+	void						modeKeySet(bool isOperator, std::string key, Channel * channel);
+	void						modeOperatorPriv(bool isOperator, std::string ope, Client & client, Channel * channel);
+	void						modeSetUserLimit(bool isOperator, std::string limit, Channel & channel);
+
 	void						_printBuffer(const char* buff, int recevied);
 	ssize_t						_fillBuffer(size_t index, std::string & buffer);
 

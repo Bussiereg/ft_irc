@@ -46,7 +46,7 @@
 
 # define RPL_CHANNELMODEIS(server, nick, channel, mode) (":" + server + " 324 " + nick + " " + channel + " " + mode + "\r\n")
 
-# define ERR_UNKNOWNMODE(server, nick, mode) (":" + server + " 472 " + nick + " " + mode + " :is unknown mode char to me\r\n")
+# define ERR_UNKNOWNMODE(server, nick, mmode) (":" + server + " 472 " + nick + " " + mmode + " :is unknown mode char to me\r\n")
 
 # define ERR_UNKNOWNCOMMAND(server, nick, command) (":" + server + " 421 " + nick + " " + command + " :Unknown command\r\n")
 
@@ -71,10 +71,9 @@
 # define ERR_BADCHANNELKEY(nick, chan) ("475 " + nick + " " + chan + " :Cannot join channel (+k)\r\n")
 
 # define ERR_BADCHANMASK(nick, chan) ("476 " + nick + " " + chan + " :Bad Channel Mask\r\n")
+														// 353
+# define RPL_NAMREPLY(server, nick, channel, nickList) (":" + server + " 353 " + nick + " = " + channel + " :" + nickList + "\r\n")
 
-# define RPL_NAMREPLY(nick, user, host, channel) ("353 " + nick + "!" + user + "@" + host + " = " + channel + " :")
-// # define RPL_NAMREPLY(nick, user, host, channel, nickList) ("353 " + nick + "!" + user + "@" + host + " = " + channel + " :" + nickList)
-
-# define RPL_ENDOFNAMES(nick, user, host, channel) ("366 " + nick + "!" + user + "@" + host + " " + channel + " :End of NAMES list\r\n")
+# define RPL_ENDOFNAMES(server, nick, channel) (":" + server + " 366 " + nick + " " + channel + " :End of NAMES list\r\n")
 
 # define ERR_NOSUCHCHANNEL(channel) ("403 " + channel + " :No such channel\r\n")

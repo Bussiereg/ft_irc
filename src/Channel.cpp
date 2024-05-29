@@ -29,6 +29,14 @@ void	Channel::setChannelMode(char mode, bool status){
 	}
 }
 
+void	Channel::setChannelKey(std::string key){
+	_channelPassword = key;
+}
+
+void	Channel::setChannelLimit(unsigned int limit){
+	_limitUsers = limit;
+}
+
 std::string	const & Channel::getTopic() const{
 	return _topic;
 }
@@ -62,8 +70,27 @@ std::string const &	Channel::getChannelPassword() const{
 	return _channelPassword;
 }
 
-void	Channel::setClientList(Client & client, bool isOperator){
-	_clientList.insert(std::pair<Client*, bool>(&client, isOperator));
+void	Channel::setClientList(Client * client, bool isOperator){
+	bool isClientInList = _clientList.find(client) != _clientList.end(); 
+	if (isClientInList)
+		 _clientList[client] = isOperator;
+	else{
+		_clientList.insert(std::pair<Client*, bool>(client, isOperator));
+	}
+}
+
+unsigned int				Channel::getLimitUsers(){
+	return _limitUsers;
+}
+
+std::string		Channel::getModeString(){
+	std::string modeString = "";
+	std::map<char, bool>::iterator it;
+	for (it = _mode.begin(); it != _mode.end(); ++it){
+		if (it->second == true)
+			modeString += it->first;
+	}
+	return modeString;
 }
 
 Channel::~Channel(){
