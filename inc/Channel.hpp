@@ -20,7 +20,7 @@ public:
 	Channel(std::string, Client &);
 	~Channel();
 
-	void						setTopic(Client & lhs, std::string & newTopic);
+	void						setTopic(std::string & newTopic);
 	void						setChannelMode(char mode, bool status);
 	void						setChannelKey(std::string key);
 	void						setChannelLimit(unsigned int limit);

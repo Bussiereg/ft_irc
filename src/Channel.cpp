@@ -2,7 +2,7 @@
 
 Channel::Channel(std::string name, Client & client) : _channelName(name){
 	_clientList.insert(std::pair<Client*, bool>(&client, true));
-	_topic = "this is the default Topics of the channel: " + _channelName;
+	std::cout << YELLOW << "Constructor Channel called" << RESET << std::endl;	
 	_mode['i'] = false;
 	_mode['t'] = false;
 	_mode['k'] = false;
@@ -40,11 +40,8 @@ std::string	const & Channel::getTopic() const{
 	return _topic;
 }
 
-void	Channel::setTopic(Client & lhs, std::string & newTopic){
-	if (!_mode['t'])
-		_topic  = newTopic;
-	else if (_mode['t'] && _clientList[&lhs])
-		_topic  = newTopic;
+void	Channel::setTopic(std::string & newTopic){
+	_topic = newTopic;
 }
 
 std::map<Client*, bool> & Channel::getClientList(){

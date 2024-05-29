@@ -88,35 +88,39 @@ std::vector<Channel*> Server::getChannelList(){
 }
 
 void		Server::_handleTopicCommand(Client & client, std::string & input){
-	(void)input;
-	(void)client;
-	// std::vector<std::string> paramTopic = _splitString(input, ' ');
-	// if (paramTopic.size() < 2){
-	// 	std::string topic = "TOPIC";
-	// 	std::string response1 = ERR_NEEDMOREPARAMS(topic);
-	// 	client.appendResponse(response1);
-	// 	return ;
-	// }
-	// std::vector<Channel*>::iterator it;
-	// for (it = _channelList.begin(); it != _channelList.end(); ++it){
-	// 	if ((*it)->getChannelName() == paramTopic[1]){
-	// 		if (!(*it)->getClientList()[&client]){
-	// 			std::string response2 = ERR_NOTONCHANNEL(_serverName ,(*it)->getChannelName());
-	// 			client.appendResponse(response2);
-	// 			return ;
-	// 		}
-	// 		else{
-	// 			std::string response3;
-	// 			if ((*it)->getTopic().empty())
-	// 				response3 = RPL_NOTOPIC(client.getNickname(), client.getUsername(), client.gethostname(),  (*it)->getChannelName());
-	// 			else
-	// 				response3 = RPL_TOPIC(client.getNickname(), client.getUsername(), client.gethostname(),  (*it)->getChannelName(), (*it)->getTopic());	
-	// 			client.appendResponse(response3);
-	// 			return;
-	// 		}
-	// 	}
 
-	// }
+	std::vector<std::string> paramTopic = _splitString(input, ' ');
+	if (paramTopic.size() < 2){
+		std::string topic = "TOPIC";
+		client.appendResponse(ERR_NEEDMOREPARAMS(topic));
+		return ;
+	}
+	else if (paramTopic.size() >= 2){
+		std::vector<Channel*>::iterator it;
+		for (it = _channelList.begin(); it != _channelList.end(); ++it){
+			if ((*it)->getChannelName() == paramTopic[1]){
+				if ((*it)->getClientList().find(&client) == (*it)->getClientList().end() ){
+					client.appendResponse(ERR_NOTONCHANNEL(_serverName ,(*it)->getChannelName()));
+					return ;
+				}
+				else if (paramTopic.size() == 2){
+					if ((*it)->getTopic().empty())
+						client.appendResponse(RPL_NOTOPIC(client.getNickname(), client.getUsername(), client.gethostname(),  (*it)->getChannelName()));
+					else
+						client.appendResponse(RPL_TOPIC(client.getNickname(), client.getUsername(), client.gethostname(),  (*it)->getChannelName(), (*it)->getTopic()));
+					return;
+				}
+				else if (paramTopic.size() >= 3){
+					if (((*it)->getChannelMode()['t'] == false) || (((*it)->getChannelMode()['t'] == true) && ((*it)->getClientList()[&client] == true))){
+						(*it)->setTopic(paramTopic[2]);
+						std::cout << RED << "TEST" << RESET << std::endl;
+						client.appendResponse(RPL_TOPIC(client.getNickname(), client.getUsername(), client.gethostname(),  (*it)->getChannelName(), (*it)->getTopic()));
+					}
+					return ;
+				}
+			}
+		}
+	}
 }
 
 enum mode {
@@ -213,6 +217,9 @@ void	Server::_handleModeCommand(Client & client, std::string & input){
 		}
 		if ((*itch)->getClientList()[&client] == false){  // check if the client that try to change the mode is an operator
 			return ;
+		}
+		if (modeSplit.size() == 3 && modeSplit[2].size() == 1 && modeSplit[2][0] == 'b'){
+			return;
 		}
 		bool isModeOn = false; 
 		if (modeSplit[2][0] == '+')
