@@ -148,7 +148,10 @@ void Server::_handlePrivmsgCommand(Client &client, std::string &message)
 			if (ite == _clients.end())
 				client.appendResponse(ERR_NOSUCHNICK(_serverName, client.getNickname(), *it));
 			else
+			{
 				(*ite)->appendResponse(forward);
+				(*ite)->getContactList().push_back(client.getClientSocket()->fd); // add to the list of private conversations
+			}
 		}
 	}
 }
@@ -165,9 +168,7 @@ void Server::_handleQuitCommand(Client &client, std::string &message)
 	{
 		if (*it != &client)
 		{
-			std::vector<int>::const_iterator ContactFDListBegin = (*it)->getContactList().begin();
-			std::vector<int>::const_iterator ContactFDListEnd = (*it)->getContactList().begin();
-			if (std::find(ContactFDListBegin, ContactFDListEnd, (*it)->getClientSocket()->fd) != ContactFDListEnd)
+			if (std::find((*it)->getContactList().begin(), (*it)->getContactList().end(), (*it)->getClientSocket()->fd) != (*it)->getContactList().end())
 				(*it)->appendResponse(QUIT_REASON(client.getNickname(), client.getUsername(), client.getHostname(), message.substr(6)));
 			// else if ( both client are part of the same channel)
 			//  {

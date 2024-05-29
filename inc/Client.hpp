@@ -53,7 +53,7 @@ public:
 	void				acceptFully();
 
 	std::string const &			getResponse() const;
-	std::vector<int> const &	getContactList();
+	std::vector<int> &			getContactList();
 	void						appendResponse(std::string newMessage);
 	void						clearResponse();
 };
