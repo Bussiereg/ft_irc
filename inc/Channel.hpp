@@ -30,6 +30,7 @@ public:
 	std::string const & 		getChannelName() const;
 	std::string const &			getChannelPassword() const;
 	std::map<Client*, bool> &	getClientList();
+	std::map<char, bool> &		getChannelMode();
 	void						setClientList(Client *, bool);
 	void						addClient(Client & client, bool isOperator);
 	bool						isMember(Client & client);

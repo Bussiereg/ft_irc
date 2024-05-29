@@ -6,7 +6,6 @@ Channel::Channel(std::string name, Client & client) : _channelName(name){
 	_mode['i'] = false;
 	_mode['t'] = false;
 	_mode['k'] = false;
-	_mode['o'] = false;
 	_mode['l'] = false;
 }
 
@@ -68,6 +67,10 @@ std::string const &	Channel::getChannelName() const{
 
 std::string const &	Channel::getChannelPassword() const{
 	return _channelPassword;
+}
+
+std::map<char, bool> &		Channel::getChannelMode(){
+	return _mode;
 }
 
 void	Channel::setClientList(Client * client, bool isOperator){
