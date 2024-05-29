@@ -55,9 +55,6 @@ void Server::_handleJoinCommand(Client & client, std::string & message){
 		std::vector<Channel*>::iterator itch = isChannelAlreadyExisting(it->first);
 		if (itch != _channelList.end()){ //channel already exist
 			if ((*itch)->getChannelMode()['l'] == true && ((*itch)->getLimitUsers() <= (*itch)->getClientList().size())){
-				std::cout << YELLOW << "limit user is: " << (*itch)->getLimitUsers()  << RESET << std::endl;
-				std::cout << YELLOW << "client list size is: " << (*itch)->getClientList().size()  << RESET << std::endl;
-				std::cout << YELLOW << "TEST1" << RESET << std::endl;
 				client.appendResponse(ERR_CHANNELISFULL(client.getNickname(), (*itch)->getChannelName()));
 				return ;
 			}
@@ -88,45 +85,42 @@ std::vector<Channel*> Server::getChannelList(){
 }
 
 void		Server::_handleTopicCommand(Client & client, std::string & input){
-	(void)input;
-	(void)client;
-	// std::vector<std::string> paramTopic = _splitString(input, ' ');
-	// if (paramTopic.size() < 2){
-	// 	std::string topic = "TOPIC";
-	// 	std::string response1 = ERR_NEEDMOREPARAMS(topic);
-	// 	client.appendResponse(response1);
-	// 	return ;
-	// }
-	// std::vector<Channel*>::iterator it;
-	// for (it = _channelList.begin(); it != _channelList.end(); ++it){
-	// 	if ((*it)->getChannelName() == paramTopic[1]){
-	// 		if (!(*it)->getClientList()[&client]){
-	// 			std::string response2 = ERR_NOTONCHANNEL(_serverName ,(*it)->getChannelName());
-	// 			client.appendResponse(response2);
-	// 			return ;
-	// 		}
-	// 		else{
-	// 			std::string response3;
-	// 			if ((*it)->getTopic().empty())
-	// 				response3 = RPL_NOTOPIC(client.getNickname(), client.getUsername(), client.gethostname(),  (*it)->getChannelName());
-	// 			else
-	// 				response3 = RPL_TOPIC(client.getNickname(), client.getUsername(), client.gethostname(),  (*it)->getChannelName(), (*it)->getTopic());	
-	// 			client.appendResponse(response3);
-	// 			return;
-	// 		}
-	// 	}
 
-	// }
+	std::vector<std::string> paramTopic = _splitString(input, ' ');
+	if (paramTopic.size() < 2){
+		std::string topic = "TOPIC";
+		client.appendResponse(ERR_NEEDMOREPARAMS(topic));
+		return ;
+	}
+	else if (paramTopic.size() >= 2){
+		std::vector<Channel*>::iterator it;
+		for (it = _channelList.begin(); it != _channelList.end(); ++it){
+			if ((*it)->getChannelName() == paramTopic[1]){
+				if ((*it)->getClientList().find(&client) == (*it)->getClientList().end() ){
+					client.appendResponse(ERR_NOTONCHANNEL(_serverName ,(*it)->getChannelName()));
+					return ;
+				}
+				else if (paramTopic.size() == 2){
+					if ((*it)->getTopic().empty())
+						client.appendResponse(RPL_NOTOPIC(client.getNickname(), client.getUsername(), client.gethostname(),  (*it)->getChannelName()));
+					else
+						client.appendResponse(RPL_TOPIC(client.getNickname(), client.getUsername(), client.gethostname(),  (*it)->getChannelName(), (*it)->getTopic()));
+					return;
+				}
+				else if (paramTopic.size() >= 3){
+					if (((*it)->getChannelMode()['t'] == false) || (((*it)->getChannelMode()['t'] == true) && ((*it)->getClientList()[&client] == true))){
+						size_t colonpos = input.find(':');
+						std::string newTopic = input.substr(colonpos + 1);
+						(*it)->setTopic(newTopic);
+						client.appendResponse(RPL_TOPIC(client.getNickname(), client.getUsername(), client.gethostname(),  (*it)->getChannelName(), (*it)->getTopic()));
+						(*it)->relayMessage(client, RPL_TOPIC(client.getNickname(), client.getUsername(), client.gethostname(),  (*it)->getChannelName(), (*it)->getTopic()));
+					}
+					return ;
+				}
+			}
+		}
+	}
 }
-
-enum mode {
-	INVITE_ONLY,
-	TOPIC,
-	KEY,
-	OPERATOR_PRIVILEGE,
-	LIMIT
-};
-
 
 unsigned int Server::_findMode(char m){
 	char setMode[] = "itkol";
@@ -211,9 +205,11 @@ void	Server::_handleModeCommand(Client & client, std::string & input){
 			// client.appendResponse(RPL_CHANNELMODEIS(_serverName, client.getNickname(), "", "+i"));
 			return ;
 		}
-		if ((*itch)->getClientList()[&client] == false){  // check if the client that try to change the mode is an operator
+		if ((*itch)->getClientList()[&client] == false)  // check if the client that try to change the mode is an operator
 			return ;
-		}
+		if (modeSplit.size() == 3 && modeSplit[2].size() == 1 && modeSplit[2][0] == 'b') // silence the return ban of the client
+			return;
+
 		bool isModeOn = false; 
 		if (modeSplit[2][0] == '+')
 			isModeOn = true;
@@ -254,15 +250,11 @@ void	Server::_handleModeCommand(Client & client, std::string & input){
 				break;		
 			default:
 				client.appendResponse(ERR_UNKNOWNMODE(_serverName, client.getNickname(), std::string(1, m)));
+				return ;
 				break;
 			}
-			// std::map<Client*, bool>::const_iterator it;
-			// for (it = channelInUse->getClientList().begin(); it != channelInUse->getClientList().end(); ++it) {
-			// 	Client* client = it->first;
-			// 	bool isOperator = it->second;
-			// 	std::cout << "Client: " << client->getNickname() << ", isOperator: " << (isOperator ? "true" : "false") << std::endl;
-			// }
 		}
+		(*itch)->relayMessage(client, RPL_CHANNELMODEIS(_serverName, client.getNickname(), channelInUse->getChannelName(), channelInUse->getModeString()));
 		client.appendResponse(RPL_CHANNELMODEIS(_serverName, client.getNickname(), channelInUse->getChannelName(), channelInUse->getModeString()));
 	}
 }

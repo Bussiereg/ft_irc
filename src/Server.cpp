@@ -46,6 +46,7 @@ void Server::_initCommandMap()
 	_commandMap["JOIN"] = &Server::_handleJoinCommand;
 	_commandMap["MODE"] = &Server::_handleModeCommand;
 	_commandMap["QUIT"] = &Server::_handleQuitCommand;
+	_commandMap["TOPIC"] = &Server::_handleTopicCommand;
 	_commandMap["CAP"] = &Server::_handleCapCommand;
 	_commandMap["INVALID"] = &Server::_handleInvalidCommand;
 }
