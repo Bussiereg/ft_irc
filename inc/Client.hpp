@@ -12,20 +12,19 @@ class Channel;
 
 class Client {
 private:
-	pollfd *			_socket;
-	std::string			_nickname;
-	std::string			_username;
-	std::string			_hostname;
-	std::string			_realname;
-	bool				_isPassedWord;
-	bool				_isFullyAccepted;
-	bool				_passWordAttempted;
-	std::vector<int>	_contactList;
+	pollfd *				_socket;
+	std::string				_nickname;
+	std::string				_username;
+	std::string				_hostname;
+	std::string				_realname;
+	bool					_isPassedWord;
+	bool					_isFullyAccepted;
+	bool					_passWordAttempted;
+	std::set<int>			_contactList;
+	std::vector<Channel*>	_channelJoined;
+	std::string				_response;
+	std::string				_buffer;
 
-	std::vector<Channel*>		_channelJoined;
-	std::string					_response;
-	std::string					_buffer;
-//	bool			_isBufferFull;
 public:
 	Client(pollfd * socket);
 	Client(Client const &);
@@ -41,32 +40,32 @@ public:
 	void			 	removeChannelJoined(Channel * channel);
 	void				setChannelJoined(Channel*);
 
-	void				setUsername(std::string const &);
-	std::string const & getHostname() const;
-	void				setHostname(std::string const &);
-	std::string const & getRealname() const;
-	void				setRealname(std::string const &);
-	bool				passWordAttempted() const;
-	void				passWordAttempt();
-	bool				isPassedWord() const;
-	void				acceptPassword();
-	bool 				isFullyAccepted() const;
-	void				acceptFully();
+	void					setUsername(std::string const &);
+	std::string const &		getHostname() const;
+	void					setHostname(std::string const &);
+	std::string const &		getRealname() const;
+	void					setRealname(std::string const &);
+	bool					passWordAttempted() const;
+	void					passWordAttempt();
+	bool					isPassedWord() const;
+	void					acceptPassword();
+	bool 					isFullyAccepted() const;
+	void					acceptFully();
 
-	std::string const &			getResponse() const;
-	std::vector<int> const &	getContactList();
-	void						appendResponse(std::string newMessage);
-	void						clearResponse();
+	std::string const &		getResponse() const;
+	std::set<int> &			getContactList();
+	void					appendResponse(std::string newMessage);
+	void					clearResponse();
 };
 
 class MatchNickname {
 public:
-    MatchNickname(const std::string& nickname) : nickname_(nickname) {}
+	MatchNickname(const std::string& nickname) : nickname_(nickname) {}
 
-    bool operator()(const Client* user) const {
-        return user->getNickname() == nickname_;
-    }
+	bool operator()(const Client* user) const {
+		return user->getNickname() == nickname_;
+	}
 
 private:
-    std::string nickname_;
+	std::string nickname_;
 };

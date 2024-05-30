@@ -17,6 +17,7 @@ private:
 	unsigned int				_limitUsers;
 	std::vector<std::string>	_inviteList;
 	std::map<Client*, bool>		_clientList; // second param bool is true if the client if operator, false otherwise
+	
 public:
 	Channel(std::string, Client &);
 	~Channel();
@@ -36,21 +37,20 @@ public:
 	std::map<Client*, bool> &	getClientList();
 	std::map<char, bool> &		getChannelMode();
 	void						setClientList(Client *, bool);
-	void						addClient(Client & client, bool isOperator);
-	bool						isMember(Client & client);
+	void						addClient(Client &, bool isOperator);
+	bool						isMember(Client &);
 	void						relayMessage(Client & sender, std::string const & message);
-
 	void 						getUserListInChannel(std::string & usersInChannel);
 };
 
 class MatchChannelName {
 public:
-    MatchChannelName(const std::string& name) : name_(name) {}
+	MatchChannelName(const std::string& name) : name_(name) {}
 
-    bool operator()(Channel* const channel) const {
-        return channel->getChannelName() == name_;
-    }
+	bool operator()(Channel* const channel) const {
+		return channel->getChannelName() == name_;
+	}
 
 private:
-    std::string name_;
+	std::string name_;
 };

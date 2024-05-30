@@ -8,8 +8,7 @@
 
 # define RPL_WELCOME(nick, user, host) ("001 " + nick + " :Welcome to the Internet Relay Network " + nick + "!" + user + "@" + host + "\r\n")
 
-/* # define PONG(server) ("PONG :" + server + "\r\n") */ // Emili's version
-# define PONG(server) ("PONG " + server + "\r\n") // the manual recommand without the :
+# define PONG(server) ("PONG " + server + "\r\n")
 
 # define ERR_NOORIGIN(cmd) (cmd + ":No origin specified\r\n")
 
@@ -18,6 +17,7 @@
 # define ERR_NONICKNAMEGIVEN(server) (":" + server + " 431 * :No nickname given\r\n")
 
 # define ERR_NICKNAMEINUSE(nick) ("433 " + nick + " :Nickname already in use\r\n")
+
 # define ERR_NICKNAMEISUSE(nick) ("433 NICK :" + nick + "\r\n")
 
 # define ERR_NOTONCHANNEL(server, channel) (":" + server + " 442 " + channel + " :You're not on that channel\r\n")
@@ -59,6 +59,7 @@
 # define INVITE(nick, user, host, nickinvite, channel)  (":" + nick + "!" + user + "@" + host + " INVITE " + nickinvite + " " + channel + "\r\n")
 
 # define ERR_NOSUCHNICK(server, sender, receiver) (":" + server + " 401 " + sender + " " + receiver + " :No such nick/channel\r\n")
+
 # define ERR_NOSUCHNICK2(server, nick) (":" + server + " 401 " + nick + " :No such nick/channel\r\n")
 
 # define ERR_USERONCHANNEL(nick, invitenick, chan) ("443 " + nick + " " + invitenick + " " + chan + ":is already on channel\r\n")
@@ -79,7 +80,7 @@
 
 # define ERR_NOSUCHCHANNEL(channel) ("403 " + channel + " :No such channel\r\n")
 
-# define RPL_WHP(server, myNick, channel, username, hostname, nick, operator, realname) (":" + server + " 352 " + myNick + " " + channel + " " + username + " " + hostname + " " + server + " "  + nick + " H" + operator + " :0 " + realname + "\r\n")
+# define RPL_WHO(server, myNick, channel, username, hostname, nick, operator, realname) (":" + server + " 352 " + myNick + " " + channel + " " + username + " " + hostname + " " + server + " "  + nick + " H" + operator + " :0 " + realname + "\r\n")
 
 # define RPL_ENDWHO(server, myNick, channel)(":" + server + " 352 " + myNick + " " + channel + " :End of /WHO list\r\n")
 
