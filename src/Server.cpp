@@ -55,6 +55,7 @@ void Server::_initCommandMap()
 	_commandMap["WHO"] = &Server::_handleWhoCommand;
 	_commandMap["INVITE"] = &Server::_handleInviteCommand;
 	_commandMap["KICK"] = &Server::_handleKickCommand;
+	_commandMap["PART"] = &Server::_handlePartCommand;
 	_commandMap["INVALID"] = &Server::_handleInvalidCommand;
 	_commandMap["MOTD"] = &Server::_handleMotdCommand;
 	_commandMap["motd"] = &Server::_handleMotdCommand; // irssi sends motd in lowercase

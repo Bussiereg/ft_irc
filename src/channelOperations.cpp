@@ -357,5 +357,52 @@ void 	Server::_handleKickCommand(Client & client, std::string & input){
 		channelInUse->removeClient(clientToBeKicked);
 		clientToBeKicked->removeChannelJoined(channelInUse);
 	}
-	
+}
+
+void	Server::_handlePartCommand(Client & client, std::string & input){
+	std::vector<std::string> partSplit = _splitString(input, ' ');
+	if (partSplit.size() < 2){
+		std::string part = "PART";
+		return client.appendResponse(ERR_NEEDMOREPARAMS(part));
+	}
+	else{
+		std::string reason = "";
+		if (partSplit.size() >= 3){
+			size_t colonpos = input.find(':');
+			reason = input.substr(colonpos + 1);
+		}
+		std::vector<std::string> channelListToPart = _splitString(partSplit[1], ',');
+		for (size_t i = 0; i < channelListToPart.size(); i++){
+			Channel *channelInUse;
+			bool channelExisting = false;
+			std::vector<Channel *>::iterator it;
+			for (it = _channelList.begin(); it != _channelList.end(); ++it){
+				if ((*it)->getChannelName() == channelListToPart[i]){
+					channelExisting = true;
+					channelInUse = *it;
+					break;
+				}
+			}
+			if (channelExisting == false)
+				client.appendResponse(ERR_NOSUCHCHANNEL(channelListToPart[1]));
+			// else if (std::find(client.getChannelJoined().begin(), client.getChannelJoined().end(), channelInUse) == client.getChannelJoined().end())
+			// 	client.appendResponse(ERR_NOTONCHANNEL(_serverName, channelInUse->getChannelName()));
+			else{
+				if (partSplit.size() == 2){
+					channelInUse->relayMessage(client, PART(client.getNickname(), client.getUsername(), client.gethostname(), channelInUse->getChannelName()));
+					client.appendResponse(KICK(client.getNickname(), client.getUsername(), client.gethostname(), channelInUse->getChannelName(), client.getNickname(), reason));
+				}
+				else if (partSplit.size() >= 3){
+					channelInUse->relayMessage(client, PART_REASON(client.getNickname(), client.getUsername(), client.gethostname(), channelInUse->getChannelName(), reason));
+					client.appendResponse(KICK(client.getNickname(), client.getUsername(), client.gethostname(), channelInUse->getChannelName(), client.getNickname(), reason));
+				}
+				channelInUse->removeClient(&client);
+				client.removeChannelJoined(channelInUse);
+				if (channelInUse->getClientList().empty()){
+					_channelList.erase(it);
+					delete channelInUse;
+				}
+			}
+		}
+	}
 }

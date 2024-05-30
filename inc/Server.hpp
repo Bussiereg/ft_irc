@@ -90,7 +90,7 @@ private:
 	void						_handleWhoCommand(Client &, std::string &);
 	void						_handleInviteCommand(Client &, std::string &);
 	void						_handleKickCommand(Client &, std::string &);
-	void						_handleMotdCommand(Client &, std::string &);
+	void						_handlePartCommand(Client &, std::string &);	void						_handleMotdCommand(Client &, std::string &);
 
 	// utils
 	static std::vector<std::string>	_splitString(const std::string & str, char separator);
