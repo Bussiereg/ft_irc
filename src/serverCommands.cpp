@@ -158,7 +158,6 @@ void Server::_handlePrivmsgCommand(Client &client, std::string &message)
 
 void Server::_handlePingCommand(Client &client, std::string &message)
 {
-	// should check if servername is given, otherwise error
 	client.appendResponse(PONG(message.substr(5)));
 }
 
@@ -179,14 +178,6 @@ void Server::_handleQuitCommand(Client &client, std::string &message)
 						(*it)->appendResponse(QUIT_REASON(client.getNickname(), client.getUsername(), client.getHostname(), message.substr(6)));
 				}
 			}
-			// else if ( both client are part of the same channel)
-			//  {
-			//	Channel Notifications: Users in the same channels as the quitting user receive a notification.
-			//  	Channel Member List: The user's name will be removed from the list of channel members.
-			//  	Potential Channel Events: Depending on the server configuration and channel settings,
-			//  	additional events might be triggered. For example, if the user held special privileges
-			//  	(like being an operator), the server might handle the redistribution of those privileges.
-			//  }
 		}
 	}
 	_delClient(client);
@@ -217,9 +208,9 @@ void Server::_handleWhoCommand(Client & client, std::string & message)
 				for (std::map<Client*, bool>::iterator it_cl = (*it_ch)->getClientList().begin(); it_cl != (*it_ch)->getClientList().end(); ++it_cl)
 				{
 					if ((*it_cl).second == true)
-						client.appendResponse(RPL_WHP(_serverName, client.getNickname(), (*it_ch)->getChannelName(), (*it_cl).first->getUsername(), (*it_cl).first->getHostname(), (*it_cl).first->getNickname(), "*", (*it_cl).first->getRealname()));
+						client.appendResponse(RPL_WHO(_serverName, client.getNickname(), (*it_ch)->getChannelName(), (*it_cl).first->getUsername(), (*it_cl).first->getHostname(), (*it_cl).first->getNickname(), "*", (*it_cl).first->getRealname()));
 					else
-						client.appendResponse(RPL_WHP(_serverName, client.getNickname(), (*it_ch)->getChannelName(), (*it_cl).first->getUsername(), (*it_cl).first->getHostname(), (*it_cl).first->getNickname(), "", (*it_cl).first->getRealname()));
+						client.appendResponse(RPL_WHO(_serverName, client.getNickname(), (*it_ch)->getChannelName(), (*it_cl).first->getUsername(), (*it_cl).first->getHostname(), (*it_cl).first->getNickname(), "", (*it_cl).first->getRealname()));
 				}
 			client.appendResponse(RPL_ENDWHO(_serverName, client.getNickname(), (*it_ch)->getChannelName()));
 			}
@@ -227,7 +218,7 @@ void Server::_handleWhoCommand(Client & client, std::string & message)
 		if (found_channel == false)
 		{
 			for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it)
-				client.appendResponse(RPL_WHP(_serverName, client.getNickname(), "#all" , (*it)->getUsername(), (*it)->getHostname(), (*it)->getNickname(), "", (*it)->getRealname()));
+				client.appendResponse(RPL_WHO(_serverName, client.getNickname(), "#all" , (*it)->getUsername(), (*it)->getHostname(), (*it)->getNickname(), "", (*it)->getRealname()));
 		client.appendResponse(RPL_ENDWHO(_serverName, client.getNickname(), "#all"));
 		}
 	}

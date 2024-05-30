@@ -52,53 +52,51 @@ class Server
 {
 private:
 	typedef void (Server::*CommandFunction)(Client &, std::string &);
-	std::map<std::string, CommandFunction> _commandMap;
+	std::map<std::string, CommandFunction>	_commandMap;
+	std::vector<Channel*>					_channelList;
+	std::vector<Client*>					_clients;
+	std::vector<pollfd>						_allSockets;
+	std::string	const						_serverName;
+	int										_port;
+	std::string const						_password;
 
-	std::vector<Channel*>	_channelList;
-	std::vector<Client*>	_clients;
-	std::vector<pollfd>		_allSockets;
-
-	std::string	const		_serverName;
-	int						_port;
-	std::string const		_password;
-
-	void		_initCommandMap();
-	void		_acceptNewClient();
-	void		_delClient(Client & client);
-	void		_checkClients();
-	bool		_isNickInUse(std::string const & nick);
+	void							_initCommandMap();
+	void							_acceptNewClient();
+	void							_delClient(Client &);
+	void							_checkClients();
+	bool							_isNickInUse(std::string const & nick);
 
 	// Join
-	void 		_createJoinmap(Client & client, std::string & message, std::map<std::string, std::string> & joinParams);
-	std::vector<Channel*>::iterator		isChannelAlreadyExisting(std::string rhs);
+	void 							_createJoinmap(Client &, std::string & message, std::map<std::string, std::string> & joinParams);
+	std::vector<Channel*>::iterator	_isChannelAlreadyExisting(std::string rhs);
 
 
 	// MODE
-	unsigned int				_findMode(char m);
-	void						modeInviteOnly(bool isOperator, Channel & channel);
-	void						modeTopic(bool isOperator, Channel & channel);
-	void						modeKeySet(bool isOperator, std::string key, Channel * channel);
-	void						modeOperatorPriv(bool isOperator, std::string ope, Client & client, Channel * channel);
-	void						modeSetUserLimit(bool isOperator, std::string limit, Channel & channel);
+	unsigned int					_findMode(char m);
+	void							_modeInviteOnly(bool isOperator, Channel &);
+	void							_modeTopic(bool isOperator, Channel &);
+	void							_modeKeySet(bool isOperator, std::string key, Channel *);
+	void							_modeOperatorPriv(bool isOperator, std::string ope, Client &, Channel *);
+	void							_modeSetUserLimit(bool isOperator, std::string limit, Channel &);
 
-	void						_printBuffer(const char* buff, int recevied);
-	ssize_t						_fillBuffer(size_t index, std::string & buffer);
+	void							_printBuffer(const char* buff, int recevied);
+	ssize_t							_fillBuffer(size_t index, std::string & buffer);
 
-	void 						_readBuffer(size_t index, std::string & buffer);
-	std::string 				_getCommand(std::string &);
-	void						_handlePassCommand(Client &, std::string &);
-	void						_handleNickCommand(Client &, std::string &);
-	void						_handleUserCommand(Client &, std::string &);
-	void						_handlePrivmsgCommand(Client &, std::string &);
-	void						_handleJoinCommand(Client &, std::string &);
-	void						_handleTopicCommand(Client &, std::string &);
-	void						_handleModeCommand(Client &, std::string &);
-	void						_handlePingCommand(Client &, std::string &);
-	void						_handleCapCommand(Client &, std::string &);
-	void						_handleQuitCommand(Client &, std::string &);
-	void						_handleInvalidCommand(Client &, std::string &);
-	void						_handleWhoCommand(Client &, std::string &);
-	void						_handleInviteCommand(Client &, std::string &);
+	void 							_readBuffer(size_t index, std::string & buffer);
+	std::string 					_getCommand(std::string &);
+	void							_handlePassCommand(Client &, std::string &);
+	void							_handleNickCommand(Client &, std::string &);
+	void							_handleUserCommand(Client &, std::string &);
+	void							_handlePrivmsgCommand(Client &, std::string &);
+	void							_handleJoinCommand(Client &, std::string &);
+	void							_handleTopicCommand(Client &, std::string &);
+	void							_handleModeCommand(Client &, std::string &);
+	void							_handlePingCommand(Client &, std::string &);
+	void							_handleCapCommand(Client &, std::string &);
+	void							_handleQuitCommand(Client &, std::string &);
+	void							_handleInvalidCommand(Client &, std::string &);
+	void							_handleWhoCommand(Client &, std::string &);
+	void							_handleInviteCommand(Client &, std::string &);
 
 	// utils
 	static std::vector<std::string>	_splitString(const std::string & str, char separator);
@@ -112,8 +110,8 @@ public:
 	Server & operator=(Server const &);
 	~Server();
 
-	std::vector<Channel*> 	getChannelList();
-	void 					startPolling();
+	std::vector<Channel*>			getChannelList();
+	void 							startPolling();
 	
 	class SocketCreationException : public std::exception {
 		virtual const char *what() const throw();
