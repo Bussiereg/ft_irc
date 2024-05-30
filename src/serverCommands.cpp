@@ -137,8 +137,9 @@ void Server::_handlePrivmsgCommand(Client &client, std::string &message)
 			std::vector<Channel *>::iterator ite = std::find_if(_channelList.begin(), _channelList.end(), MatchChannelName(*it));
 			if (ite == _channelList.end())
 				client.appendResponse(ERR_NOSUCHNICK(_serverName, client.getNickname(), *it));
-			else if (!(*ite)->isMember(client))
+			else if (!(*ite)->isMember(client)){
 				client.appendResponse(ERR_NOTONCHANNEL(_serverName, (*ite)->getChannelName()));
+			}
 			else
 				(*ite)->relayMessage(client, forward);
 		}

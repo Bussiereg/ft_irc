@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Server.hpp                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/12 16:43:26 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/24 17:00:10 by mwallage         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #pragma once
 #include <iostream>
 #include <vector>
@@ -82,21 +70,22 @@ private:
 	void							_printBuffer(const char* buff, int recevied);
 	ssize_t							_fillBuffer(size_t index, std::string & buffer);
 
-	void 							_readBuffer(size_t index, std::string & buffer);
-	std::string 					_getCommand(std::string &);
-	void							_handlePassCommand(Client &, std::string &);
-	void							_handleNickCommand(Client &, std::string &);
-	void							_handleUserCommand(Client &, std::string &);
-	void							_handlePrivmsgCommand(Client &, std::string &);
-	void							_handleJoinCommand(Client &, std::string &);
-	void							_handleTopicCommand(Client &, std::string &);
-	void							_handleModeCommand(Client &, std::string &);
-	void							_handlePingCommand(Client &, std::string &);
-	void							_handleCapCommand(Client &, std::string &);
-	void							_handleQuitCommand(Client &, std::string &);
-	void							_handleInvalidCommand(Client &, std::string &);
-	void							_handleWhoCommand(Client &, std::string &);
-	void							_handleInviteCommand(Client &, std::string &);
+	void 						_readBuffer(size_t index, std::string & buffer);
+	std::string 				_getCommand(std::string &);
+	void						_handlePassCommand(Client &, std::string &);
+	void						_handleNickCommand(Client &, std::string &);
+	void						_handleUserCommand(Client &, std::string &);
+	void						_handlePrivmsgCommand(Client &, std::string &);
+	void						_handleJoinCommand(Client &, std::string &);
+	void						_handleTopicCommand(Client &, std::string &);
+	void						_handleModeCommand(Client &, std::string &);
+	void						_handlePingCommand(Client &, std::string &);
+	void						_handleCapCommand(Client &, std::string &);
+	void						_handleQuitCommand(Client &, std::string &);
+	void						_handleInvalidCommand(Client &, std::string &);
+	void						_handleWhoCommand(Client &, std::string &);
+	void						_handleInviteCommand(Client &, std::string &);
+	void						_handleKickCommand(Client &, std::string &);
 
 	// utils
 	static std::vector<std::string>	_splitString(const std::string & str, char separator);

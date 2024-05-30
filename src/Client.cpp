@@ -129,6 +129,14 @@ std::vector<Channel*> & Client::getChannelJoined(){
 	return _channelJoined;
 }
 
+void 	Client::removeChannelJoined(Channel * channel){
+	std::vector<Channel*>::iterator it;
+	for (it = _channelJoined.begin(); it != _channelJoined.end(); ++it){
+		if ((*it) == channel)
+			_channelJoined.erase(it);
+	}
+}
+
 std::set<int>  & Client::getContactList()
 {
 	return _contactList;
