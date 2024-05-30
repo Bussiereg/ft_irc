@@ -26,6 +26,7 @@ public:
 	void						setChannelKey(std::string key);
 	void						setChannelLimit(unsigned int limit);
 	void						setInviteList(std::string nickname);
+	void						removeClient(Client * client);
 	std::vector<std::string> &	getInviteList();
 	unsigned int				getLimitUsers();
 	std::string					getModeString();

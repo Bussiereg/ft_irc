@@ -87,6 +87,7 @@ private:
 	void						_handleInvalidCommand(Client &, std::string &);
 	void						_handleWhoCommand(Client &, std::string &);
 	void						_handleInviteCommand(Client &, std::string &);
+	void						_handleKickCommand(Client &, std::string &);
 
 	// utils
 	static std::vector<std::string>	_splitString(const std::string & str, char separator);

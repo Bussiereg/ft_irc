@@ -309,4 +309,52 @@ void	Server::_handleInviteCommand(Client & client, std::string & input){
 		channelInUse->setInviteList(inviteSplit[1]);
 		(*it)->appendResponse(INVITE(client.getNickname(), client.getUsername(), client.getHostname(),  inviteSplit[1], channelInUse->getChannelName()));		
 	}
+}    
+
+void 	Server::_handleKickCommand(Client & client, std::string & input){
+	std::vector<std::string> kickSplit = _splitString(input, ' ');
+	if (kickSplit.size() < 3){
+		std::string kick = "KICK";
+		return client.appendResponse(ERR_NEEDMOREPARAMS(kick));
+	}
+	else{
+		std::string comment = "";
+		if (kickSplit.size() >= 4){
+			size_t colonpos = input.find(':');
+			comment = input.substr(colonpos + 1);
+		}
+		std::vector<Channel*>::iterator it;
+		Channel *channelInUse;
+		bool channelExisting = false;
+		for (it = _channelList.begin(); it != _channelList.end(); ++it){
+			if ((*it)->getChannelName() == kickSplit[1]){
+				channelExisting = true;
+				channelInUse = *it;
+				break;
+			}
+		}
+		if (channelExisting == false){
+			return client.appendResponse(ERR_NOSUCHCHANNEL(kickSplit[1]));
+		}
+		if (channelInUse->getClientList()[&client] == false){
+			return client.appendResponse(ERR_CHANOPRIVSNEEDED(channelInUse->getChannelName()));
+		}
+		std::map<Client *, bool>::iterator it2;
+		int clientToBeKickedOnChannel = false;
+		Client * clientToBeKicked;
+		for (it2 = channelInUse->getClientList().begin(); it2 != channelInUse->getClientList().end(); ++it2){
+			if (it2->first->getNickname() == kickSplit[2]){
+				clientToBeKickedOnChannel = true;
+				clientToBeKicked = it2->first;
+				break;
+			}
+		}
+		if (clientToBeKickedOnChannel == false)
+			return;
+		channelInUse->removeClient(clientToBeKicked);
+		clientToBeKicked->removeChannelJoined(channelInUse);
+		channelInUse->relayMessage(client, KICK(client.getNickname(), client.getUsername(), client.gethostname(), channelInUse->getChannelName(), clientToBeKicked->getNickname() , comment));
+		client.appendResponse(KICK(client.getNickname(), client.getUsername(), client.gethostname(), channelInUse->getChannelName(), clientToBeKicked->getNickname() , comment));
+	}
+	
 }
