@@ -132,8 +132,10 @@ std::vector<Channel*> & Client::getChannelJoined(){
 void 	Client::removeChannelJoined(Channel * channel){
 	std::vector<Channel*>::iterator it;
 	for (it = _channelJoined.begin(); it != _channelJoined.end(); ++it){
-		if ((*it) == channel)
+		if ((*it) == channel){
 			_channelJoined.erase(it);
+			break;
+		}
 	}
 }
 

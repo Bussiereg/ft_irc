@@ -86,7 +86,7 @@ private:
 	void						_handleWhoCommand(Client &, std::string &);
 	void						_handleInviteCommand(Client &, std::string &);
 	void						_handleKickCommand(Client &, std::string &);
-
+	void						_handlePartCommand(Client &, std::string &);
 	// utils
 	static std::vector<std::string>	_splitString(const std::string & str, char separator);
 	std::string						_concatenateTokens(const std::vector<std::string>& tokens, size_t startPos);
