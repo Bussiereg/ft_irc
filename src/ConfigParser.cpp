@@ -1,15 +1,5 @@
 #include "ConfigParser.hpp"
 
-/* class ConfigParser {
-public:
-    bool loadConfig(const std::string &filename);
-    std::string get(const std::string &section, const std::string &key);
-
-private:
-    std::map<std::string, std::map<std::string, std::string>> configData;
-    std::string trim(const std::string &str);
-}; */
-
 ConfigParser::ConfigParser(const char* filename) {
     std::ifstream file(filename);
     if (!file.is_open())
