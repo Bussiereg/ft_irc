@@ -58,8 +58,8 @@ void Server::_handleJoinCommand(Client & client, std::string & message){
 				client.appendResponse(ERR_CHANNELISFULL(client.getNickname(), (*itch)->getChannelName()));
 				return ;
 			}
-			bool flag = false;
 			if ((*itch)->getChannelMode()['i'] == true){
+				bool flag = false;
 				std::vector<std::string>::iterator it;
 				for (it = (*itch)->getInviteList().begin();  it != (*itch)->getInviteList().end(); ++it){
 					if (*it == client.getNickname()){
@@ -67,10 +67,12 @@ void Server::_handleJoinCommand(Client & client, std::string & message){
 						break;
 					}
 				}
+				if (!flag){
+					client.appendResponse(ERR_INVITEONLYCHAN(client.getNickname(), (*itch)->getChannelName()));
+					return ;
+				}
 			}
-			if (!flag)
-				client.appendResponse(ERR_INVITEONLYCHAN(client.getNickname(), (*itch)->getChannelName()));
-			else if ((*itch)->getChannelPassword() == it->second){// Check password password
+			if ((*itch)->getChannelPassword() == it->second){// Check password password
 				(*itch)->setClientList(&client, false);
 				(*itch)->getUserListInChannel(usersInChannel);
 				client.appendResponse(RPL_TOPIC(client.getNickname(), client.getNickname(), client.gethostname(),  it->first, (*itch)->getTopic()));
