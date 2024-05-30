@@ -385,8 +385,8 @@ void	Server::_handlePartCommand(Client & client, std::string & input){
 			}
 			if (channelExisting == false)
 				client.appendResponse(ERR_NOSUCHCHANNEL(channelListToPart[1]));
-			else if (std::find(client.getChannelJoined().begin(), client.getChannelJoined().end(), channelInUse) == client.getChannelJoined().end())
-				client.appendResponse(ERR_NOTONCHANNEL(_serverName, channelInUse->getChannelName()));
+			// else if (std::find(client.getChannelJoined().begin(), client.getChannelJoined().end(), channelInUse) == client.getChannelJoined().end())
+			// 	client.appendResponse(ERR_NOTONCHANNEL(_serverName, channelInUse->getChannelName()));
 			else{
 				if (partSplit.size() == 2){
 					channelInUse->relayMessage(client, PART(client.getNickname(), client.getUsername(), client.gethostname(), channelInUse->getChannelName()));
