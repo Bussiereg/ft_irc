@@ -75,6 +75,7 @@ void Server::_handleJoinCommand(Client & client, std::string & message){
 			if ((*itch)->getChannelPassword() == it->second){// Check password password
 				(*itch)->setClientList(&client, false);
 				(*itch)->getUserListInChannel(usersInChannel);
+				(*itch)->relayMessage(client, JOIN(client.getNickname(), client.getUsername(), client.gethostname(), (*itch)->getChannelName()));
 				client.appendResponse(RPL_TOPIC(client.getNickname(), client.getNickname(), client.gethostname(),  it->first, (*itch)->getTopic()));
 				client.appendResponse(RPL_NAMREPLY( _serverName, client.getNickname(), (*itch)->getChannelName(), usersInChannel));
 				client.appendResponse(RPL_ENDOFNAMES(_serverName, client.getNickname(), (*itch)->getChannelName()));
@@ -351,10 +352,10 @@ void 	Server::_handleKickCommand(Client & client, std::string & input){
 		}
 		if (clientToBeKickedOnChannel == false)
 			return;
-		channelInUse->removeClient(clientToBeKicked);
-		clientToBeKicked->removeChannelJoined(channelInUse);
 		channelInUse->relayMessage(client, KICK(client.getNickname(), client.getUsername(), client.gethostname(), channelInUse->getChannelName(), clientToBeKicked->getNickname() , comment));
 		client.appendResponse(KICK(client.getNickname(), client.getUsername(), client.gethostname(), channelInUse->getChannelName(), clientToBeKicked->getNickname() , comment));
+		channelInUse->removeClient(clientToBeKicked);
+		clientToBeKicked->removeChannelJoined(channelInUse);
 	}
 	
 }
