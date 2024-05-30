@@ -62,22 +62,22 @@ private:
 
 	void							_initCommandMap();
 	void							_acceptNewClient();
-	void							_delClient(Client & client);
+	void							_delClient(Client &);
 	void							_checkClients();
 	bool							_isNickInUse(std::string const & nick);
 
 	// Join
-	void 							_createJoinmap(Client & client, std::string & message, std::map<std::string, std::string> & joinParams);
+	void 							_createJoinmap(Client &, std::string & message, std::map<std::string, std::string> & joinParams);
 	std::vector<Channel*>::iterator	_isChannelAlreadyExisting(std::string rhs);
 
 
 	// MODE
 	unsigned int					_findMode(char m);
-	void							_modeInviteOnly(bool isOperator, Channel & channel);
-	void							_modeTopic(bool isOperator, Channel & channel);
-	void							_modeKeySet(bool isOperator, std::string key, Channel * channel);
-	void							_modeOperatorPriv(bool isOperator, std::string ope, Client & client, Channel * channel);
-	void							_modeSetUserLimit(bool isOperator, std::string limit, Channel & channel);
+	void							_modeInviteOnly(bool isOperator, Channel &);
+	void							_modeTopic(bool isOperator, Channel &);
+	void							_modeKeySet(bool isOperator, std::string key, Channel *);
+	void							_modeOperatorPriv(bool isOperator, std::string ope, Client &, Channel *);
+	void							_modeSetUserLimit(bool isOperator, std::string limit, Channel &);
 
 	void							_printBuffer(const char* buff, int recevied);
 	ssize_t							_fillBuffer(size_t index, std::string & buffer);
