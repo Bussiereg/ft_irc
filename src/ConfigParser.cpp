@@ -10,8 +10,8 @@ private:
     std::string trim(const std::string &str);
 }; */
 
-ConfigParser::ConfigParser(const std::string & filename) {
-    std::ifstream file(filename.c_str());
+ConfigParser::ConfigParser(const char* filename) {
+    std::ifstream file(filename);
     if (!file.is_open())
 		throw std::runtime_error("Config file failed to open");
 
@@ -46,10 +46,17 @@ ConfigParser& ConfigParser::operator=(ConfigParser const & other)
 	return *this;
 }
 
-ConfigParser::~ConfigParser() {}
+ConfigParser::~ConfigParser() {
+}
 
-std::string const & ConfigParser::get(const std::string &section, const std::string &key) {
-    return _data[section][key];
+std::string const ConfigParser::get(const std::string &section, const std::string &key) const {
+	std::map<std::string, std::map<std::string, std::string> >::const_iterator sectionIt = _data.find(section);
+	if (sectionIt == _data.end())
+		return "";
+	std::map<std::string, std::string>::const_iterator keyIt = sectionIt->second.find(key);
+	if (keyIt == sectionIt->second.end())
+		return "";
+	return keyIt->second;
 }
 
 std::string ConfigParser::_trim(const std::string &str) {

@@ -6,7 +6,7 @@
 /*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/12 16:43:26 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/24 17:00:10 by mwallage         ###   ########.fr       */
+/*   Updated: 2024/05/30 17:44:05 by mwallage         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@
 #include "Channel.hpp"
 #include "replies.hpp"
 #include "ColorPrint.hpp"
+#include "ConfigParser.hpp"
 
 extern bool	g_quit;
 
@@ -58,8 +59,9 @@ private:
 	std::vector<Client*>	_clients;
 	std::vector<pollfd>		_allSockets;
 
+	ConfigParser			_config;
 	std::string	const		_serverName;
-	int						_port;
+	int const				_port;
 	std::string const		_password;
 
 	void		_initCommandMap();
@@ -99,6 +101,7 @@ private:
 	void						_handleInvalidCommand(Client &, std::string &);
 	void						_handleWhoCommand(Client &, std::string &);
 	void						_handleInviteCommand(Client &, std::string &);
+	void						_handleMotdCommand(Client &, std::string &);
 
 	// utils
 	static std::vector<std::string>	_splitString(const std::string & str, char separator);
@@ -107,7 +110,7 @@ private:
 	static std::vector<std::string>	_parseReceivers(const std::string& message);
 
 public:
-	Server(int port, std::string password, std::string serverName);
+	Server(int port, std::string password, ConfigParser const &);
 	Server(Server const &);
 	Server & operator=(Server const &);
 	~Server();

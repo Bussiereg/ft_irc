@@ -27,7 +27,8 @@ int main(int argc, char *argv[])
 	
 	signal(SIGINT, signal_handler);
 	try {
-		Server server(port, argv[2], "ft_irc");
+		ConfigParser config("./config/server.conf");
+		Server server(port, argv[2], config);
 		server.startPolling();
 	} catch (std::exception & e) {
 		std::cerr << "ircserver: " << e.what() << std::endl;

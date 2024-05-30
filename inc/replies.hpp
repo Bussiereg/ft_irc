@@ -84,3 +84,11 @@
 # define RPL_ENDWHO(server, myNick, channel)(":" + server + " 352 " + myNick + " " + channel + " :End of /WHO list\r\n")
 
 # define RPL_INVITING(server, channel, nick)(":" + server + " 341 " + channel + " " + nick + "\r\n")
+
+# define ERR_NOMOTD(server)(":" + server + " 422 " + ":MOTD File is missing\r\n")
+
+# define RPL_MOTDSTART(server, nick)(":" + server + " 375 " + nick + " :- " + server + " Message of the day -\r\n")
+
+# define RPL_MOTD(server, nick)(":" + server + " 372 " + nick + " :- ")
+
+# define RPL_ENDOFMOTD(server, nick)(":" + server + " 376 " + nick + " :End of /MOTD command.\r\n")
