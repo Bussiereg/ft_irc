@@ -78,7 +78,7 @@ void Server::_handleJoinCommand(Client & client, std::string & message){
 				(*itch)->relayMessage(client, JOIN(client.getNickname(), client.getUsername(), client.gethostname(), (*itch)->getChannelName()));
 				client.appendResponse(RPL_TOPIC(client.getNickname(), client.getNickname(), client.gethostname(),  it->first, (*itch)->getTopic()));
 				client.appendResponse(RPL_NAMREPLY( _serverName, client.getNickname(), (*itch)->getChannelName(), usersInChannel));
-				client.appendResponse(RPL_ENDOFNAMES(_serverName, client.getNickname(), (*itch)->getChannelName()));
+				client.appendResponse(RPL_ENDOFNAMES( _serverName, client.getNickname(), (*itch)->getChannelName()));
 			}
 			else // Password was wrong
 				client.appendResponse(ERR_BADCHANNELKEY(client.getNickname(), (*itch)->getChannelName()));
@@ -89,8 +89,8 @@ void Server::_handleJoinCommand(Client & client, std::string & message){
 			client.setChannelJoined(newChannel); // add the channel to the CLIENT channel joined list
 			newChannel->addClient(client, true); // add the client to the CHANNEL client list
 			newChannel->getUserListInChannel(usersInChannel);
-			client.appendResponse(RPL_NAMREPLY (_serverName, client.getNickname(), newChannel->getChannelName(), usersInChannel));
-			client.appendResponse(RPL_ENDOFNAMES(_serverName, client.getNickname(), newChannel->getChannelName()));	
+			client.appendResponse(RPL_NAMREPLY ( _serverName, client.getNickname(), newChannel->getChannelName(), usersInChannel));
+			client.appendResponse(RPL_ENDOFNAMES( _serverName, client.getNickname(), newChannel->getChannelName()));	
 		}
 	}
 }
@@ -112,7 +112,7 @@ void		Server::_handleTopicCommand(Client & client, std::string & input){
 		for (it = _channelList.begin(); it != _channelList.end(); ++it){
 			if ((*it)->getChannelName() == paramTopic[1]){
 				if ((*it)->getClientList().find(&client) == (*it)->getClientList().end() ){
-					client.appendResponse(ERR_NOTONCHANNEL(_serverName ,(*it)->getChannelName()));
+					client.appendResponse(ERR_NOTONCHANNEL( _serverName,(*it)->getChannelName()));
 					return ;
 				}
 				else if (paramTopic.size() == 2){

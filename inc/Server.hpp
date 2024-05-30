@@ -20,6 +20,7 @@
 #include "Channel.hpp"
 #include "replies.hpp"
 #include "ColorPrint.hpp"
+#include "ConfigParser.hpp"
 
 extern bool	g_quit;
 
@@ -40,13 +41,16 @@ class Server
 {
 private:
 	typedef void (Server::*CommandFunction)(Client &, std::string &);
-	std::map<std::string, CommandFunction>	_commandMap;
-	std::vector<Channel*>					_channelList;
-	std::vector<Client*>					_clients;
-	std::vector<pollfd>						_allSockets;
-	std::string	const						_serverName;
-	int										_port;
-	std::string const						_password;
+	std::map<std::string, CommandFunction> _commandMap;
+
+	std::vector<Channel*>	_channelList;
+	std::vector<Client*>	_clients;
+	std::vector<pollfd>		_allSockets;
+
+	ConfigParser			_config;
+	std::string	const		_serverName;
+	int const				_port;
+	std::string const		_password;
 
 	void							_initCommandMap();
 	void							_acceptNewClient();
@@ -86,6 +90,7 @@ private:
 	void						_handleWhoCommand(Client &, std::string &);
 	void						_handleInviteCommand(Client &, std::string &);
 	void						_handleKickCommand(Client &, std::string &);
+	void						_handleMotdCommand(Client &, std::string &);
 
 	// utils
 	static std::vector<std::string>	_splitString(const std::string & str, char separator);
@@ -94,7 +99,7 @@ private:
 	static std::vector<std::string>	_parseReceivers(const std::string& message);
 
 public:
-	Server(int port, std::string password, std::string serverName);
+	Server(int port, std::string password, ConfigParser const &);
 	Server(Server const &);
 	Server & operator=(Server const &);
 	~Server();

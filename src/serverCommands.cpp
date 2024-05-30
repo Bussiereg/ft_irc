@@ -109,6 +109,7 @@ void Server::_handleUserCommand(Client &client, std::string &message)
 			std::cout << "[Server  ] Username accepted for " << client.getNickname() << std::endl;
 			client.acceptFully();
 			client.appendResponse(RPL_WELCOME(client.getNickname(), client.getUsername(), "localhost"));
+			_handleMotdCommand(client, message);
 		}
 	}
 }
@@ -222,5 +223,27 @@ void Server::_handleWhoCommand(Client & client, std::string & message)
 				client.appendResponse(RPL_WHO(_serverName, client.getNickname(), "#all" , (*it)->getUsername(), (*it)->getHostname(), (*it)->getNickname(), "", (*it)->getRealname()));
 		client.appendResponse(RPL_ENDWHO(_serverName, client.getNickname(), "#all"));
 		}
+	}
+}
+
+void Server::_handleMotdCommand(Client & client, std::string & )
+{
+	std::string filename(_config.get("Misc", "Motd"));
+	std::ifstream motd_file(filename.c_str());
+	std::string nick = client.getNickname();
+
+	std::cout << "Filename motd: " << filename << std::endl;
+	std::cout << "The file fd:\n" << motd_file << std::endl;
+
+	if (filename.empty() || !motd_file.is_open())
+		client.appendResponse(ERR_NOMOTD(_serverName));
+	else {
+		client.appendResponse(RPL_MOTDSTART(_serverName, nick));
+		std::string line;
+		while(std::getline(motd_file, line)) {
+			client.appendResponse(RPL_MOTD(_serverName, nick));
+			client.appendResponse(line + "\r\n");
+		}
+		client.appendResponse(RPL_ENDOFMOTD(_serverName, nick));
 	}
 }

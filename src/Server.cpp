@@ -1,6 +1,10 @@
 #include "Server.hpp"
 
-Server::Server(int port, std::string password, std::string serverName) : _serverName(serverName), _port(port), _password(password)
+Server::Server(int port, std::string password, ConfigParser const & config)
+	: _config(config),
+		_serverName(_config.get("Server", "Name")),
+		_port(port),
+		_password(password)
 {
 	pollfd	serverSocket;
 	serverSocket.fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -52,10 +56,12 @@ void Server::_initCommandMap()
 	_commandMap["INVITE"] = &Server::_handleInviteCommand;
 	_commandMap["KICK"] = &Server::_handleKickCommand;
 	_commandMap["INVALID"] = &Server::_handleInvalidCommand;
+	_commandMap["MOTD"] = &Server::_handleMotdCommand;
+	_commandMap["motd"] = &Server::_handleMotdCommand; // irssi sends motd in lowercase
 }
 
 Server::Server(Server const &other)
-	: _clients(other._clients), _allSockets(other._allSockets), _serverName(other._serverName), _port(other._port), _password(other._password)
+	: _clients(other._clients), _allSockets(other._allSockets), _config(other._config), _port(other._port), _password(other._password)
 {
 }
 
@@ -65,7 +71,7 @@ Server &Server::operator=(Server const &other)
 	{
 		_clients = other._clients;
 		_allSockets = other._allSockets;
-		_port = other._port;
+		_config = other._config;
 	}
 	return *this;
 }
