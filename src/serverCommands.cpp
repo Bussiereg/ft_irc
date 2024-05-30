@@ -148,7 +148,10 @@ void Server::_handlePrivmsgCommand(Client &client, std::string &message)
 			if (ite == _clients.end())
 				client.appendResponse(ERR_NOSUCHNICK(_serverName, client.getNickname(), *it));
 			else
+			{
 				(*ite)->appendResponse(forward);
+				(*ite)->getContactList().insert(client.getClientSocket()->fd);
+			}
 		}
 	}
 }
@@ -165,10 +168,17 @@ void Server::_handleQuitCommand(Client &client, std::string &message)
 	{
 		if (*it != &client)
 		{
-			std::vector<int>::const_iterator ContactFDListBegin = (*it)->getContactList().begin();
-			std::vector<int>::const_iterator ContactFDListEnd = (*it)->getContactList().begin();
-			if (std::find(ContactFDListBegin, ContactFDListEnd, (*it)->getClientSocket()->fd) != ContactFDListEnd)
+			if (std::find((*it)->getContactList().begin(), (*it)->getContactList().end(), client.getClientSocket()->fd) != (*it)->getContactList().end())
 				(*it)->appendResponse(QUIT_REASON(client.getNickname(), client.getUsername(), client.getHostname(), message.substr(6)));
+			else
+			{
+				for (std::vector<Channel *>::iterator it_ch = (*it)->getChannelJoined().begin(); it_ch != (*it)->getChannelJoined().end(); ++it_ch)
+				{
+					std::map<Client*, bool>::iterator it_find = (*it_ch)->getClientList().find(&client);
+					 if (it_find != (*it_ch)->getClientList().end())
+						(*it)->appendResponse(QUIT_REASON(client.getNickname(), client.getUsername(), client.getHostname(), message.substr(6)));
+				}
+			}
 			// else if ( both client are part of the same channel)
 			//  {
 			//	Channel Notifications: Users in the same channels as the quitting user receive a notification.
@@ -207,18 +217,18 @@ void Server::_handleWhoCommand(Client & client, std::string & message)
 				for (std::map<Client*, bool>::iterator it_cl = (*it_ch)->getClientList().begin(); it_cl != (*it_ch)->getClientList().end(); ++it_cl)
 				{
 					if ((*it_cl).second == true)
-						client.appendResponse(RPL_WHP(_serverName, client.getNickname(), "#all" , (*it_cl).first->getUsername(), (*it_cl).first->getHostname(), (*it_cl).first->getNickname(), "*", (*it_cl).first->getRealname()));
+						client.appendResponse(RPL_WHP(_serverName, client.getNickname(), (*it_ch)->getChannelName(), (*it_cl).first->getUsername(), (*it_cl).first->getHostname(), (*it_cl).first->getNickname(), "*", (*it_cl).first->getRealname()));
 					else
-						client.appendResponse(RPL_WHP(_serverName, client.getNickname(), "#all" , (*it_cl).first->getUsername(), (*it_cl).first->getHostname(), (*it_cl).first->getNickname(), "", (*it_cl).first->getRealname()));
+						client.appendResponse(RPL_WHP(_serverName, client.getNickname(), (*it_ch)->getChannelName(), (*it_cl).first->getUsername(), (*it_cl).first->getHostname(), (*it_cl).first->getNickname(), "", (*it_cl).first->getRealname()));
 				}
-
+			client.appendResponse(RPL_ENDWHO(_serverName, client.getNickname(), (*it_ch)->getChannelName()));
 			}
 		}
 		if (found_channel == false)
 		{
 			for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it)
 				client.appendResponse(RPL_WHP(_serverName, client.getNickname(), "#all" , (*it)->getUsername(), (*it)->getHostname(), (*it)->getNickname(), "", (*it)->getRealname()));
-		}
 		client.appendResponse(RPL_ENDWHO(_serverName, client.getNickname(), "#all"));
+		}
 	}
 }

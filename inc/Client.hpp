@@ -20,7 +20,7 @@ private:
 	bool				_isPassedWord;
 	bool				_isFullyAccepted;
 	bool				_passWordAttempted;
-	std::vector<int>	_contactList;
+	std::set<int>		_contactList;
 
 	std::vector<Channel*>		_channelJoined;
 	std::string					_response;
@@ -53,7 +53,7 @@ public:
 	void				acceptFully();
 
 	std::string const &			getResponse() const;
-	std::vector<int> const &	getContactList();
+	std::set<int> &				getContactList();
 	void						appendResponse(std::string newMessage);
 	void						clearResponse();
 };
