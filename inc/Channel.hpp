@@ -15,6 +15,7 @@ private:
 	std::map<char, bool>		_mode;
 	std::string					_topic;
 	unsigned int				_limitUsers;
+	std::vector<std::string>	_inviteList;
 	std::map<Client*, bool>		_clientList; // second param bool is true if the client if operator, false otherwise
 public:
 	Channel(std::string, Client &);
@@ -24,6 +25,8 @@ public:
 	void						setChannelMode(char mode, bool status);
 	void						setChannelKey(std::string key);
 	void						setChannelLimit(unsigned int limit);
+	void						setInviteList(std::string nickname);
+	std::vector<std::string> &	getInviteList();
 	unsigned int				getLimitUsers();
 	std::string					getModeString();
 	std::string	const &			getTopic() const;

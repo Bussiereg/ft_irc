@@ -59,6 +59,7 @@
 # define INVITE(nick, user, host, nickinvite, channel)  (":" + nick + "!" + user + "@" + host + " INVITE " + nickinvite + " " + channel + "\r\n")
 
 # define ERR_NOSUCHNICK(server, sender, receiver) (":" + server + " 401 " + sender + " " + receiver + " :No such nick/channel\r\n")
+# define ERR_NOSUCHNICK2(server, nick) (":" + server + " 401 " + nick + " :No such nick/channel\r\n")
 
 # define ERR_USERONCHANNEL(nick, invitenick, chan) ("443 " + nick + " " + invitenick + " " + chan + ":is already on channel\r\n")
 
@@ -81,3 +82,5 @@
 # define RPL_WHP(server, myNick, channel, username, hostname, nick, operator, realname) (":" + server + " 352 " + myNick + " " + channel + " " + username + " " + hostname + " " + server + " "  + nick + " H" + operator + " :0 " + realname + "\r\n")
 
 # define RPL_ENDWHO(server, myNick, channel)(":" + server + " 352 " + myNick + " " + channel + " :End of /WHO list\r\n")
+
+# define RPL_INVITING(server, channel, nick)(":" + server + " 341 " + channel + " " + nick + "\r\n")
