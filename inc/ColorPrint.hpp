@@ -13,6 +13,3 @@ namespace color
 }
 
 using namespace color;
-
-//To be use to print colored message like this :
-//std::cout << RED << I'm an important message << RESET << std::endl;

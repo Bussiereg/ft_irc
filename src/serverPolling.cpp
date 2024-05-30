@@ -74,7 +74,12 @@ void Server::_delClient(Client & client)
 			break;
 		index++;
 	}
-
+	for (std::vector<Channel*>::iterator it_ch = client.getChannelJoined().begin(); it_ch != client.getChannelJoined().end(); ++it_ch)
+	{
+		std::map<Client*, bool>::iterator iit = (*it_ch)->getClientList().find(&client);
+		 if (iit != (*it_ch)->getClientList().end())
+			(*it_ch)->getClientList().erase(iit);
+	}
 	std::cerr << RED << "[Server] Client fd " << _allSockets[index + 1].fd << " just disconnected" << RESET << std::endl;
 	_allSockets.erase(_allSockets.begin() + index + 1);
 	delete _clients[index];

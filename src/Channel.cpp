@@ -101,5 +101,9 @@ std::string		Channel::getModeString(){
 	return modeString;
 }
 
+void	Channel::removeClient(Client * client){
+	_clientList.erase(client);
+}
+
 Channel::~Channel(){
 }

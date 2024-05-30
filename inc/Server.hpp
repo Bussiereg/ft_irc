@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Server.hpp                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: mwallage <mwallage@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/12 16:43:26 by mwallage          #+#    #+#             */
-/*   Updated: 2024/05/30 17:44:05 by mwallage         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #pragma once
 #include <iostream>
 #include <vector>
@@ -64,27 +52,27 @@ private:
 	int const				_port;
 	std::string const		_password;
 
-	void		_initCommandMap();
-	void		_acceptNewClient();
-	void		_delClient(Client & client);
-	void		_checkClients();
-	bool		_isNickInUse(std::string const & nick);
+	void							_initCommandMap();
+	void							_acceptNewClient();
+	void							_delClient(Client &);
+	void							_checkClients();
+	bool							_isNickInUse(std::string const & nick);
 
 	// Join
-	void 		_createJoinmap(Client & client, std::string & message, std::map<std::string, std::string> & joinParams);
-	std::vector<Channel*>::iterator		isChannelAlreadyExisting(std::string rhs);
+	void 							_createJoinmap(Client &, std::string & message, std::map<std::string, std::string> & joinParams);
+	std::vector<Channel*>::iterator	_isChannelAlreadyExisting(std::string rhs);
 
 
 	// MODE
-	unsigned int				_findMode(char m);
-	void						modeInviteOnly(bool isOperator, Channel & channel);
-	void						modeTopic(bool isOperator, Channel & channel);
-	void						modeKeySet(bool isOperator, std::string key, Channel * channel);
-	void						modeOperatorPriv(bool isOperator, std::string ope, Client & client, Channel * channel);
-	void						modeSetUserLimit(bool isOperator, std::string limit, Channel & channel);
+	unsigned int					_findMode(char m);
+	void							_modeInviteOnly(bool isOperator, Channel &);
+	void							_modeTopic(bool isOperator, Channel &);
+	void							_modeKeySet(bool isOperator, std::string key, Channel *);
+	void							_modeOperatorPriv(bool isOperator, std::string ope, Client &, Channel *);
+	void							_modeSetUserLimit(bool isOperator, std::string limit, Channel &);
 
-	void						_printBuffer(const char* buff, int recevied);
-	ssize_t						_fillBuffer(size_t index, std::string & buffer);
+	void							_printBuffer(const char* buff, int recevied);
+	ssize_t							_fillBuffer(size_t index, std::string & buffer);
 
 	void 						_readBuffer(size_t index, std::string & buffer);
 	std::string 				_getCommand(std::string &);
@@ -101,6 +89,7 @@ private:
 	void						_handleInvalidCommand(Client &, std::string &);
 	void						_handleWhoCommand(Client &, std::string &);
 	void						_handleInviteCommand(Client &, std::string &);
+	void						_handleKickCommand(Client &, std::string &);
 	void						_handleMotdCommand(Client &, std::string &);
 
 	// utils
@@ -115,8 +104,8 @@ public:
 	Server & operator=(Server const &);
 	~Server();
 
-	std::vector<Channel*> 	getChannelList();
-	void 					startPolling();
+	std::vector<Channel*>			getChannelList();
+	void 							startPolling();
 	
 	class SocketCreationException : public std::exception {
 		virtual const char *what() const throw();

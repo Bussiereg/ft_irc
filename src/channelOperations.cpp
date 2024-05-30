@@ -37,7 +37,7 @@ void Server::_createJoinmap(Client & client, std::string & message, std::map<std
 	}
 }
 
-std::vector<Channel*>::iterator Server::isChannelAlreadyExisting(std::string rhs){
+std::vector<Channel*>::iterator Server::_isChannelAlreadyExisting(std::string rhs){
 	std::vector<Channel*>::iterator itch;
 	for (itch = _channelList.begin(); itch != _channelList.end(); ++itch){ // search if the channelname already exist
 		if ((*itch)->getChannelName() == rhs)
@@ -52,7 +52,7 @@ void Server::_handleJoinCommand(Client & client, std::string & message){
 
 	_createJoinmap(client, message, joinParams);
 	for (std::map<std::string, std::string>::iterator it = joinParams.begin(); it != joinParams.end(); ++it){
-		std::vector<Channel*>::iterator itch = isChannelAlreadyExisting(it->first);
+		std::vector<Channel*>::iterator itch = _isChannelAlreadyExisting(it->first);
 		if (itch != _channelList.end()){ //channel already exist
 			if ((*itch)->getChannelMode()['l'] == true && ((*itch)->getLimitUsers() <= (*itch)->getClientList().size())){
 				client.appendResponse(ERR_CHANNELISFULL(client.getNickname(), (*itch)->getChannelName()));
@@ -75,6 +75,7 @@ void Server::_handleJoinCommand(Client & client, std::string & message){
 			if ((*itch)->getChannelPassword() == it->second){// Check password password
 				(*itch)->setClientList(&client, false);
 				(*itch)->getUserListInChannel(usersInChannel);
+				(*itch)->relayMessage(client, JOIN(client.getNickname(), client.getUsername(), client.gethostname(), (*itch)->getChannelName()));
 				client.appendResponse(RPL_TOPIC(client.getNickname(), client.getNickname(), client.gethostname(),  it->first, (*itch)->getTopic()));
 				client.appendResponse(RPL_NAMREPLY( _serverName, client.getNickname(), (*itch)->getChannelName(), usersInChannel));
 				client.appendResponse(RPL_ENDOFNAMES( _serverName, client.getNickname(), (*itch)->getChannelName()));
@@ -145,15 +146,15 @@ unsigned int Server::_findMode(char m){
 	return 5;
 }
 
-void	Server::modeInviteOnly(bool isOperator, Channel & channel){
+void	Server::_modeInviteOnly(bool isOperator, Channel & channel){
 		channel.setChannelMode('i', isOperator);
 }
 
-void	Server::modeTopic(bool isOperator, Channel & channel){
+void	Server::_modeTopic(bool isOperator, Channel & channel){
 		channel.setChannelMode('t', isOperator);
 }
 
-void	Server::modeKeySet(bool isOperator, std::string key, Channel * channel){
+void	Server::_modeKeySet(bool isOperator, std::string key, Channel * channel){
 	if (key.empty())
 		channel->setChannelKey("");
 	else
@@ -161,7 +162,7 @@ void	Server::modeKeySet(bool isOperator, std::string key, Channel * channel){
 	channel->setChannelMode('k', isOperator);
 }
 
-void	Server::modeOperatorPriv(bool isOperator, std::string ope, Client & client, Channel * channel){
+void	Server::_modeOperatorPriv(bool isOperator, std::string ope, Client & client, Channel * channel){
 		if (channel->getClientList()[&client] == false){
 			return ;
 		}
@@ -177,7 +178,7 @@ void	Server::modeOperatorPriv(bool isOperator, std::string ope, Client & client,
 		}
 }
 
-void	Server::modeSetUserLimit(bool isOperator, std::string limit, Channel & channel){
+void	Server::_modeSetUserLimit(bool isOperator, std::string limit, Channel & channel){
 	if (!limit.empty())
 		channel.setChannelLimit(std::atoi(limit.c_str()));
 	channel.setChannelMode('l', isOperator);
@@ -240,27 +241,27 @@ void	Server::_handleModeCommand(Client & client, std::string & input){
 			switch (_findMode(m))
 			{
 			case INVITE_ONLY:
-				modeInviteOnly(isModeOn, *channelInUse);
+				_modeInviteOnly(isModeOn, *channelInUse);
 				break;
 			case TOPIC:
-				modeTopic(isModeOn, *channelInUse);
+				_modeTopic(isModeOn, *channelInUse);
 				break;
 			case KEY:
 				if (isModeOn){
-					modeKeySet(isModeOn, modeSplit[3], channelInUse);
+					_modeKeySet(isModeOn, modeSplit[3], channelInUse);
 				}
 				else{
-					modeKeySet(isModeOn, "", channelInUse);
+					_modeKeySet(isModeOn, "", channelInUse);
 				}
 				break;
 			case OPERATOR_PRIVILEGE:
-				modeOperatorPriv(isModeOn, modeSplit[3], client, channelInUse);
+				_modeOperatorPriv(isModeOn, modeSplit[3], client, channelInUse);
 				break;
 			case LIMIT:
 				if (isModeOn)
-					modeSetUserLimit(isModeOn, modeSplit[3], *channelInUse);
+					_modeSetUserLimit(isModeOn, modeSplit[3], *channelInUse);
 				else
-					modeSetUserLimit(isModeOn, "", *channelInUse);
+					_modeSetUserLimit(isModeOn, "", *channelInUse);
 				break;		
 			default:
 				client.appendResponse(ERR_UNKNOWNMODE(_serverName, client.getNickname(), std::string(1, m)));
@@ -309,4 +310,52 @@ void	Server::_handleInviteCommand(Client & client, std::string & input){
 		channelInUse->setInviteList(inviteSplit[1]);
 		(*it)->appendResponse(INVITE(client.getNickname(), client.getUsername(), client.getHostname(),  inviteSplit[1], channelInUse->getChannelName()));		
 	}
+}    
+
+void 	Server::_handleKickCommand(Client & client, std::string & input){
+	std::vector<std::string> kickSplit = _splitString(input, ' ');
+	if (kickSplit.size() < 3){
+		std::string kick = "KICK";
+		return client.appendResponse(ERR_NEEDMOREPARAMS(kick));
+	}
+	else{
+		std::string comment = "";
+		if (kickSplit.size() >= 4){
+			size_t colonpos = input.find(':');
+			comment = input.substr(colonpos + 1);
+		}
+		std::vector<Channel*>::iterator it;
+		Channel *channelInUse;
+		bool channelExisting = false;
+		for (it = _channelList.begin(); it != _channelList.end(); ++it){
+			if ((*it)->getChannelName() == kickSplit[1]){
+				channelExisting = true;
+				channelInUse = *it;
+				break;
+			}
+		}
+		if (channelExisting == false){
+			return client.appendResponse(ERR_NOSUCHCHANNEL(kickSplit[1]));
+		}
+		if (channelInUse->getClientList()[&client] == false){
+			return client.appendResponse(ERR_CHANOPRIVSNEEDED(channelInUse->getChannelName()));
+		}
+		std::map<Client *, bool>::iterator it2;
+		int clientToBeKickedOnChannel = false;
+		Client * clientToBeKicked;
+		for (it2 = channelInUse->getClientList().begin(); it2 != channelInUse->getClientList().end(); ++it2){
+			if (it2->first->getNickname() == kickSplit[2]){
+				clientToBeKickedOnChannel = true;
+				clientToBeKicked = it2->first;
+				break;
+			}
+		}
+		if (clientToBeKickedOnChannel == false)
+			return;
+		channelInUse->relayMessage(client, KICK(client.getNickname(), client.getUsername(), client.gethostname(), channelInUse->getChannelName(), clientToBeKicked->getNickname() , comment));
+		client.appendResponse(KICK(client.getNickname(), client.getUsername(), client.gethostname(), channelInUse->getChannelName(), clientToBeKicked->getNickname() , comment));
+		channelInUse->removeClient(clientToBeKicked);
+		clientToBeKicked->removeChannelJoined(channelInUse);
+	}
+	
 }
