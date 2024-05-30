@@ -36,6 +36,14 @@ void	Channel::setChannelLimit(unsigned int limit){
 	_limitUsers = limit;
 }
 
+void	Channel::setInviteList(std::string nickname){
+	_inviteList.push_back(nickname);
+}
+
+std::vector<std::string> &	Channel::getInviteList(){
+	return _inviteList;
+}
+
 std::string	const & Channel::getTopic() const{
 	return _topic;
 }

@@ -58,7 +58,19 @@ void Server::_handleJoinCommand(Client & client, std::string & message){
 				client.appendResponse(ERR_CHANNELISFULL(client.getNickname(), (*itch)->getChannelName()));
 				return ;
 			}
-			if ((*itch)->getChannelPassword() == it->second){// Check password password
+			bool flag = false;
+			if ((*itch)->getChannelMode()['i'] == true){
+				std::vector<std::string>::iterator it;
+				for (it = (*itch)->getInviteList().begin();  it != (*itch)->getInviteList().end(); ++it){
+					if (*it == client.getNickname()){
+						flag = true;
+						break;
+					}
+				}
+			}
+			if (!flag)
+				client.appendResponse(ERR_INVITEONLYCHAN(client.getNickname(), (*itch)->getChannelName()));
+			else if ((*itch)->getChannelPassword() == it->second){// Check password password
 				(*itch)->setClientList(&client, false);
 				(*itch)->getUserListInChannel(usersInChannel);
 				client.appendResponse(RPL_TOPIC(client.getNickname(), client.getNickname(), client.gethostname(),  it->first, (*itch)->getTopic()));
@@ -256,5 +268,43 @@ void	Server::_handleModeCommand(Client & client, std::string & input){
 		}
 		(*itch)->relayMessage(client, RPL_CHANNELMODEIS(_serverName, client.getNickname(), channelInUse->getChannelName(), channelInUse->getModeString()));
 		client.appendResponse(RPL_CHANNELMODEIS(_serverName, client.getNickname(), channelInUse->getChannelName(), channelInUse->getModeString()));
+	}
+}
+
+
+void	Server::_handleInviteCommand(Client & client, std::string & input){
+	std::vector<std::string> inviteSplit = _splitString(input, ' ');
+	Channel * channelInUse;
+	if (inviteSplit.size() < 3){
+		std::string invite = "INVITE";
+		client.appendResponse(ERR_NEEDMOREPARAMS(invite));
+		return ;
+	}
+	std::vector<Channel*>::iterator itch;
+	for (itch = _channelList.begin(); itch != _channelList.end(); ++itch){ // search if the channelname already exist
+		if ((*itch)->getChannelName() == inviteSplit[2]){
+			channelInUse = *itch;
+			break;
+		}
+	}
+	if (itch == _channelList.end())
+		return ;
+	std::map<Client*, bool>::iterator clientInviter = channelInUse->getClientList().find(&client);
+	if (clientInviter == channelInUse->getClientList().end()){
+		return ;
+	}
+	std::vector<Client*>::iterator it;
+	for (it = _clients.begin(); it != _clients.end(); it++){
+		if ((*it)->getNickname() == inviteSplit[1]){
+			break;
+		}
+	}
+	if (it == _clients.end()){
+		client.appendResponse(ERR_NOSUCHNICK2(_serverName, inviteSplit[1]));
+		return ;
+	}
+	if ((channelInUse->getChannelMode()['i'] == false) || ((channelInUse->getChannelMode()['i'] == true) && (channelInUse->getClientList()[clientInviter->first] == true)) ){
+		channelInUse->setInviteList(inviteSplit[1]);
+		(*it)->appendResponse(INVITE(client.getNickname(), client.getUsername(), client.getHostname(),  inviteSplit[1], channelInUse->getChannelName()));		
 	}
 }
