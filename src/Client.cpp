@@ -129,7 +129,7 @@ std::vector<Channel*> & Client::getChannelJoined(){
 	return _channelJoined;
 }
 
-std::vector<int>  & Client::getContactList()
+std::set<int>  & Client::getContactList()
 {
 	return _contactList;
 }
