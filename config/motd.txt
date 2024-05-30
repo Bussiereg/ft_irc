@@ -10,8 +10,8 @@
 *                                               *
 *   .       Project for 42Berlin                *
 *   |           by                              *
-*   |       Guillaume Bussier                   *
 *   |       Jules Bernard                       *
+*   |       Guillaume Bussier                   *
 *   #       Martijn Wallage                     *
 *  (=)                                          *
 *   H                                           *

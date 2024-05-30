@@ -109,6 +109,7 @@ void Server::_handleUserCommand(Client &client, std::string &message)
 			std::cout << "[Server  ] Username accepted for " << client.getNickname() << std::endl;
 			client.acceptFully();
 			client.appendResponse(RPL_WELCOME(client.getNickname(), client.getUsername(), "localhost"));
+			_handleMotdCommand(client, message);
 		}
 	}
 }
