@@ -13,7 +13,8 @@ SRC		:= main.cpp \
 			serverUtils.cpp \
 			channelOperations.cpp \
 			Channel.cpp \
-			Client.cpp
+			Client.cpp \
+			ConfigParser.cpp
 SRC		:= $(addprefix $(SRCDIR)/, $(SRC))
 OBJ		:= $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SRC))
 HEADER	:= -I $(INCDIR)
