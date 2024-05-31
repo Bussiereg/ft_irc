@@ -212,7 +212,12 @@ void Server::_handleWhoCommand(Client & client, std::string & message)
 					if ((*it_cl).second == true)
 						client.appendResponse(RPL_WHO(_serverName, client.getNickname(), (*it_ch)->getChannelName(), (*it_cl).first->getUsername(), (*it_cl).first->getHostname(), (*it_cl).first->getNickname(), "*", (*it_cl).first->getRealname()));
 					else
+					{
+						std::cout << client.getNickname() << std::endl;
+						std::cout << (*it_ch)->getChannelName() << std::endl;
+						std::cout << (*it_cl).first->getUsername() << std::endl;
 						client.appendResponse(RPL_WHO(_serverName, client.getNickname(), (*it_ch)->getChannelName(), (*it_cl).first->getUsername(), (*it_cl).first->getHostname(), (*it_cl).first->getNickname(), "", (*it_cl).first->getRealname()));
+					}
 				}
 			client.appendResponse(RPL_ENDWHO(_serverName, client.getNickname(), (*it_ch)->getChannelName()));
 			}

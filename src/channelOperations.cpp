@@ -76,6 +76,7 @@ void Server::_handleJoinCommand(Client & client, std::string & message){
 				(*itch)->setClientList(&client, false);
 				(*itch)->getUserListInChannel(usersInChannel);
 				(*itch)->relayMessage(client, JOIN(client.getNickname(), client.getUsername(), client.gethostname(), (*itch)->getChannelName()));
+				client.setChannelJoined(*itch);
 				client.appendResponse(RPL_TOPIC(client.getNickname(), client.getNickname(), client.gethostname(),  it->first, (*itch)->getTopic()));
 				client.appendResponse(RPL_NAMREPLY( _serverName, client.getNickname(), (*itch)->getChannelName(), usersInChannel));
 				client.appendResponse(RPL_ENDOFNAMES( _serverName, client.getNickname(), (*itch)->getChannelName()));
