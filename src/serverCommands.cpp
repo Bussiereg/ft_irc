@@ -214,15 +214,16 @@ void Server::_handleWhoCommand(Client & client, std::string & message)
 					else
 						client.appendResponse(RPL_WHO(_serverName, client.getNickname(), "#all" , (*it_cl).first->getUsername(), (*it_cl).first->getHostname(), (*it_cl).first->getNickname(), "", (*it_cl).first->getRealname()));
 				}
-
+				client.appendResponse(RPL_ENDWHO(_serverName, client.getNickname(), "#all"));
+				break;
 			}
 		}
 		if (found_channel == false)
 		{
 			for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it)
 				client.appendResponse(RPL_WHO(_serverName, client.getNickname(), "#all" , (*it)->getUsername(), (*it)->getHostname(), (*it)->getNickname(), "", (*it)->getRealname()));
+			client.appendResponse(RPL_ENDWHO(_serverName, client.getNickname(), "#all"));
 		}
-		client.appendResponse(RPL_ENDWHO(_serverName, client.getNickname(), "#all"));
 	}
 }
 
