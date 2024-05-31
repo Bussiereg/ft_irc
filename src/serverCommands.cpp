@@ -210,24 +210,19 @@ void Server::_handleWhoCommand(Client & client, std::string & message)
 				for (std::map<Client*, bool>::iterator it_cl = (*it_ch)->getClientList().begin(); it_cl != (*it_ch)->getClientList().end(); ++it_cl)
 				{
 					if ((*it_cl).second == true)
-						client.appendResponse(RPL_WHO(_serverName, client.getNickname(), (*it_ch)->getChannelName(), (*it_cl).first->getUsername(), (*it_cl).first->getHostname(), (*it_cl).first->getNickname(), "*", (*it_cl).first->getRealname()));
+						client.appendResponse(RPL_WHO(_serverName, client.getNickname(), "#all" , (*it_cl).first->getUsername(), (*it_cl).first->getHostname(), (*it_cl).first->getNickname(), "*", (*it_cl).first->getRealname()));
 					else
-					{
-						std::cout << client.getNickname() << std::endl;
-						std::cout << (*it_ch)->getChannelName() << std::endl;
-						std::cout << (*it_cl).first->getUsername() << std::endl;
-						client.appendResponse(RPL_WHO(_serverName, client.getNickname(), (*it_ch)->getChannelName(), (*it_cl).first->getUsername(), (*it_cl).first->getHostname(), (*it_cl).first->getNickname(), "", (*it_cl).first->getRealname()));
-					}
+						client.appendResponse(RPL_WHO(_serverName, client.getNickname(), "#all" , (*it_cl).first->getUsername(), (*it_cl).first->getHostname(), (*it_cl).first->getNickname(), "", (*it_cl).first->getRealname()));
 				}
-			client.appendResponse(RPL_ENDWHO(_serverName, client.getNickname(), (*it_ch)->getChannelName()));
+
 			}
 		}
 		if (found_channel == false)
 		{
 			for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it)
 				client.appendResponse(RPL_WHO(_serverName, client.getNickname(), "#all" , (*it)->getUsername(), (*it)->getHostname(), (*it)->getNickname(), "", (*it)->getRealname()));
-		client.appendResponse(RPL_ENDWHO(_serverName, client.getNickname(), "#all"));
 		}
+		client.appendResponse(RPL_ENDWHO(_serverName, client.getNickname(), "#all"));
 	}
 }
 
