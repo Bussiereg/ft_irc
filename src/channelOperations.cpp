@@ -12,10 +12,9 @@ void Channel::getUserListInChannel(std::string & usersInChannel){
 
 void Server::_createJoinmap(Client & client, std::string & message, std::map<std::string, std::string> & joinParams){
 	std::vector<std::string> joinSplit = _splitString(message, ' ');
-
-	if (joinSplit.size() <= 1){
-		std::string join = "JOIN";
-		std::string response1 = ERR_NEEDMOREPARAMS(join);
+	std::string const & nick = client.getNickname();
+	if (joinSplit.size() <= 1){ 
+		std::string response1 = ERR_NEEDMOREPARAMS(_serverName, nick, "JOIN");
 		client.appendResponse(response1);
 		return ;
 	}
@@ -55,7 +54,7 @@ void Server::_handleJoinCommand(Client & client, std::string & message){
 		std::vector<Channel*>::iterator itch = _isChannelAlreadyExisting(it->first);
 		if (itch != _channelList.end()){ //channel already exist
 			if ((*itch)->getChannelMode()['l'] == true && ((*itch)->getLimitUsers() <= (*itch)->getClientList().size())){
-				client.appendResponse(ERR_CHANNELISFULL(client.getNickname(), (*itch)->getChannelName()));
+				client.appendResponse(ERR_CHANNELISFULL(_serverName, client.getNickname(), (*itch)->getChannelName()));
 				return ;
 			}
 			if ((*itch)->getChannelMode()['i'] == true){
@@ -68,21 +67,21 @@ void Server::_handleJoinCommand(Client & client, std::string & message){
 					}
 				}
 				if (!flag){
-					client.appendResponse(ERR_INVITEONLYCHAN(client.getNickname(), (*itch)->getChannelName()));
+					client.appendResponse(ERR_INVITEONLYCHAN(_serverName, client.getNickname(), (*itch)->getChannelName()));
 					return ;
 				}
 			}
 			if ((*itch)->getChannelPassword() == it->second){// Check password password
 				(*itch)->setClientList(&client, false);
 				(*itch)->getUserListInChannel(usersInChannel);
-				(*itch)->relayMessage(client, JOIN(client.getNickname(), client.getUsername(), client.gethostname(), (*itch)->getChannelName()));
+				(*itch)->relayMessage(client, JOIN(client.getNickname(), client.getUsername(), client.getHostname(), (*itch)->getChannelName()));
 				client.setChannelJoined(*itch);
-				client.appendResponse(RPL_TOPIC(client.getNickname(), client.getNickname(), client.gethostname(),  it->first, (*itch)->getTopic()));
-				client.appendResponse(RPL_NAMREPLY( _serverName, client.getNickname(), (*itch)->getChannelName(), usersInChannel));
+				client.appendResponse(RPL_TOPIC(_serverName, client.getNickname(), it->first, (*itch)->getTopic()));
+				client.appendResponse(RPL_NAMREPLY( _serverName, client.getNickname(), "=", (*itch)->getChannelName(), usersInChannel));
 				client.appendResponse(RPL_ENDOFNAMES( _serverName, client.getNickname(), (*itch)->getChannelName()));
 			}
 			else // Password was wrong
-				client.appendResponse(ERR_BADCHANNELKEY(client.getNickname(), (*itch)->getChannelName()));
+				client.appendResponse(ERR_BADCHANNELKEY(_serverName, client.getNickname(), (*itch)->getChannelName()));
 		}
 		else{ // new channel
 			Channel *newChannel = new Channel(it->first, client);
@@ -90,7 +89,7 @@ void Server::_handleJoinCommand(Client & client, std::string & message){
 			client.setChannelJoined(newChannel); // add the channel to the CLIENT channel joined list
 			newChannel->addClient(client, true); // add the client to the CHANNEL client list
 			newChannel->getUserListInChannel(usersInChannel);
-			client.appendResponse(RPL_NAMREPLY ( _serverName, client.getNickname(), newChannel->getChannelName(), usersInChannel));
+			client.appendResponse(RPL_NAMREPLY ( _serverName, client.getNickname(), "=", newChannel->getChannelName(), usersInChannel));
 			client.appendResponse(RPL_ENDOFNAMES( _serverName, client.getNickname(), newChannel->getChannelName()));	
 		}
 	}
@@ -101,11 +100,11 @@ std::vector<Channel*> Server::getChannelList(){
 }
 
 void		Server::_handleTopicCommand(Client & client, std::string & input){
+	std::string const & nick = client.getNickname();
 
 	std::vector<std::string> paramTopic = _splitString(input, ' ');
 	if (paramTopic.size() < 2){
-		std::string topic = "TOPIC";
-		client.appendResponse(ERR_NEEDMOREPARAMS(topic));
+		client.appendResponse(ERR_NEEDMOREPARAMS(_serverName, nick, "TOPIC"));
 		return ;
 	}
 	else if (paramTopic.size() >= 2){
@@ -113,14 +112,14 @@ void		Server::_handleTopicCommand(Client & client, std::string & input){
 		for (it = _channelList.begin(); it != _channelList.end(); ++it){
 			if ((*it)->getChannelName() == paramTopic[1]){
 				if ((*it)->getClientList().find(&client) == (*it)->getClientList().end() ){
-					client.appendResponse(ERR_NOTONCHANNEL( _serverName,(*it)->getChannelName()));
+					client.appendResponse(ERR_NOTONCHANNEL( _serverName, nick, (*it)->getChannelName()));
 					return ;
 				}
 				else if (paramTopic.size() == 2){
 					if ((*it)->getTopic().empty())
-						client.appendResponse(RPL_NOTOPIC(client.getNickname(), client.getUsername(), client.gethostname(),  (*it)->getChannelName()));
+						client.appendResponse(RPL_NOTOPIC(_serverName, nick, (*it)->getChannelName()));
 					else
-						client.appendResponse(RPL_TOPIC(client.getNickname(), client.getUsername(), client.gethostname(),  (*it)->getChannelName(), (*it)->getTopic()));
+						client.appendResponse(RPL_TOPIC(_serverName, nick, (*it)->getChannelName(), (*it)->getTopic()));
 					return;
 				}
 				else if (paramTopic.size() >= 3){
@@ -128,8 +127,8 @@ void		Server::_handleTopicCommand(Client & client, std::string & input){
 						size_t colonpos = input.find(':');
 						std::string newTopic = input.substr(colonpos + 1);
 						(*it)->setTopic(newTopic);
-						client.appendResponse(RPL_TOPIC(client.getNickname(), client.getUsername(), client.gethostname(),  (*it)->getChannelName(), (*it)->getTopic()));
-						(*it)->relayMessage(client, RPL_TOPIC(client.getNickname(), client.getUsername(), client.gethostname(),  (*it)->getChannelName(), (*it)->getTopic()));
+						client.appendResponse(RPL_TOPIC(_serverName, client.getNickname(), (*it)->getChannelName(), (*it)->getTopic()));
+						(*it)->relayMessage(client, RPL_TOPIC(_serverName, client.getNickname(), (*it)->getChannelName(), (*it)->getTopic()));
 					}
 					return ;
 				}
@@ -175,7 +174,7 @@ void	Server::_modeOperatorPriv(bool isOperator, std::string ope, Client & client
 			}
 		}
 		if (it == channel->getClientList().end()){
-			client.appendResponse(ERR_NOSUCHNICK(_serverName, client.getNickname(), ope));
+			client.appendResponse(ERR_NOSUCHNICK(_serverName, ope)); // not sure if this is correct
 		}
 }
 
@@ -187,6 +186,7 @@ void	Server::_modeSetUserLimit(bool isOperator, std::string limit, Channel & cha
 
 
 void	Server::_handleModeCommand(Client & client, std::string & input){
+	std::string const & nick = client.getNickname();
 	std::vector<std::string> modeSplit = _splitString(input, ' ');
 	std::string mode = "MODE";
 	Channel * channelInUse;
@@ -203,9 +203,9 @@ void	Server::_handleModeCommand(Client & client, std::string & input){
 			}
 		}
 		if (itch == _channelList.end())
-			client.appendResponse(ERR_NOSUCHCHANNEL(modeSplit[1]));
+			client.appendResponse(ERR_NOSUCHCHANNEL(_serverName, nick, modeSplit[1]));
 		else
-			client.appendResponse(RPL_CHANNELMODEIS(_serverName, client.getNickname(), channelInUse->getChannelName(), channelInUse->getModeString()));
+			client.appendResponse(RPL_CHANNELMODEIS(_serverName, nick, channelInUse->getChannelName(), channelInUse->getModeString()));
 		return ;
 	}
 	else if (modeSplit.size() <= 4 ){
@@ -232,11 +232,11 @@ void	Server::_handleModeCommand(Client & client, std::string & input){
 		for (unsigned int i = 1; i < modeSplit[2].size(); i++){
 			char m = modeSplit[2][i]; 
 			if ((m == 'k' || m == 'o' || m == 'l') && (modeSplit.size() == 3) && isModeOn){
-				client.appendResponse(ERR_NEEDMOREPARAMS(mode));
+				client.appendResponse(ERR_NEEDMOREPARAMS(_serverName, nick, "MODE"));
 				return ;
 			}
 			else if ((m == 'o') && (modeSplit.size() == 3) && !isModeOn){
-				client.appendResponse(ERR_NEEDMOREPARAMS(mode));
+				client.appendResponse(ERR_NEEDMOREPARAMS(_serverName, nick, "MODE"));
 				return ;
 			}
 			switch (_findMode(m))
@@ -270,18 +270,18 @@ void	Server::_handleModeCommand(Client & client, std::string & input){
 				break;
 			}
 		}
-		(*itch)->relayMessage(client, RPL_CHANNELMODEIS(_serverName, client.getNickname(), channelInUse->getChannelName(), channelInUse->getModeString()));
-		client.appendResponse(RPL_CHANNELMODEIS(_serverName, client.getNickname(), channelInUse->getChannelName(), channelInUse->getModeString()));
+		(*itch)->relayMessage(client, RPL_CHANNELMODEIS(_serverName, nick, channelInUse->getChannelName(), channelInUse->getModeString()));
+		client.appendResponse(RPL_CHANNELMODEIS(_serverName, nick, channelInUse->getChannelName(), channelInUse->getModeString()));
 	}
 }
 
 
 void	Server::_handleInviteCommand(Client & client, std::string & input){
+	std::string const & nick = client.getNickname();
 	std::vector<std::string> inviteSplit = _splitString(input, ' ');
 	Channel * channelInUse;
 	if (inviteSplit.size() < 3){
-		std::string invite = "INVITE";
-		client.appendResponse(ERR_NEEDMOREPARAMS(invite));
+		client.appendResponse(ERR_NEEDMOREPARAMS(_serverName, nick, "INVITE"));
 		return ;
 	}
 	std::vector<Channel*>::iterator itch;
@@ -304,7 +304,7 @@ void	Server::_handleInviteCommand(Client & client, std::string & input){
 		}
 	}
 	if (it == _clients.end()){
-		client.appendResponse(ERR_NOSUCHNICK2(_serverName, inviteSplit[1]));
+		client.appendResponse(ERR_NOSUCHNICK(_serverName, inviteSplit[1]));
 		return ;
 	}
 	if ((channelInUse->getChannelMode()['i'] == false) || ((channelInUse->getChannelMode()['i'] == true) && (channelInUse->getClientList()[clientInviter->first] == true)) ){
@@ -314,10 +314,10 @@ void	Server::_handleInviteCommand(Client & client, std::string & input){
 }    
 
 void 	Server::_handleKickCommand(Client & client, std::string & input){
+	std::string const & nick = client.getNickname();
 	std::vector<std::string> kickSplit = _splitString(input, ' ');
 	if (kickSplit.size() < 3){
-		std::string kick = "KICK";
-		return client.appendResponse(ERR_NEEDMOREPARAMS(kick));
+		return client.appendResponse(ERR_NEEDMOREPARAMS(_serverName, nick, "KICK"));
 	}
 	else{
 		std::string comment = "";
@@ -336,10 +336,10 @@ void 	Server::_handleKickCommand(Client & client, std::string & input){
 			}
 		}
 		if (channelExisting == false){
-			return client.appendResponse(ERR_NOSUCHCHANNEL(kickSplit[1]));
+			return client.appendResponse(ERR_NOSUCHCHANNEL(_serverName, nick, kickSplit[1]));
 		}
 		if (channelInUse->getClientList()[&client] == false){
-			return client.appendResponse(ERR_CHANOPRIVSNEEDED(channelInUse->getChannelName()));
+			return client.appendResponse(ERR_CHANOPRIVSNEEDED(_serverName, nick, channelInUse->getChannelName()));
 		}
 		std::map<Client *, bool>::iterator it2;
 		int clientToBeKickedOnChannel = false;
@@ -353,18 +353,19 @@ void 	Server::_handleKickCommand(Client & client, std::string & input){
 		}
 		if (clientToBeKickedOnChannel == false)
 			return;
-		channelInUse->relayMessage(client, KICK(client.getNickname(), client.getUsername(), client.gethostname(), channelInUse->getChannelName(), clientToBeKicked->getNickname() , comment));
-		client.appendResponse(KICK(client.getNickname(), client.getUsername(), client.gethostname(), channelInUse->getChannelName(), clientToBeKicked->getNickname() , comment));
+		channelInUse->relayMessage(client, KICK(client.getNickname(), client.getUsername(), client.getHostname(), channelInUse->getChannelName(), clientToBeKicked->getNickname() , comment));
+		client.appendResponse(KICK(client.getNickname(), client.getUsername(), client.getHostname(), channelInUse->getChannelName(), clientToBeKicked->getNickname() , comment));
 		channelInUse->removeClient(clientToBeKicked);
 		clientToBeKicked->removeChannelJoined(channelInUse);
 	}
 }
 
 void	Server::_handlePartCommand(Client & client, std::string & input){
+	std::string const & nick = client.getNickname();
 	std::vector<std::string> partSplit = _splitString(input, ' ');
 	if (partSplit.size() < 2){
 		std::string part = "PART";
-		return client.appendResponse(ERR_NEEDMOREPARAMS(part));
+		return client.appendResponse(ERR_NEEDMOREPARAMS(_serverName, nick, "PART"));
 	}
 	else{
 		std::string reason = "";
@@ -385,17 +386,17 @@ void	Server::_handlePartCommand(Client & client, std::string & input){
 				}
 			}
 			if (channelExisting == false)
-				client.appendResponse(ERR_NOSUCHCHANNEL(channelListToPart[1]));
+				client.appendResponse(ERR_NOSUCHCHANNEL(_serverName, nick, channelListToPart[1]));
 			// else if (std::find(client.getChannelJoined().begin(), client.getChannelJoined().end(), channelInUse) == client.getChannelJoined().end())
 			// 	client.appendResponse(ERR_NOTONCHANNEL(_serverName, channelInUse->getChannelName()));
 			else{
 				if (partSplit.size() == 2){
-					channelInUse->relayMessage(client, PART(client.getNickname(), client.getUsername(), client.gethostname(), channelInUse->getChannelName()));
-					client.appendResponse(KICK(client.getNickname(), client.getUsername(), client.gethostname(), channelInUse->getChannelName(), client.getNickname(), reason));
+					channelInUse->relayMessage(client, PART(client.getNickname(), client.getUsername(), client.getHostname(), channelInUse->getChannelName()));
+					client.appendResponse(KICK(client.getNickname(), client.getUsername(), client.getHostname(), channelInUse->getChannelName(), client.getNickname(), reason));
 				}
 				else if (partSplit.size() >= 3){
-					channelInUse->relayMessage(client, PART_REASON(client.getNickname(), client.getUsername(), client.gethostname(), channelInUse->getChannelName(), reason));
-					client.appendResponse(KICK(client.getNickname(), client.getUsername(), client.gethostname(), channelInUse->getChannelName(), client.getNickname(), reason));
+					channelInUse->relayMessage(client, PART_REASON(client.getNickname(), client.getUsername(), client.getHostname(), channelInUse->getChannelName(), reason));
+					client.appendResponse(KICK(client.getNickname(), client.getUsername(), client.getHostname(), channelInUse->getChannelName(), client.getNickname(), reason));
 				}
 				channelInUse->removeClient(&client);
 				client.removeChannelJoined(channelInUse);

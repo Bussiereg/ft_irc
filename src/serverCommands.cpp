@@ -37,109 +37,112 @@ std::string Server::_getCommand(std::string &message)
 void Server::_handlePassCommand(Client &client, std::string &message)
 {
 	std::vector<std::string> params = _splitString(message, ' ');
+	std::string const & nick = client.getNickname();
+
 	if (client.isPassedWord())
-		client.appendResponse("462 :You may not reregister\r\n");
-	else if (client.passWordAttempted())
-		client.appendResponse("you only get one password try\r\n");
-	else if (params.size() != 2)
-		client.appendResponse("wrong amount of arguments\r\n");
-	else if (params[1] != _password)
-		client.appendResponse("464 :Password incorrect\r\n");
+		client.appendResponse(ERR_ALREADYREGISTRED(_serverName, nick));
+	else if (params.size() < 2 || params[1] != _password)
+		client.appendResponse(ERR_PASSWDMISMATCH(_serverName, nick));
 	else
 	{
 		std::cout << "[Server  ] Password accepted for " << client.getNickname() << std::endl;
 		client.acceptPassword();
 	}
-	client.passWordAttempt();
 }
 
 void Server::_handleNickCommand(Client &client, std::string &message)
 {
-	if (!client.isPassedWord())
-	{
-		client.appendResponse("No password given as first command");
-		client.passWordAttempt();
+	std::vector<std::string> params = _splitString(message, ' ');
+	if (!client.isPassedWord()) {
+		client.appendResponse(ERR_NOTREGISTERED(_serverName, ""));
 		return;
 	}
-	if (message.length() < 6)
-	{
-		client.appendResponse(ERR_NONICKNAMEGIVEN(_serverName));
+	if (params.size() < 2) {
+		client.appendResponse(ERR_NONICKNAMEGIVEN(_serverName, ""));
 		return;
+	} 
+	std::string nick = params[1];
+	if (!_isValidNickname(nick)) {
+		client.appendResponse(ERR_ERRONEUSNICKNAME(_serverName, client.getNickname(), nick));
+		return ;
 	}
-	std::string nickname = message.substr(5);
-	if (_isNickInUse(nickname))
-		client.appendResponse(ERR_NICKNAMEINUSE(nickname));
-	else if (client.getNickname().empty())
-	{
-		std::cout << "[Server  ] Nickname accepted for " << nickname << std::endl;
-		client.setNickname(nickname);
+	if (_isNickInUse(nick)) {
+		client.appendResponse(ERR_NICKNAMEINUSE(_serverName, client.getNickname(), nick));
+		return ;
 	}
-	else
-	{
-		std::string oldNick = client.getNickname();
-		client.setNickname(nickname);
-		client.appendResponse(RPL_NICK(oldNick, nickname));
+	std::string oldNick = client.getNickname();
+	client.setNickname(nick);
+	if (!oldNick.empty()) {
+		std::string response = ":" + oldNick + "!" + client.getUsername() + "@" + client.getHostname() + " NICK " + nick + "\r\n";
+		client.appendResponse(response);
+
+		// Forwarded to every client in the same channel:
+		for (std::vector<Channel *>::iterator it = _channelList.begin(); it != _channelList.end(); ++it) {
+			if ((*it)->isMember(client))
+				(*it)->relayMessage(client, response);
+		}
 	}
+	std::cout << "[Server  ] Nickname accepted for " << nick << std::endl;
+
+	if (!client.isFullyAccepted() && !client.getUsername().empty())
+		_registerUser(client);
 }
 
 void Server::_handleUserCommand(Client &client, std::string &message)
 {
 	std::vector<std::string> params = _splitString(message, ' ');
 	std::string username = message.substr(5);
-	if (client.getNickname().empty())
+	if (!client.isPassedWord()) {
+		client.appendResponse(ERR_NOTREGISTERED(_serverName, client.getNickname()));
 		return;
-	else if (!client.isPassedWord())
-	{
-		client.appendResponse("No password given as first command");
-		client.passWordAttempt();
 	}
-	else if (params.size() < 2)
+	if (params.size() < 5)
 	{
-		client.appendResponse(":localhost 461 " + client.getNickname() + " USER :Not enough parameters\r\n");
+		client.appendResponse(ERR_NEEDMOREPARAMS(_serverName, client.getNickname(), "USER"));
+		return ;
 	}
-	else
-	{
-		client.setUsername(params[1]);
-		if (params.size() > 4)
-			client.setHostname(params[3]);
-		if (params.size() > 5)
-			client.setRealname(_concatenateTokens(params, 4));
-		if (!client.isFullyAccepted())
-		{
-			std::cout << "[Server  ] Username accepted for " << client.getNickname() << std::endl;
-			client.acceptFully();
-			client.appendResponse(RPL_WELCOME(client.getNickname(), client.getUsername(), "localhost"));
-			_handleMotdCommand(client, message);
-		}
-	}
+	client.setUsername(params[1]);
+	client.setHostname("localhost");
+	client.setRealname(_concatenateTokens(params, 4));
+	if (!client.isFullyAccepted() && !client.getNickname().empty())
+		_registerUser(client);
+}
+
+void Server::_registerUser(Client &client)
+{
+	client.acceptFully();
+	client.appendResponse(RPL_WELCOME(_serverName, client.getNickname(), client.getUsername(), client.getHostname()));
+	std::string dummy_message;
+	_handleMotdCommand(client, dummy_message);
 }
 
 void Server::_handlePrivmsgCommand(Client &client, std::string &message)
 {
+	std::string const & nick = client.getNickname();
 	std::vector<std::string> receivers = _parseReceivers(message);
 	if (receivers.empty())
 	{
-		client.appendResponse(ERR_NORECIPIENT(_serverName, client.getNickname(), message.substr(0, 7)));
+		client.appendResponse(ERR_NORECIPIENT(_serverName, nick, message.substr(0, 7)));
 		return;
 	}
 
 	size_t pos = message.find(" :");
 	if (pos == std::string::npos)
 	{
-		client.appendResponse(ERR_NOTEXTTOSEND(_serverName, client.getNickname()));
+		client.appendResponse(ERR_NOTEXTTOSEND(_serverName, nick));
 		return;
 	}
 
 	for (std::vector<std::string>::iterator it = receivers.begin(); it != receivers.end(); ++it)
 	{
-		std::string forward = ":" + client.getNickname() + "!" + client.getUsername() + "@" + client.gethostname() + " PRIVMSG " + *it + " :" + message.substr(pos + 2) + "\r\n";
+		std::string forward = ":" + nick + "!" + client.getUsername() + "@" + client.getHostname() + " PRIVMSG " + *it + " :" + message.substr(pos + 2) + "\r\n";
 		if ((*it)[0] == '#')
 		{
 			std::vector<Channel *>::iterator ite = std::find_if(_channelList.begin(), _channelList.end(), MatchChannelName(*it));
 			if (ite == _channelList.end())
-				client.appendResponse(ERR_NOSUCHNICK(_serverName, client.getNickname(), *it));
+				client.appendResponse(ERR_NOSUCHNICK(_serverName, nick));
 			else if (!(*ite)->isMember(client)){
-				client.appendResponse(ERR_NOTONCHANNEL(_serverName, (*ite)->getChannelName()));
+				client.appendResponse(ERR_NOTONCHANNEL(_serverName, nick, (*ite)->getChannelName()));
 			}
 			else
 				(*ite)->relayMessage(client, forward);
@@ -148,7 +151,7 @@ void Server::_handlePrivmsgCommand(Client &client, std::string &message)
 		{
 			std::vector<Client *>::iterator ite = std::find_if(_clients.begin(), _clients.end(), MatchNickname(*it));
 			if (ite == _clients.end())
-				client.appendResponse(ERR_NOSUCHNICK(_serverName, client.getNickname(), *it));
+				client.appendResponse(ERR_NOSUCHNICK(_serverName, nick));
 			else
 			{
 				(*ite)->appendResponse(forward);
@@ -160,7 +163,7 @@ void Server::_handlePrivmsgCommand(Client &client, std::string &message)
 
 void Server::_handlePingCommand(Client &client, std::string &message)
 {
-	client.appendResponse(PONG(message.substr(5)));
+	client.appendResponse("PONG " + message.substr(5) + "\r\n");
 }
 
 void Server::_handleQuitCommand(Client &client, std::string &message)
@@ -237,7 +240,7 @@ void Server::_handleMotdCommand(Client & client, std::string & )
 	std::cout << "The file fd:\n" << motd_file << std::endl;
 
 	if (filename.empty() || !motd_file.is_open())
-		client.appendResponse(ERR_NOMOTD(_serverName));
+		client.appendResponse(ERR_NOMOTD(_serverName, nick));
 	else {
 		client.appendResponse(RPL_MOTDSTART(_serverName, nick));
 		std::string line;

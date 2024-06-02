@@ -80,17 +80,6 @@ bool Client::isPassedWord() const
 	return _isPassedWord;
 }
 
-bool Client::passWordAttempted() const
-{
-	return _passWordAttempted;
-}
-
-void Client::passWordAttempt()
-{
-	_passWordAttempted = true;
-}
-
-
 void Client::acceptPassword()
 {
 	_isPassedWord = true;
@@ -119,10 +108,6 @@ void Client::appendResponse(std::string newMessage)
 void Client::clearResponse()
 {
 	_response.clear();
-}
-
-std::string const & Client::gethostname() const{
-	return _hostname;
 }
 
 std::vector<Channel*> & Client::getChannelJoined(){

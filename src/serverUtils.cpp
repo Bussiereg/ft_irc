@@ -1,6 +1,6 @@
 #include "Server.hpp"
 
-bool	Server::_isNickInUse(std::string const & nick)
+bool Server::_isNickInUse(std::string const & nick)
 {
 	for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
 		if ((*it)->getNickname() == nick) {
@@ -8,6 +8,27 @@ bool	Server::_isNickInUse(std::string const & nick)
 		}
 	}
 	return false;
+}
+
+bool Server::_isValidNickname(const std::string &nickname)
+{
+    if (nickname.empty() || nickname.size() > 9) {
+        return false;
+    }
+
+    if (!std::isalpha(nickname[0])) {
+        return false;
+    }
+
+    for (std::string::const_iterator it = nickname.begin() + 1; it != nickname.end(); ++it) {
+        char c = *it;
+        if (!(std::isalnum(c) || c == '-' || c == '[' || c == ']' || c == '\\' ||
+              c == '`' || c == '^' || c == '_' || c == '{' || c == '}' || c == '|')) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 void Server::_printBuffer(const char* buff, int received)
