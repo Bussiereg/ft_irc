@@ -20,9 +20,6 @@
 #define RPL_MYINFO(server, nick, servername, version, userModes, channelModes) (":" + server + " 004 " + nick + " " + servername + " " + version + " " + userModes + " " + channelModes + "\r\n")
 
 
-# define RPL_WHO(server, myNick, channel, username, hostname, nick, operator, realname) (":" + server + " 352 " + myNick + " " + channel + " " + username + " " + hostname + " " + server + " "  + nick + " H" + operator + " :0 " + realname + "\r\n")
-
-# define RPL_ENDWHO(server, myNick, channel)(":" + server + " 352 " + myNick + " " + channel + " :End of /WHO list\r\n")
 
 
 
@@ -649,6 +646,10 @@
 
 #pragma once
 
+# define RPL_WHO(server, myNick, channel, username, hostname, nick, operator, realname) (":" + server + " 352 " + myNick + " " + channel + " " + username + " " + hostname + " " + server + " "  + nick + " H" + operator + " :0 " + realname + "\r\n")
+
+# define RPL_ENDWHO(server, myNick, channel)(":" + server + " 352 " + myNick + " " + channel + " :End of /WHO list\r\n")
+
 # define RPL_NICK(old_nick, nick) (":" + old_nick + " NICK " + nick + "\r\n")
 
 # define PONG(server) ("PONG " + server + "\r\n")
@@ -667,9 +668,7 @@
 
 # define INVITE(nick, user, host, nickinvite, channel)  (":" + nick + "!" + user + "@" + host + " INVITE " + nickinvite + " " + channel + "\r\n")
 
-# define QUIT(nick, user, host) (nick + "!" + user + "@" + host  + " QUIT\r\n")
-
-# define QUIT_REASON(nick, user, host, msg) (nick + "!" + user + "@" + host  + " QUIT :" + msg + "\r\n")
+# define QUIT(nick, user, host, msg) (nick + "!" + user + "@" + host  + " QUIT " + msg + "\r\n")
 
 # define RPL_WHO(server, myNick, channel, username, hostname, nick, operator, realname) (":" + server + " 352 " + myNick + " " + channel + " " + username + " " + hostname + " " + server + " "  + nick + " H" + operator + " :0 " + realname + "\r\n")
 

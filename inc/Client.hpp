@@ -19,8 +19,6 @@ private:
 	std::string				_realname;
 	bool					_isPassedWord;
 	bool					_isFullyAccepted;
-	bool					_passWordAttempted;
-	std::set<int>			_contactList;
 	std::vector<Channel*>	_channelJoined;
 	std::string				_response;
 	std::string				_buffer;
@@ -40,6 +38,7 @@ public:
 	void					setHostname(std::string const &);
 	std::string const &		getRealname() const;
 	void					setRealname(std::string const &);
+
 	std::vector<Channel*> & getChannelJoined();
 	void			 		removeChannelJoined(Channel * channel);
 	void					setChannelJoined(Channel*);
@@ -50,7 +49,6 @@ public:
 	void					acceptFully();
 
 	std::string const &		getResponse() const;
-	std::set<int> &			getContactList();
 	void					appendResponse(std::string newMessage);
 	void					clearResponse();
 };

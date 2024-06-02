@@ -141,9 +141,8 @@ void Server::_handlePrivmsgCommand(Client &client, std::string &message)
 			std::vector<Channel *>::iterator ite = std::find_if(_channelList.begin(), _channelList.end(), MatchChannelName(*it));
 			if (ite == _channelList.end())
 				client.appendResponse(ERR_NOSUCHNICK(_serverName, nick));
-			else if (!(*ite)->isMember(client)){
+			else if (!(*ite)->isMember(client))
 				client.appendResponse(ERR_NOTONCHANNEL(_serverName, nick, (*ite)->getChannelName()));
-			}
 			else
 				(*ite)->relayMessage(client, forward);
 		}
@@ -155,7 +154,6 @@ void Server::_handlePrivmsgCommand(Client &client, std::string &message)
 			else
 			{
 				(*ite)->appendResponse(forward);
-				(*ite)->getContactList().insert(client.getClientSocket()->fd);
 			}
 		}
 	}
@@ -168,23 +166,15 @@ void Server::_handlePingCommand(Client &client, std::string &message)
 
 void Server::_handleQuitCommand(Client &client, std::string &message)
 {
-	for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it)
-	{
-		if (*it != &client)
-		{
-			if (std::find((*it)->getContactList().begin(), (*it)->getContactList().end(), client.getClientSocket()->fd) != (*it)->getContactList().end())
-				(*it)->appendResponse(QUIT_REASON(client.getNickname(), client.getUsername(), client.getHostname(), message.substr(6)));
-			else
-			{
-				for (std::vector<Channel *>::iterator it_ch = (*it)->getChannelJoined().begin(); it_ch != (*it)->getChannelJoined().end(); ++it_ch)
-				{
-					std::map<Client*, bool>::iterator it_find = (*it_ch)->getClientList().find(&client);
-					 if (it_find != (*it_ch)->getClientList().end())
-						(*it)->appendResponse(QUIT_REASON(client.getNickname(), client.getUsername(), client.getHostname(), message.substr(6)));
-				}
-			}
-		}
+	std::vector<Channel*> channelList = client.getChannelJoined();
+	std::string reason;
+	if (message.size() > 5)
+		reason = ":" + message.substr(5);
+
+	for (std::vector<Channel*>::iterator it = channelList.begin(); it != channelList.end(); ++it) {
+		(*it)->relayMessage(client, QUIT(client.getNickname(), client.getUsername(), client.getHostname(), reason));
 	}
+	close(client.getClientSocket()->fd);
 	_delClient(client);
 }
 
