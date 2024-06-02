@@ -11,7 +11,15 @@ void Server::_readBuffer(size_t index, std::string &buffer)
 		std::cout << "     FD " << _allSockets[index].fd << "< " << CYAN << message << RESET << std::endl;
 
 		std::string command = _getCommand(message);
-		(this->*_commandMap[command])(client, message);
+		if (client.isFullyAccepted()
+			|| command == "LS"
+			|| command == "PASS"
+			|| (client.isPassedWord()
+				&& (command == "NICK" || command == "USER"))) {
+			(this->*_commandMap[command])(client, message);
+		} else {
+			client.appendResponse(ERR_NOTREGISTERED(_serverName, client.getNickname()));
+		}
 	}
 
 	std::cout << std::endl
@@ -53,10 +61,7 @@ void Server::_handlePassCommand(Client &client, std::string &message)
 void Server::_handleNickCommand(Client &client, std::string &message)
 {
 	std::vector<std::string> params = _splitString(message, ' ');
-	if (!client.isPassedWord()) {
-		client.appendResponse(ERR_NOTREGISTERED(_serverName, ""));
-		return;
-	}
+
 	if (params.size() < 2) {
 		client.appendResponse(ERR_NONICKNAMEGIVEN(_serverName, ""));
 		return;
@@ -91,11 +96,6 @@ void Server::_handleNickCommand(Client &client, std::string &message)
 void Server::_handleUserCommand(Client &client, std::string &message)
 {
 	std::vector<std::string> params = _splitString(message, ' ');
-	std::string username = message.substr(5);
-	if (!client.isPassedWord()) {
-		client.appendResponse(ERR_NOTREGISTERED(_serverName, client.getNickname()));
-		return;
-	}
 	if (params.size() < 5)
 	{
 		client.appendResponse(ERR_NEEDMOREPARAMS(_serverName, client.getNickname(), "USER"));
@@ -104,6 +104,7 @@ void Server::_handleUserCommand(Client &client, std::string &message)
 	client.setUsername(params[1]);
 	client.setHostname("localhost");
 	client.setRealname(_concatenateTokens(params, 4));
+
 	if (!client.isFullyAccepted() && !client.getNickname().empty())
 		_registerUser(client);
 }
@@ -122,7 +123,7 @@ void Server::_handlePrivmsgCommand(Client &client, std::string &message)
 	std::vector<std::string> receivers = _parseReceivers(message);
 	if (receivers.empty())
 	{
-		client.appendResponse(ERR_NORECIPIENT(_serverName, nick, message.substr(0, 7)));
+		client.appendResponse(ERR_NORECIPIENT(_serverName, nick, "PRIVMSG"));
 		return;
 	}
 
@@ -135,7 +136,7 @@ void Server::_handlePrivmsgCommand(Client &client, std::string &message)
 
 	for (std::vector<std::string>::iterator it = receivers.begin(); it != receivers.end(); ++it)
 	{
-		std::string forward = ":" + nick + "!" + client.getUsername() + "@" + client.getHostname() + " PRIVMSG " + *it + " :" + message.substr(pos + 2) + "\r\n";
+		std::string forward = ":" + nick + "!" + nick + "@" + client.getHostname() + " PRIVMSG " + *it + " :" + message.substr(pos + 2) + "\r\n";
 		if ((*it)[0] == '#')
 		{
 			std::vector<Channel *>::iterator ite = std::find_if(_channelList.begin(), _channelList.end(), MatchChannelName(*it));
@@ -225,9 +226,6 @@ void Server::_handleMotdCommand(Client & client, std::string & )
 	std::string filename(_config.get("Misc", "Motd"));
 	std::ifstream motd_file(filename.c_str());
 	std::string nick = client.getNickname();
-
-	std::cout << "Filename motd: " << filename << std::endl;
-	std::cout << "The file fd:\n" << motd_file << std::endl;
 
 	if (filename.empty() || !motd_file.is_open())
 		client.appendResponse(ERR_NOMOTD(_serverName, nick));
