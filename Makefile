@@ -21,6 +21,17 @@ SRC		:= $(addprefix $(SRCDIR)/, $(SRC))
 OBJ		:= $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SRC))
 HEADER	:= -I $(INCDIR)
 
+BOT			:= botbot
+BOT_SRCDIR	:= chatbot/src
+BOT_INCDIR	:= chatbot/inc
+BOT_OBJDIR	:= chatbot/obj
+BOT_SRC     := bot.cpp \
+				main.cpp
+BOT_SRC		:= $(addprefix $(BOT_SRCDIR)/, $(BOT_SRC))
+BOT_OBJ		:= $(patsubst $(BOT_SRCDIR)/%.cpp, $(BOT_OBJDIR)/%.o, $(BOT_SRC))
+BOT_HEADER	:= -I $(BOT_INCDIR)
+
+
 COLOR_GREEN := \033[0;32m
 COLOR_YELLOW := \033[0;33m
 COLOR_RESET := \033[0m
@@ -43,10 +54,25 @@ log:
 clean:
 	@echo "$(COLOR_YELLOW)Removing obj/ directory$(COLOR_RESET)"
 	@rm -fr $(OBJDIR)
+	@echo "$(COLOR_YELLOW)Removing chatbot/obj/ directory$(COLOR_RESET)"
+	@rm -fr $(BOT_OBJDIR)
 
 fclean: clean
 	@echo "$(COLOR_YELLOW)Removing $(NAME)$(COLOR_RESET)"
 	@rm -f $(NAME)
+	@echo "$(COLOR_YELLOW)Removing $(BOT)$(COLOR_RESET)"
+	@rm -f $(BOT)
+
+$(BOT): $(BOT_OBJ)
+	@$(CPP) $(FLAGS) $(BOT_HEADER) $^ -o $@
+	@echo "$(COLOR_GREEN)Botbot was successfully assembled!$(COLOR_RESET)"
+
+$(BOT_OBJDIR)/%.o: $(BOT_SRCDIR)/%.cpp | $(BOT_OBJDIR)
+	@$(CPP) $(FLAGS) $(BOT_HEADER) -D HOSTNAME=$(HOSTNAME) -c $< -o $@
+
+$(BOT_OBJDIR):
+	@mkdir -p $(BOT_OBJDIR)
+
 
 re: fclean all
 
