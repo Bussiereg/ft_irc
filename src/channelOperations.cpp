@@ -47,10 +47,10 @@ std::vector<Channel*>::iterator Server::_isChannelAlreadyExisting(std::string rh
 
 void Server::_handleJoinCommand(Client & client, std::string & message){
 	std::map<std::string, std::string> joinParams;
-	std::string usersInChannel;
 
 	_createJoinmap(client, message, joinParams);
 	for (std::map<std::string, std::string>::iterator it = joinParams.begin(); it != joinParams.end(); ++it){
+	std::string usersInChannel;
 		std::vector<Channel*>::iterator itch = _isChannelAlreadyExisting(it->first);
 		if (itch != _channelList.end()){ //channel already exist
 			if ((*itch)->getChannelMode()['l'] == true && ((*itch)->getLimitUsers() <= (*itch)->getClientList().size())){

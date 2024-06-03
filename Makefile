@@ -1,4 +1,5 @@
 NAME	:= ircserv
+BOT		:= botbot
 CPP		:= c++
 FLAGS	:= -std=c++98 -Wall -Wextra -Werror -fsanitize=address -g
 #FLAGS	:= -std=c++98 -Wall -Wextra -Werror
@@ -46,6 +47,10 @@ clean:
 fclean: clean
 	@echo "$(COLOR_YELLOW)Removing $(NAME)$(COLOR_RESET)"
 	@rm -f $(NAME)
+	@rm -f $(BOT)
+
+$(BOT):
+	$(CPP) bot/bot.cpp -o $(BOT)
 
 re: fclean all
 
