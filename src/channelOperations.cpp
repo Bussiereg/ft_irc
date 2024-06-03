@@ -56,38 +56,36 @@ void Server::_handleTopicCommand(Client &client, std::string &input)
 		client.appendResponse(ERR_NEEDMOREPARAMS(_serverName, nick, "TOPIC"));
 		return;
 	}
-	else if (paramTopic.size() >= 2)
+	std::vector<Channel *>::iterator it;
+	for (it = _channelList.begin(); it != _channelList.end(); ++it)
 	{
-		std::vector<Channel *>::iterator it;
-		for (it = _channelList.begin(); it != _channelList.end(); ++it)
+		if ((*it)->getChannelName() != paramTopic[1])
+			continue ;
+		
+		if (!(*it)->isMember(client))
 		{
-			if ((*it)->getChannelName() == paramTopic[1])
+			client.appendResponse(ERR_NOTONCHANNEL(_serverName, nick, (*it)->getChannelName()));
+			return;
+		}
+
+		std::string const & channelName = (*it)->getChannelName();
+		std::string const & topic = (*it)->getTopic();
+		if (paramTopic.size() == 2)
+		{
+			if (topic.empty())
+				client.appendResponse(RPL_NOTOPIC(_serverName, nick, channelName));
+			else
+				client.appendResponse(RPL_TOPIC(_serverName, nick, channelName, topic));
+		}
+		else if (paramTopic.size() >= 3)
+		{
+			if (((*it)->getChannelMode()['t'] == false) || (((*it)->getChannelMode()['t'] == true) && ((*it)->getClientList()[&client] == true)))
 			{
-				if ((*it)->getClientList().find(&client) == (*it)->getClientList().end())
-				{
-					client.appendResponse(ERR_NOTONCHANNEL(_serverName, nick, (*it)->getChannelName()));
-					return;
-				}
-				else if (paramTopic.size() == 2)
-				{
-					if ((*it)->getTopic().empty())
-						client.appendResponse(RPL_NOTOPIC(_serverName, nick, (*it)->getChannelName()));
-					else
-						client.appendResponse(RPL_TOPIC(_serverName, nick, (*it)->getChannelName(), (*it)->getTopic()));
-					return;
-				}
-				else if (paramTopic.size() >= 3)
-				{
-					if (((*it)->getChannelMode()['t'] == false) || (((*it)->getChannelMode()['t'] == true) && ((*it)->getClientList()[&client] == true)))
-					{
-						size_t colonpos = input.find(':');
-						std::string newTopic = input.substr(colonpos + 1);
-						(*it)->setTopic(newTopic);
-						client.appendResponse(RPL_TOPIC(_serverName, client.getNickname(), (*it)->getChannelName(), (*it)->getTopic()));
-						(*it)->relayMessage(client, RPL_TOPIC(_serverName, client.getNickname(), (*it)->getChannelName(), (*it)->getTopic()));
-					}
-					return;
-				}
+				size_t colonpos = input.find(':');
+				std::string newTopic = input.substr(colonpos + 1);
+				(*it)->setTopic(newTopic);
+				client.appendResponse(RPL_TOPIC(_serverName, nick, channelName, topic));
+				(*it)->relayMessage(client, RPL_TOPIC(_serverName, nick, channelName, topic));
 			}
 		}
 	}
@@ -125,23 +123,29 @@ void Server::_modeKeySet(bool isOperator, std::string key, Channel *channel)
 
 void Server::_modeOperatorPriv(bool isOperator, std::string ope, Client &client, Channel *channel)
 {
-	if (channel->getClientList()[&client] == false)
+	std::map<Client *, bool> const &channelUsers = channel->getClientList();
+	std::map<Client *, bool>::const_iterator subject = channelUsers.find(&client);
+
+	if (subject == channelUsers.end())
 	{
-		return;
+		return client.appendResponse(ERR_NOTONCHANNEL(_serverName, client.getNickname(), channel->getChannelName()));
 	}
-	std::map<Client *, bool>::iterator it;
-	for (it = channel->getClientList().begin(); it != channel->getClientList().end(); ++it)
+
+	if (subject->second == false)
 	{
-		if (it->first->getNickname() == ope)
+		return client.appendResponse(ERR_CHANOPRIVSNEEDED(_serverName, client.getNickname(), channel->getChannelName()));
+	}
+
+	std::map<Client *, bool>::iterator object;
+	for (object = channel->getClientList().begin(); object != channel->getClientList().end(); ++object)
+	{
+		if (object->first->getNickname() == ope)
 		{
-			channel->setClientList(it->first, isOperator);
+			channel->setClientList(object->first, isOperator);
 			return;
 		}
 	}
-	if (it == channel->getClientList().end())
-	{
-		client.appendResponse(ERR_NOSUCHNICK(_serverName, ope)); // not sure if this is correct
-	}
+	client.appendResponse(ERR_USERNOTINCHANNEL(_serverName, client.getNickname(), ope, channel->getChannelName()));
 }
 
 void Server::_modeSetUserLimit(bool isOperator, std::string limit, Channel &channel)
