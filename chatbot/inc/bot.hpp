@@ -14,47 +14,35 @@
 class bot
 {
 private:
-	unsigned int _numberToGuess;
+	int _numberToGuess;
 
 	std::string		_serverName;
     unsigned int	_port;
     std::string		_nickBot;
     std::string		_userBot;
 	std::string		_password;
-	std::string 	_extractUsername(const std::string& message);
 	void 			_send_command(const std::string& cmd);
-	unsigned int	_generateRandomNumber();
+	int				_generateRandomNumber();
 	void 			_wakeUp();
 	void 			_handle_server_message(const std::string& message);
+	std::string		_getMessageFromUser(const std::string& input);
 public:
 	bot(unsigned int, std::string);
 	~bot();
 
-	class SocketCreationException : public std::exception {
+	class botSocketCreationException : public std::exception {
 		virtual const char *what() const throw();
 	};
 
-	class hostnameException : public std::exception {
+	class bothostnameException : public std::exception {
 		virtual const char *what() const throw();
 	};
 
-	class ConnectException : public std::exception {
+	class botConnectException : public std::exception {
 		virtual const char *what() const throw();
 	};
 
-
-	class SocketBindingException : public std::exception {
-		virtual const char* what() const throw();
-	};
-
-	class SocketListeningException : public std::exception {
-		virtual const char* what() const throw();
-	};
 };
-
-bot::~bot()
-{
-}
 
 
 #endif
