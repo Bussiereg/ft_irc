@@ -13,6 +13,7 @@ SRC		:= main.cpp \
 			serverPolling.cpp \
 			serverUtils.cpp \
 			channelOperations.cpp \
+			joinChannel.cpp \
 			Channel.cpp \
 			Client.cpp \
 			ConfigParser.cpp

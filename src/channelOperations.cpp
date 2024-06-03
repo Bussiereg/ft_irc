@@ -33,71 +33,10 @@ void Server::_createJoinmap(Client &client, std::string &message, std::map<std::
 		std::vector<std::string> channelKey = _splitString(joinSplit[2], ',');
 		for (unsigned long i = 0; i < channelList.size(); i++)
 		{
-			if (channelKey.size() <= i) // if there is more channel than password, don't add the passwords
-				joinParams.insert(std::pair<std::string, std::string>(channelList[i], ""));
-			else
+			if (channelKey.size() > i)
 				joinParams.insert(std::pair<std::string, std::string>(channelList[i], channelKey[i]));
-		}
-	}
-}
-
-void Server::_handleJoinCommand(Client &client, std::string &message)
-{
-	std::client const & nick = client.getNickname();
-	std::map<std::string, std::string> joinParams;
-
-	_createJoinmap(client, message, joinParams);
-	for (std::map<std::string, std::string>::iterator it = joinParams.begin(); it != joinParams.end(); ++it)
-	{
-		std::string usersInChannel;
-		std::vector<Channel *>::iterator ite = std::find_if(_channelList.begin(), _channelList.end(), MatchChannelName((*it)->first));
-		if (itch != _channelList.end())
-		{ // channel already exist
-			if ((*itch)->getChannelMode()['l'] == true && ((*itch)->getLimitUsers() <= (*itch)->getClientList().size()))
-			{
-				client.appendResponse(ERR_CHANNELISFULL(_serverName, nick, (*itch)->getChannelName()));
-				return;
-			}
-			if ((*itch)->getChannelMode()['i'] == true)
-			{
-				bool flag = false;
-				std::vector<std::string>::iterator it;
-				for (it = (*itch)->getInviteList().begin(); it != (*itch)->getInviteList().end(); ++it)
-				{
-					if (*it == nick)
-					{
-						flag = true;
-						break;
-					}
-				}
-				if (!flag)
-				{
-					client.appendResponse(ERR_INVITEONLYCHAN(_serverName, nick, (*itch)->getChannelName()));
-					return;
-				}
-			}
-			if ((*itch)->getChannelPassword() == it->second)
-			{ // Check password password
-				(*itch)->setClientList(&client, false);
-				(*itch)->getUserListInChannel(usersInChannel);
-				(*itch)->relayMessage(client, JOIN(client.getNickname(), client.getUsername(), client.getHostname(), (*itch)->getChannelName()));
-				client.setChannelJoined(*itch);
-				client.appendResponse(RPL_TOPIC(_serverName, nick, it->first, (*itch)->getTopic()));
-				client.appendResponse(RPL_NAMREPLY(_serverName, nick, "=", (*itch)->getChannelName(), usersInChannel));
-				client.appendResponse(RPL_ENDOFNAMES(_serverName, nick, (*itch)->getChannelName()));
-			}
-			else // Password was wrong
-				client.appendResponse(ERR_BADCHANNELKEY(_serverName, nick, (*itch)->getChannelName()));
-		}
-		else
-		{ // new channel
-			Channel *newChannel = new Channel(it->first, client);
-			_channelList.push_back(newChannel);	 // add the channel to the SERVER channel list
-			client.setChannelJoined(newChannel); // add the channel to the CLIENT channel joined list
-			newChannel->addClient(client, true); // add the client to the CHANNEL client list
-			newChannel->getUserListInChannel(usersInChannel);
-			client.appendResponse(RPL_NAMREPLY(_serverName, nick, "=", newChannel->getChannelName(), usersInChannel));
-			client.appendResponse(RPL_ENDOFNAMES(_serverName, nick, newChannel->getChannelName()));
+			else
+				joinParams.insert(std::pair<std::string, std::string>(channelList[i], ""));
 		}
 	}
 }

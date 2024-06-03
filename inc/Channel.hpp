@@ -11,7 +11,7 @@ class Channel
 {
 private:
 	std::string					_channelName;
-	std::string					_channelPassword;
+	std::string					_ChannelKey;
 	std::map<char, bool>		_mode;
 	std::string					_topic;
 	unsigned int				_limitUsers;
@@ -33,7 +33,7 @@ public:
 	std::string					getModeString();
 	std::string	const &			getTopic() const;
 	std::string const & 		getChannelName() const;
-	std::string const &			getChannelPassword() const;
+	std::string const &			getChannelKey() const;
 	std::map<Client*, bool> &	getClientList();
 	std::map<char, bool> &		getChannelMode();
 	void						setClientList(Client *, bool);
