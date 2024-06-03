@@ -83,6 +83,7 @@ void Server::_handleNickCommand(Client &client, std::string &message)
 
 		// Forwarded to every client in the same channel:
 		for (std::vector<Channel *>::iterator it = _channelList.begin(); it != _channelList.end(); ++it) {
+			// the message should have the right form so that in irssi it will appear in the relevant channel
 			if ((*it)->isMember(client))
 				(*it)->relayMessage(client, response);
 		}

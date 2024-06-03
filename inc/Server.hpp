@@ -56,53 +56,53 @@ private:
 	int const				_port;
 	std::string const		_password;
 
-	void						_initCommandMap();
-	void						_acceptNewClient();
-	void						_delClient(Client &);
-	void						_checkClients();
-	void						_registerUser(Client &);
+	void					_initCommandMap();
+	void					_acceptNewClient();
+	void					_delClient(Client &);
+	void					_checkClients();
+	void					_registerUser(Client &);
 
-	// Join
-	void 						_createJoinmap(Client &, std::string & message, std::map<std::string, std::string> & joinParams);
-	std::vector<Channel*>::iterator	_isChannelAlreadyExisting(std::string rhs);
-
+	// JOIN
+	void 					_createJoinmap(Client &, std::string & message, std::map<std::string, std::string> & joinParams);
+	void					_joinExistingChannel(Client & client, Channel & channel, std::string const & password);
+	void					_joinNewChannel(Client & client, std::string const & channelName, std::string const & password);
 
 	// MODE
-	unsigned int				_findMode(char m);
-	void						_modeInviteOnly(bool isOperator, Channel &);
-	void						_modeTopic(bool isOperator, Channel &);
-	void						_modeKeySet(bool isOperator, std::string key, Channel *);
-	void						_modeOperatorPriv(bool isOperator, std::string ope, Client &, Channel *);
-	void						_modeSetUserLimit(bool isOperator, std::string limit, Channel &);
+	unsigned int			_findMode(char m);
+	void					_modeInviteOnly(bool isOperator, Channel &);
+	void					_modeTopic(bool isOperator, Channel &);
+	void					_modeKeySet(bool isOperator, std::string key, Channel *);
+	void					_modeOperatorPriv(bool isOperator, std::string ope, Client &, Channel *);
+	void					_modeSetUserLimit(bool isOperator, std::string limit, Channel &);
 
-	void						_printBuffer(const char* buff, int recevied);
-	ssize_t						_fillBuffer(size_t index, std::string & buffer);
+	void					_printBuffer(const char* buff, int recevied);
+	ssize_t					_fillBuffer(size_t index, std::string & buffer);
 
-	void 						_readBuffer(size_t index, std::string & buffer);
-	std::string 				_getCommand(std::string &);
-	void						_handlePassCommand(Client &, std::string &);
-	void						_handleNickCommand(Client &, std::string &);
-	void						_handleUserCommand(Client &, std::string &);
-	void						_handlePrivmsgCommand(Client &, std::string &);
-	void						_handleJoinCommand(Client &, std::string &);
-	void						_handleTopicCommand(Client &, std::string &);
-	void						_handleModeCommand(Client &, std::string &);
-	void						_handlePingCommand(Client &, std::string &);
-	void						_handleCapCommand(Client &, std::string &);
-	void						_handleQuitCommand(Client &, std::string &);
-	void						_handleInvalidCommand(Client &, std::string &);
-	void						_handleWhoCommand(Client &, std::string &);
-	void						_handleInviteCommand(Client &, std::string &);
-	void						_handleKickCommand(Client &, std::string &);
-	void						_handlePartCommand(Client &, std::string &);
-	void						_handleMotdCommand(Client &, std::string &);
+	void 					_readBuffer(size_t index, std::string & buffer);
+	std::string 			_getCommand(std::string &);
+	void					_handlePassCommand(Client &, std::string &);
+	void					_handleNickCommand(Client &, std::string &);
+	void					_handleUserCommand(Client &, std::string &);
+	void					_handlePrivmsgCommand(Client &, std::string &);
+	void					_handleJoinCommand(Client &, std::string &);
+	void					_handleTopicCommand(Client &, std::string &);
+	void					_handleModeCommand(Client &, std::string &);
+	void					_handlePingCommand(Client &, std::string &);
+	void					_handleCapCommand(Client &, std::string &);
+	void					_handleQuitCommand(Client &, std::string &);
+	void					_handleInvalidCommand(Client &, std::string &);
+	void					_handleWhoCommand(Client &, std::string &);
+	void					_handleInviteCommand(Client &, std::string &);
+	void					_handleKickCommand(Client &, std::string &);
+	void					_handlePartCommand(Client &, std::string &);
+	void					_handleMotdCommand(Client &, std::string &);
 
 	// utils
-	bool						_isNickInUse(std::string const & nick);
-	bool						_isValidNickname(const std::string &nickname);
+	bool					_isNickInUse(std::string const & nick);
+	bool					_isValidNickname(const std::string &nickname);
 	static std::vector<std::string>	_splitString(const std::string & str, char separator);
-	std::string					_concatenateTokens(const std::vector<std::string>& tokens, size_t startPos);
-	std::string					_getNextLine(std::string & buffer);
+	std::string				_concatenateTokens(const std::vector<std::string>& tokens, size_t startPos);
+	std::string				_getNextLine(std::string & buffer);
 	static std::vector<std::string>	_parseReceivers(const std::string& message);
 
 public:
@@ -111,8 +111,8 @@ public:
 	Server & operator=(Server const &);
 	~Server();
 
-	std::vector<Channel*>			getChannelList();
-	void 							startPolling();
+	std::vector<Channel*>	getChannelList();
+	void 					startPolling();
 	
 	class SocketCreationException : public std::exception {
 		virtual const char *what() const throw();

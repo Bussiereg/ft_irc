@@ -29,7 +29,7 @@ void	Channel::setChannelMode(char mode, bool status){
 }
 
 void	Channel::setChannelKey(std::string key){
-	_channelPassword = key;
+	_ChannelKey = key;
 }
 
 void	Channel::setChannelLimit(unsigned int limit){
@@ -70,8 +70,8 @@ std::string const &	Channel::getChannelName() const{
 	return _channelName;
 }
 
-std::string const &	Channel::getChannelPassword() const{
-	return _channelPassword;
+std::string const &	Channel::getChannelKey() const{
+	return _ChannelKey;
 }
 
 std::map<char, bool> &		Channel::getChannelMode(){
