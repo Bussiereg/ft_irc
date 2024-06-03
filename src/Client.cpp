@@ -1,12 +1,12 @@
 #include "Client.hpp"
 
-Client::Client(pollfd * socket) : _socket(socket), _nickname(""), _isPassedWord(false), _isFullyAccepted(false), _passWordAttempted(false)
+Client::Client(pollfd * socket) : _socket(socket), _nickname(""), _isPassedWord(false), _isFullyAccepted(false)
 {
 	_hostname = "localhost";
 }
 
 Client::Client(Client const & other)
-	: _socket(other._socket), _nickname(other._nickname), _username(other._username), _hostname(other._hostname), _isPassedWord(other._isPassedWord), _isFullyAccepted(other._isFullyAccepted), _passWordAttempted(false)
+	: _socket(other._socket), _nickname(other._nickname), _username(other._username), _hostname(other._hostname), _isPassedWord(other._isPassedWord), _isFullyAccepted(other._isFullyAccepted)
 {
 }
 
@@ -20,7 +20,6 @@ Client & Client::operator=(Client const & other)
 		_hostname = other._hostname;
 		_isPassedWord = other._isPassedWord;
 		_isFullyAccepted = other._isFullyAccepted;
-		_passWordAttempted = other._passWordAttempted;
 	}
 	return *this;
 }
@@ -80,17 +79,6 @@ bool Client::isPassedWord() const
 	return _isPassedWord;
 }
 
-bool Client::passWordAttempted() const
-{
-	return _passWordAttempted;
-}
-
-void Client::passWordAttempt()
-{
-	_passWordAttempted = true;
-}
-
-
 void Client::acceptPassword()
 {
 	_isPassedWord = true;
@@ -121,15 +109,11 @@ void Client::clearResponse()
 	_response.clear();
 }
 
-std::string const & Client::gethostname() const{
-	return _hostname;
-}
-
 std::vector<Channel*> & Client::getChannelJoined(){
 	return _channelJoined;
 }
 
-void 	Client::removeChannelJoined(Channel * channel){
+void Client::removeChannelJoined(Channel * channel){
 	std::vector<Channel*>::iterator it;
 	for (it = _channelJoined.begin(); it != _channelJoined.end(); ++it){
 		if ((*it) == channel){
@@ -139,11 +123,6 @@ void 	Client::removeChannelJoined(Channel * channel){
 	}
 }
 
-std::set<int>  & Client::getContactList()
-{
-	return _contactList;
-}
-
-void				Client::setChannelJoined(Channel* channelToAdd){
+void Client::setChannelJoined(Channel* channelToAdd){
 	_channelJoined.push_back(channelToAdd);
 }

@@ -19,8 +19,6 @@ private:
 	std::string				_realname;
 	bool					_isPassedWord;
 	bool					_isFullyAccepted;
-	bool					_passWordAttempted;
-	std::set<int>			_contactList;
 	std::vector<Channel*>	_channelJoined;
 	std::string				_response;
 	std::string				_buffer;
@@ -31,29 +29,26 @@ public:
 	Client & operator=(Client const &);
 	~Client();
 
-	pollfd const * 		getClientSocket() const;
-	std::string const &	getNickname() const;
-	void				setNickname(std::string const &);
-	std::string const & getUsername() const;
-	std::string const & gethostname() const;
-	std::vector<Channel*> & getChannelJoined();
-	void			 	removeChannelJoined(Channel * channel);
-	void				setChannelJoined(Channel*);
-
+	pollfd const * 			getClientSocket() const;
+	std::string const &		getNickname() const;
+	void					setNickname(std::string const &);
+	std::string const & 	getUsername() const;
 	void					setUsername(std::string const &);
 	std::string const &		getHostname() const;
 	void					setHostname(std::string const &);
 	std::string const &		getRealname() const;
 	void					setRealname(std::string const &);
-	bool					passWordAttempted() const;
-	void					passWordAttempt();
+
+	std::vector<Channel*> & getChannelJoined();
+	void			 		removeChannelJoined(Channel * channel);
+	void					setChannelJoined(Channel*);
+
 	bool					isPassedWord() const;
 	void					acceptPassword();
 	bool 					isFullyAccepted() const;
 	void					acceptFully();
 
 	std::string const &		getResponse() const;
-	std::set<int> &			getContactList();
 	void					appendResponse(std::string newMessage);
 	void					clearResponse();
 };
