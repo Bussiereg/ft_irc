@@ -38,7 +38,10 @@ public:
 	std::map<char, bool> &		getChannelMode();
 	void						setClientList(Client *, bool);
 	void						addClient(Client &, bool isOperator);
-	bool						isMember(Client &);
+	bool						isMember(Client &); // would be better as const, but difficult to implement
+	bool						isMember(std::string const & nickname);
+	bool						isOperator(Client &);
+	bool						isInvited(Client &);
 	void						relayMessage(Client & sender, std::string const & message);
 	void 						getUserListInChannel(std::string & usersInChannel);
 };
