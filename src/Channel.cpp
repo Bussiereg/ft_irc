@@ -60,6 +60,13 @@ void	Channel::addClient(Client & client, bool isOperator){
 	_clientList.insert(std::pair<Client*, bool>(&client, isOperator));
 }
 
+bool Channel::isModeOn(char mode) const
+{
+	if (_mode.find(mode) != _mode.end())
+		return _mode.at(mode);
+	return false;
+}
+
 bool Channel::isMember(Client & client){
 	if (_clientList.find(&client) != _clientList.end())
 		return true;
