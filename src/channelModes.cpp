@@ -1,16 +1,5 @@
 #include "Server.hpp"
 
-unsigned int Server::_findMode(char m)
-{
-	char setMode[] = "itkol";
-	for (int i = 0; setMode[i] != '\0'; i++)
-	{
-		if (m == setMode[i])
-			return i;
-	}
-	return 5;
-}
-
 void Server::_modeInviteOnly(bool isOperator, Channel &channel)
 {
 	channel.setChannelMode('i', isOperator);
@@ -23,27 +12,26 @@ void Server::_modeTopic(bool isOperator, Channel &channel)
 
 void Server::_modeKeySet(bool isOperator, std::string key, Channel *channel)
 {
-	if (key.empty())
-		channel->setChannelKey("");
-	else
-		channel->setChannelKey(key);
+	channel->setChannelKey(key);
 	channel->setChannelMode('k', isOperator);
 }
 
 void Server::_modeOperatorPriv(bool isOperator, std::string ope, Client &client, Channel *channel)
 {
+	std::string const & nick = client.getNickname();
+	std::string const & channelName = channel->getChannelName();
 	std::map<Client *, bool> const &channelUsers = channel->getClientList();
 	std::map<Client *, bool>::const_iterator subject = channelUsers.find(&client);
 
 	if (subject == channelUsers.end())
 	{
-		client.appendResponse(ERR_NOTONCHANNEL(_serverName, client.getNickname(), channel->getChannelName()));
+		client.appendResponse(ERR_NOTONCHANNEL(_serverName, nick, channelName));
 		return;
 	}
 
 	if (subject->second == false)
 	{
-		client.appendResponse(ERR_CHANOPRIVSNEEDED(_serverName, client.getNickname(), channel->getChannelName()));
+		client.appendResponse(ERR_CHANOPRIVSNEEDED(_serverName, nick, channelName));
 		return;
 	}
 
@@ -53,10 +41,12 @@ void Server::_modeOperatorPriv(bool isOperator, std::string ope, Client &client,
 		if (object->first->getNickname() == ope)
 		{
 			channel->setClientList(object->first, isOperator);
+			client.appendResponse(MODE(nick, client.getUsername(), client.getHostname(), channelName, (isOperator ? "+o" : "-o"), ope));
+			channel->relayMessage(client, MODE(nick, client.getUsername(), client.getHostname(), channelName, (isOperator ? "+o" : "-o"), ope));
 			return;
 		}
 	}
-	client.appendResponse(ERR_USERNOTINCHANNEL(_serverName, client.getNickname(), ope, channel->getChannelName()));
+	client.appendResponse(ERR_USERNOTINCHANNEL(_serverName, nick, ope, channelName));
 }
 
 void Server::_modeSetUserLimit(bool isOperator, std::string limit, Channel &channel)
@@ -114,42 +104,25 @@ void Server::_handleModeCommand(Client &client, std::string &input)
 	for (unsigned int i = 1; i < modeCode.size(); i++)
 	{
 		char m = modeCode[i];
-		if (params.size() < 4)
+		if (params.size() < 4 && (m == 'o' || (isModeOn && (m == 'k' || m == 'l'))))
 		{
-			if (m == 'o' || (isModeOn && (m == 'k' || m == 'l'))) {
-				client.appendResponse(ERR_NEEDMOREPARAMS(_serverName, nick, "MODE"));
-				return ;
-			}
+			client.appendResponse(ERR_NEEDMOREPARAMS(_serverName, nick, "MODE"));
+			continue ;
 		}
-		
-		switch (_findMode(m))
-		{
-		case INVITE_ONLY:
+
+		if (m == 'i')
 			_modeInviteOnly(isModeOn, *channel);
-			break;
-		case TOPIC:
+		else if (m == 't')
 			_modeTopic(isModeOn, *channel);
-			break;
-		case KEY:
-			if (isModeOn)
-				_modeKeySet(isModeOn, params[3], channel);
-			else
-				_modeKeySet(isModeOn, "", channel);
-			break;
-		case OPERATOR_PRIVILEGE:
+		else if (m == 'k')
+			_modeKeySet(isModeOn, (isModeOn ? params[3] : ""), channel);
+		else if (m == 'o')
 			_modeOperatorPriv(isModeOn, params[3], client, channel);
-			break;
-		case LIMIT:
-			if (isModeOn)
-				_modeSetUserLimit(isModeOn, params[3], *channel);
-			else
-				_modeSetUserLimit(isModeOn, "", *channel);
-			break;
-		default:
+		else if (m == 'l')
+			_modeSetUserLimit(isModeOn, (isModeOn ? params[3] : ""), *channel);
+		else
 			client.appendResponse(ERR_UNKNOWNMODE(_serverName, client.getNickname(), std::string(1, m)));
-			return;
-		}
 	}
-	(*it)->relayMessage(client, RPL_CHANNELMODEIS(_serverName, nick, channelName, channel->getModeString()));
+	channel->relayMessage(client, RPL_CHANNELMODEIS(_serverName, nick, channelName, channel->getModeString()));
 	client.appendResponse(RPL_CHANNELMODEIS(_serverName, nick, channelName, channel->getModeString()));
 }

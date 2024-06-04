@@ -70,7 +70,6 @@ private:
 	void					_joinNewChannel(Client & client, std::string const & channelName, std::string const & password);
 
 	// MODE
-	unsigned int			_findMode(char m);
 	void					_modeInviteOnly(bool isOperator, Channel &);
 	void					_modeTopic(bool isOperator, Channel &);
 	void					_modeKeySet(bool isOperator, std::string key, Channel *);
