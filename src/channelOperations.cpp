@@ -11,36 +11,6 @@ void Channel::getUserListInChannel(std::string &usersInChannel)
 	}
 }
 
-void Server::_createJoinmap(Client &client, std::string &message, std::map<std::string, std::string> &joinParams)
-{
-	std::vector<std::string> joinSplit = _splitString(message, ' ');
-	std::string const &nick = client.getNickname();
-	if (joinSplit.size() < 2)
-	{
-		client.appendResponse(ERR_NEEDMOREPARAMS(_serverName, nick, "JOIN"));
-	}
-	else if (joinSplit.size() == 2)
-	{
-		std::vector<std::string> channelList = _splitString(joinSplit[1], ',');
-		for (unsigned long i = 0; i < channelList.size(); i++)
-		{
-			joinParams.insert(std::pair<std::string, std::string>(channelList[i], ""));
-		}
-	}
-	else
-	{
-		std::vector<std::string> channelList = _splitString(joinSplit[1], ',');
-		std::vector<std::string> channelKey = _splitString(joinSplit[2], ',');
-		for (unsigned long i = 0; i < channelList.size(); i++)
-		{
-			if (channelKey.size() > i)
-				joinParams.insert(std::pair<std::string, std::string>(channelList[i], channelKey[i]));
-			else
-				joinParams.insert(std::pair<std::string, std::string>(channelList[i], ""));
-		}
-	}
-}
-
 std::vector<Channel *> Server::getChannelList()
 {
 	return _channelList;

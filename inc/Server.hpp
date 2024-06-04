@@ -65,7 +65,7 @@ private:
 	Client *				_findClient(int fd);
 
 	// JOIN
-	void 					_createJoinmap(Client &, std::string & message, std::map<std::string, std::string> & joinParams);
+	void					_createChannelKeyMap(std::vector<std::string> & params, std::map<std::string, std::string> & channelKeyMap);
 	void					_joinExistingChannel(Client & client, Channel & channel, std::string const & password);
 	void					_joinNewChannel(Client & client, std::string const & channelName, std::string const & password);
 
