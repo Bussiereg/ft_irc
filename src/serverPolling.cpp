@@ -60,9 +60,9 @@ void Server::_checkClients()
 			std::string buffer;
  			if (_fillBuffer(i, buffer) <= 0) {
 				_delClient(*_clients[i - 1]);
-				continue ;
+			} else {
+				_readBuffer(i, buffer);
 			}
-			_readBuffer(i, buffer);
 		}
 	}
 }
