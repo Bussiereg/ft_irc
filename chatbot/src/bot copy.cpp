@@ -54,45 +54,19 @@ void    bot::_letsPlay(std::string & sender, std::string & input)
     }
 }
 
-std::string send_to_chatgpt(const std::string& message) {
-    CURL* curl;
-    CURLcode res;
-    std::string response;
-
-    curl_global_init(CURL_GLOBAL_DEFAULT);
-    curl = curl_easy_init();
-
-    if(curl) {
-        curl_easy_setopt(curl, CURLOPT_URL, "https://api.openai.com/v1/engines/davinci-codex/completions");
-        curl_easy_setopt(curl, CURLOPT_POST, 1L);
-
-        struct curl_slist* headers = NULL;
-        headers = curl_slist_append(headers, "Content-Type: application/json");
-        headers = curl_slist_append(headers, "Authorization: Bearer sk-proj-RFfh8kg7VySWpPEdSH4bT3BlbkFJq9HA2ApRoFI1rx8UctF9");
-        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-
-        std::string json = "{\"prompt\":\"" + message + "\", \"max_tokens\":50}";
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json.c_str());
-
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
-
-        res = curl_easy_perform(curl);
-        curl_easy_cleanup(curl);
-    }
-
-    curl_global_cleanup();
-    return response;
-}
-
 void bot::_handleServerMessage(const std::string& message) 
 {
     std::cout << "Server: " << message << std::endl;
     if (message.find("PRIVMSG") != std::string::npos) {
 		std::string sender = message.substr(1, message.find("!") - 1);
         std::string input = _getMessageFromUser(message);
-		std::response  = send_to_chatgpt(input);
-		_sendCommand("PRIVMSG " + sender + " :" + response);
+        if (std::find(_listOfUser.begin(), _listOfUser.end(), sender) == _listOfUser.end())
+        {
+            _greeting(sender, input);
+            _listOfUser.push_back(sender);
+        }
+        else
+            _letsPlay(sender, input);
     }
 }
 
