@@ -93,7 +93,7 @@ void Server::_handleInviteCommand(Client &client, std::string &input)
 	}
 
 	channel->setInviteList(invitee);
-	// client.appendResponse(RPL_INVITING(_serverName, nick, channelName, invitee));
+	client.appendResponse(RPL_INVITING(_serverName, nick, invitee, channelName));
 	(*clientInvitee)->appendResponse(INVITE(nick, client.getUsername(), client.getHostname(),  invitee, channelName));	
 }
 
