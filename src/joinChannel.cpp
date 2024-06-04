@@ -5,19 +5,14 @@ void Server::_joinExistingChannel(Client & client, Channel & channel, std::strin
 	std::string const & nick = client.getNickname();
 	std::map<char, bool> & channelMode = channel.getChannelMode();
 	std::string const & channelName = channel.getChannelName();
-	std::vector<std::string> & inviteList = channel.getInviteList();
 	
 	if (channelMode['k'] && key != channel.getChannelKey())
 		client.appendResponse(ERR_BADCHANNELKEY(_serverName, nick, channelName));
 	else if (channelMode['l'] && (channel.getLimitUsers() <= channel.getClientList().size()))
 		client.appendResponse(ERR_CHANNELISFULL(_serverName, nick, channelName));
-	else if (channelMode['i']) {
-		std::vector<std::string>::iterator it = std::find(inviteList.begin(), inviteList.end(), nick);
-		if (it == inviteList.end())
-		{
-			client.appendResponse(ERR_INVITEONLYCHAN(_serverName, nick, channelName));
-		}
-	} else {
+	else if (channelMode['i'] && !channel.isInvited(client))
+		client.appendResponse(ERR_INVITEONLYCHAN(_serverName, nick, channelName));
+	else {
 		channel.setClientList(&client, false);
 		std::string usersInChannel;
 		channel.getUserListInChannel(usersInChannel);

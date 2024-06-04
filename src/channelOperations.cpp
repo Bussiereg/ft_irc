@@ -189,29 +189,26 @@ void Server::_handleModeCommand(Client &client, std::string &input)
 	if (params.size() == 3 && params[2].size() == 1 && params[2][0] == 'b') // silence the return ban of the client
 		return;
 	
-	if (params.size() < 4)
+	if (params[2][0] != '+' && params[2][0] != '-')
 	{
-		client.appendResponse(ERR_NEEDMOREPARAMS(_serverName, nick, "MODE"));
-		return ;
+		client.appendResponse(ERR_UNKNOWNMODE(_serverName, nick, params[2]));
+		return;
 	}
 
 	Channel *channelInUse = *it;
-	bool isModeOn = false;
-	if (params[2][0] == '+')
-		isModeOn = true;
+	bool isModeOn = params[2][0] == '+';
+
 	for (unsigned int i = 1; i < params[2].size(); i++)
 	{
 		char m = params[2][i];
-		if ((m == 'k' || m == 'o' || m == 'l') && (params.size() == 3) && isModeOn)
+		if (params.size() < 4)
 		{
-			client.appendResponse(ERR_NEEDMOREPARAMS(_serverName, nick, "MODE"));
-			return;
+			if (m == 'o' || (isModeOn && (m == 'k' || m == 'l'))) {
+				client.appendResponse(ERR_NEEDMOREPARAMS(_serverName, nick, "MODE"));
+				return ;
+			}
 		}
-		else if ((m == 'o') && (params.size() == 3) && !isModeOn)
-		{
-			client.appendResponse(ERR_NEEDMOREPARAMS(_serverName, nick, "MODE"));
-			return;
-		}
+		
 		switch (_findMode(m))
 		{
 		case INVITE_ONLY:
@@ -242,7 +239,6 @@ void Server::_handleModeCommand(Client &client, std::string &input)
 		default:
 			client.appendResponse(ERR_UNKNOWNMODE(_serverName, client.getNickname(), std::string(1, m)));
 			return;
-			break;
 		}
 	}
 	(*it)->relayMessage(client, RPL_CHANNELMODEIS(_serverName, nick, channelInUse->getChannelName(), channelInUse->getModeString()));
@@ -252,47 +248,50 @@ void Server::_handleModeCommand(Client &client, std::string &input)
 void Server::_handleInviteCommand(Client &client, std::string &input)
 {
 	std::string const &nick = client.getNickname();
-	std::vector<std::string> inviteSplit = _splitString(input, ' ');
-	Channel *channelInUse;
-	if (inviteSplit.size() < 3)
+	std::vector<std::string> params = _splitString(input, ' ');
+
+	if (params.size() < 3)
 	{
 		client.appendResponse(ERR_NEEDMOREPARAMS(_serverName, nick, "INVITE"));
 		return;
 	}
-	std::vector<Channel *>::iterator itch;
-	for (itch = _channelList.begin(); itch != _channelList.end(); ++itch)
-	{ // search if the channelname already exist
-		if ((*itch)->getChannelName() == inviteSplit[2])
-		{
-			channelInUse = *itch;
-			break;
-		}
-	}
-	if (itch == _channelList.end())
-		return;
-	std::map<Client *, bool>::iterator clientInviter = channelInUse->getClientList().find(&client);
-	if (clientInviter == channelInUse->getClientList().end())
+
+	std::string const & invitee = params[1];
+	std::string const & channelName = params[2];
+
+	std::vector<Channel*>::iterator it = find_if(_channelList.begin(), _channelList.end(), MatchChannelName(channelName));
+	if (it == _channelList.end())
 	{
+		client.appendResponse(ERR_NOSUCHCHANNEL(_serverName, nick, channelName));
 		return;
 	}
-	std::vector<Client *>::iterator it;
-	for (it = _clients.begin(); it != _clients.end(); it++)
+
+	Channel *channel = *it;
+
+	if (channel->isMember(client) == false)
 	{
-		if ((*it)->getNickname() == inviteSplit[1])
-		{
-			break;
-		}
-	}
-	if (it == _clients.end())
-	{
-		client.appendResponse(ERR_NOSUCHNICK(_serverName, inviteSplit[1]));
+		client.appendResponse(ERR_NOTONCHANNEL(_serverName, nick, channelName));
 		return;
 	}
-	if ((channelInUse->getChannelMode()['i'] == false) || ((channelInUse->getChannelMode()['i'] == true) && (channelInUse->getClientList()[clientInviter->first] == true)))
+
+	if (channel->isOperator(client) == false)
 	{
-		channelInUse->setInviteList(inviteSplit[1]);
-		(*it)->appendResponse(INVITE(client.getNickname(), client.getUsername(), client.getHostname(), inviteSplit[1], channelInUse->getChannelName()));
+		client.appendResponse(ERR_CHANOPRIVSNEEDED(_serverName, nick, channelName));
+		return;
 	}
+
+	std::vector<Client*>::iterator clientInvitee = find_if(_clients.begin(), _clients.end(), MatchNickname(invitee));
+	if (clientInvitee == _clients.end())
+	{
+		client.appendResponse(ERR_NOSUCHNICK(_serverName, nick));
+		return;
+	}
+
+	// Guillaume wrote: if ((channel->getChannelMode()['i'] == false) || ((channel->getChannelMode()['i'] == true)))
+	// That's always true. What was the intention?
+
+	channel->setInviteList(invitee);
+	client.appendResponse(RPL_INVITING(_serverName, nick, channelName, invitee));
 }
 
 void Server::_handleKickCommand(Client &client, std::string &input)
