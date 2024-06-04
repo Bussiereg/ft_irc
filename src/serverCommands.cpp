@@ -169,12 +169,12 @@ void Server::_handlePingCommand(Client &client, std::string &message)
 void Server::_handleQuitCommand(Client &client, std::string &message)
 {
 	std::vector<Channel*> channelList = client.getChannelJoined();
-	std::string reason;
+	std::string reason = "PART " + client.getNickname();
 	if (message.size() > 5)
-		reason = ":" + message.substr(5);
+		reason += " :" + message.substr(5);
 
 	for (std::vector<Channel*>::iterator it = channelList.begin(); it != channelList.end(); ++it) {
-		(*it)->relayMessage(client, QUIT(client.getNickname(), client.getUsername(), client.getHostname(), reason));
+		_handlePartCommand(client, reason);
 	}
 	close(client.getClientSocket()->fd);
 	_delClient(client);

@@ -43,15 +43,6 @@ void Server::_checkClients()
 {
 	for (size_t i = _allSockets.size() - 1; i > 0; i--)
 	{
-		if (_allSockets[i].revents & POLLIN)
-		{
-			std::string buffer;
- 			if (_fillBuffer(i, buffer) <= 0) {
-				_delClient(*_clients[i - 1]);
-				continue ;
-			}
-			_readBuffer(i, buffer);
-		}
 		std::string const & response = _clients[i - 1]->getResponse();
 		if (!response.empty() && _allSockets[i].revents & POLLOUT)
 		{
@@ -64,6 +55,15 @@ void Server::_checkClients()
 				std::cout << "send error" << std::endl; // should throw an exception
 			_clients[i - 1]->clearResponse();
 		}
+		if (_allSockets[i].revents & POLLIN)
+		{
+			std::string buffer;
+ 			if (_fillBuffer(i, buffer) <= 0) {
+				_delClient(*_clients[i - 1]);
+				continue ;
+			}
+			_readBuffer(i, buffer);
+		}
 	}
 }
 
@@ -74,7 +74,7 @@ void Server::_delClient(Client & client)
 	{
 		if ((*it)->getClientSocket()->fd == client.getClientSocket()->fd)
 			break;
-		index++;
+		index++;  // very strange way to get the index
 	}
 	for (std::vector<Channel*>::iterator it_ch = client.getChannelJoined().begin(); it_ch != client.getChannelJoined().end(); ++it_ch)
 	{
@@ -84,7 +84,7 @@ void Server::_delClient(Client & client)
 	}
 	std::cerr << RED << "[Server] Client fd " << _allSockets[index + 1].fd << " just disconnected" << RESET << std::endl;
 	_allSockets.erase(_allSockets.begin() + index + 1);
-	delete _clients[index];
+	delete _clients[index]; 
 	_clients.erase(_clients.begin() + index);
 }
 
