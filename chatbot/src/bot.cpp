@@ -2,66 +2,71 @@
 
 int sockfd;
 
-void bot::_send_command(const std::string& cmd) {
+void bot::_sendCommand(const std::string& cmd)
+{
     std::string full_cmd = cmd + "\r\n";
     send(sockfd, full_cmd.c_str(), full_cmd.length(), 0);
 }
 
-std::string bot::_getMessageFromUser(const std::string& input) {
+std::string bot::_getMessageFromUser(const std::string& input)
+{
     std::string result;
     std::string::size_type firstColonPos = input.find(':');
     if (firstColonPos == std::string::npos)
-        return ""; // No colon found
+        return "";
     std::string::size_type secondColonPos = input.find(':', firstColonPos + 1);
     if (secondColonPos == std::string::npos)
-        return ""; // Only one colon found
+        return "";
     result = input.substr(secondColonPos + 1);
     result = result.substr(0, result.find('\r'));
     return result;
 }
 
-void bot::_handle_server_message(const std::string& message) {
-    std::cout << "Server: " << message << std::endl;
-    static bool greeting = false;
-
-    if (message.find("PING") != std::string::npos) {
-        std::string response = "PONG " + message.substr(5);
-        _send_command(response);
+void bot::_greeting(std::string & sender, std::string & input)
+{
+    if (input == "hello") {
+        _sendCommand("PRIVMSG " + sender + " :Hello " + sender + " , I am a bot!");
+        sleep(1);
+        _sendCommand("PRIVMSG " + sender + " :Let's play a game. I'll think of a number from 0 to 20 and you have to guess it.");
     }
+    else{
+        _sendCommand("PRIVMSG " + sender + " :Hey! " + sender + " I am a bot!");
+        sleep(1);
+        _sendCommand("PRIVMSG " + sender + " :Let's play a game. I'll think of a number from 0 to 20 and you have to guess it.");
+    }
+}
+
+
+void    bot::_letsPlay(std::string & sender, std::string & input)
+{
+    if (std::atoi(input.c_str()) < _numberToGuess)
+        _sendCommand("PRIVMSG " + sender + " :more!");
+    else if (std::atoi(input.c_str()) > _numberToGuess)
+        _sendCommand("PRIVMSG " + sender + " :less!");
+    else if (std::atoi(input.c_str()) == _numberToGuess)
+    {
+        _sendCommand("PRIVMSG " + sender + " :Congratulation" + sender + " !");
+        sleep(1);
+        _sendCommand("PRIVMSG " + sender + " :Let's play again!");
+        sleep(1);
+        _sendCommand("PRIVMSG " + sender + " :this so much fun! :D");
+        _numberToGuess = _generateRandomNumber();
+    }
+}
+
+void bot::_handleServerMessage(const std::string& message) 
+{
+    std::cout << "Server: " << message << std::endl;
     if (message.find("PRIVMSG") != std::string::npos) {
 		std::string sender = message.substr(1, message.find("!") - 1);
         std::string input = _getMessageFromUser(message);
-        if (greeting == false){
-            if (input == "hello") {
-                greeting = true;
-                _send_command("PRIVMSG " + sender + " :Hello, I am a bot!");
-                _send_command("PRIVMSG " + sender + " :Let's play a game. I'll think of a number from 0 to 20 and you have to guess it.");
-            }
-            else if (input == "yo") {
-                greeting = true;
-                _send_command("PRIVMSG " + sender + " :Yooooo man, I am a bot!");
-                _send_command("PRIVMSG " + sender + " :Let's play a game. I'll think of a number from 0 to 20 and you have to guess it.");
-            }
-            else{
-                greeting = true;
-                _send_command("PRIVMSG " + sender + " :Hey! I am a bot!");
-                _send_command("PRIVMSG " + sender + " :Let's play a game. I'll think of a number from 0 to 20 and you have to guess it.");
-            }
+        if (std::find(_listOfUser.begin(), _listOfUser.end(), sender) == _listOfUser.end())
+        {
+            _greeting(sender, input);
+            _listOfUser.push_back(sender);
         }
-        else{
-            if (std::atoi(input.c_str()) < _numberToGuess){
-                _send_command("PRIVMSG " + sender + " :more!");
-            }
-            else if (std::atoi(input.c_str()) > _numberToGuess){
-                _send_command("PRIVMSG " + sender + " :less!");
-            }
-            else if (std::atoi(input.c_str()) == _numberToGuess){
-                _send_command("PRIVMSG " + sender + " :Congratulation!");
-                _send_command("PRIVMSG " + sender + " :Let's play again!");
-                _send_command("PRIVMSG " + sender + " :this so much fun! :D");
-                _numberToGuess = _generateRandomNumber();
-            }
-        }
+        else
+            _letsPlay(sender, input);
     }
 }
 
@@ -88,9 +93,9 @@ void bot::_wakeUp() {
         throw botConnectException();
     }
 
-	_send_command("PASS " + _password);
-    _send_command("NICK " + _nickBot);
-    _send_command("USER " + _userBot + " 0 * :" + _userBot);
+	_sendCommand("PASS " + _password);
+    _sendCommand("NICK " + _nickBot);
+    _sendCommand("USER " + _userBot + " 0 * :" + _userBot);
     char buffer[512];
     while (true) {
         memset(buffer, 0, 512);
@@ -100,7 +105,7 @@ void bot::_wakeUp() {
         }
         std::string message(buffer, bytes_received);
 		std::cout << "message: " << message << std::endl;
-        _handle_server_message(message);
+        _handleServerMessage(message);
     }
 
     close(sockfd);
