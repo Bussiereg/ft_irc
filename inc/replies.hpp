@@ -671,3 +671,5 @@
 # define RPL_WHO(server, myNick, channel, username, hostname, nick, operator, realname) (":" + server + " 352 " + myNick + " " + channel + " " + username + " " + hostname + " " + server + " "  + nick + " H" + operator + " :0 " + realname + "\r\n")
 
 # define RPL_ENDWHO(server, myNick, channel)(":" + server + " 352 " + myNick + " " + channel + " :End of /WHO list\r\n")
+
+# define MODE(nick, user, host, channel, modeSymbol, object) (":" + nick + "!" + user + "@" + host + " MODE " + channel + " " + modeSymbol + " " + object + "\r\n")
