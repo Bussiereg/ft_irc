@@ -1,16 +1,5 @@
 #include "Server.hpp"
 
-void Channel::getUserListInChannel(std::string &usersInChannel)
-{
-	std::map<Client *, bool>::iterator it;
-	for (it = getClientList().begin(); it != getClientList().end(); ++it)
-	{
-		if (it->second)
-			usersInChannel += '@';
-		usersInChannel += it->first->getNickname() + " ";
-	}
-}
-
 std::vector<Channel *> Server::getChannelList()
 {
 	return _channelList;
