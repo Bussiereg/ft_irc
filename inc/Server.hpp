@@ -61,6 +61,8 @@ private:
 	void					_delClient(Client &);
 	void					_checkClients();
 	void					_registerUser(Client &);
+	Client *				_findClient(std::string const & nickname);
+	Client *				_findClient(int fd);
 
 	// JOIN
 	void 					_createJoinmap(Client &, std::string & message, std::map<std::string, std::string> & joinParams);
