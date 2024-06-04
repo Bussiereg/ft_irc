@@ -113,7 +113,6 @@ public:
 	Server & operator=(Server const &);
 	~Server();
 
-	std::vector<Channel*>	getChannelList();
 	void 					startPolling();
 	
 	class SocketCreationException : public std::exception {

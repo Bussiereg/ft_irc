@@ -1,10 +1,5 @@
 #include "Server.hpp"
 
-std::vector<Channel *> Server::getChannelList()
-{
-	return _channelList;
-}
-
 void Server::_handleTopicCommand(Client &client, std::string &input)
 {
 	std::string const &nick = client.getNickname();
