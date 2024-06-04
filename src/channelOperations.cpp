@@ -158,105 +158,95 @@ void Server::_modeSetUserLimit(bool isOperator, std::string limit, Channel &chan
 void Server::_handleModeCommand(Client &client, std::string &input)
 {
 	std::string const &nick = client.getNickname();
-	std::vector<std::string> modeSplit = _splitString(input, ' ');
-	std::string mode = "MODE";
-	Channel *channelInUse;
+	std::vector<std::string> params = _splitString(input, ' ');
 
-	if (modeSplit[0] != "MODE")
+	if (params.size() < 2)
 	{
+		client.appendResponse(ERR_NEEDMOREPARAMS(_serverName, nick, "MODE"));
+		return ;
+	}
+
+	std::vector<Channel*>::iterator it = find_if(_channelList.begin(), _channelList.end(), MatchChannelName(params[1]));
+
+	if (it == _channelList.end())
+	{
+		client.appendResponse(ERR_NOSUCHCHANNEL(_serverName, nick, params[1]));
+		return ;
+	}
+
+	if (params.size() == 2)
+	{
+		client.appendResponse(RPL_CHANNELMODEIS(_serverName, nick, (*it)->getChannelName(), (*it)->getModeString()));
+		return ;
+	}
+
+	if ((*it)->isOperator(client) == false)
+	{
+		client.appendResponse(ERR_CHANOPRIVSNEEDED(_serverName, nick, (*it)->getChannelName()));
+		return ;
+	}
+
+	if (params.size() == 3 && params[2].size() == 1 && params[2][0] == 'b') // silence the return ban of the client
 		return;
-	}
-	if (modeSplit.size() <= 2)
+	
+	if (params.size() < 4)
 	{
-		std::vector<Channel *>::iterator itch;
-		for (itch = _channelList.begin(); itch != _channelList.end(); ++itch)
-		{ // search if the channelname already exist
-			if ((*itch)->getChannelName() == modeSplit[1])
-			{
-				channelInUse = *itch;
-				break;
-			}
-		}
-		if (itch == _channelList.end())
-			client.appendResponse(ERR_NOSUCHCHANNEL(_serverName, nick, modeSplit[1]));
-		else
-			client.appendResponse(RPL_CHANNELMODEIS(_serverName, nick, channelInUse->getChannelName(), channelInUse->getModeString()));
-		return;
+		client.appendResponse(ERR_NEEDMOREPARAMS(_serverName, nick, "MODE"));
+		return ;
 	}
-	else if (modeSplit.size() <= 4)
+
+	Channel *channelInUse = *it;
+	bool isModeOn = false;
+	if (params[2][0] == '+')
+		isModeOn = true;
+	for (unsigned int i = 1; i < params[2].size(); i++)
 	{
-		std::vector<Channel *>::iterator itch;
-		for (itch = _channelList.begin(); itch != _channelList.end(); ++itch)
-		{ // search if the channelname already exist
-			if ((*itch)->getChannelName() == modeSplit[1])
-			{
-				channelInUse = *itch;
-				break;
-			}
-		}
-
-		if (itch == _channelList.end())
+		char m = params[2][i];
+		if ((m == 'k' || m == 'o' || m == 'l') && (params.size() == 3) && isModeOn)
 		{
-			// client.appendResponse(RPL_CHANNELMODEIS(_serverName, client.getNickname(), "", "+i"));
+			client.appendResponse(ERR_NEEDMOREPARAMS(_serverName, nick, "MODE"));
 			return;
 		}
-		if ((*itch)->getClientList()[&client] == false) // check if the client that try to change the mode is an operator
-			return;
-		if (modeSplit.size() == 3 && modeSplit[2].size() == 1 && modeSplit[2][0] == 'b') // silence the return ban of the client
-			return;
-
-		bool isModeOn = false;
-		if (modeSplit[2][0] == '+')
-			isModeOn = true;
-		for (unsigned int i = 1; i < modeSplit[2].size(); i++)
+		else if ((m == 'o') && (params.size() == 3) && !isModeOn)
 		{
-			char m = modeSplit[2][i];
-			if ((m == 'k' || m == 'o' || m == 'l') && (modeSplit.size() == 3) && isModeOn)
-			{
-				client.appendResponse(ERR_NEEDMOREPARAMS(_serverName, nick, "MODE"));
-				return;
-			}
-			else if ((m == 'o') && (modeSplit.size() == 3) && !isModeOn)
-			{
-				client.appendResponse(ERR_NEEDMOREPARAMS(_serverName, nick, "MODE"));
-				return;
-			}
-			switch (_findMode(m))
-			{
-			case INVITE_ONLY:
-				_modeInviteOnly(isModeOn, *channelInUse);
-				break;
-			case TOPIC:
-				_modeTopic(isModeOn, *channelInUse);
-				break;
-			case KEY:
-				if (isModeOn)
-				{
-					_modeKeySet(isModeOn, modeSplit[3], channelInUse);
-				}
-				else
-				{
-					_modeKeySet(isModeOn, "", channelInUse);
-				}
-				break;
-			case OPERATOR_PRIVILEGE:
-				_modeOperatorPriv(isModeOn, modeSplit[3], client, channelInUse);
-				break;
-			case LIMIT:
-				if (isModeOn)
-					_modeSetUserLimit(isModeOn, modeSplit[3], *channelInUse);
-				else
-					_modeSetUserLimit(isModeOn, "", *channelInUse);
-				break;
-			default:
-				client.appendResponse(ERR_UNKNOWNMODE(_serverName, client.getNickname(), std::string(1, m)));
-				return;
-				break;
-			}
+			client.appendResponse(ERR_NEEDMOREPARAMS(_serverName, nick, "MODE"));
+			return;
 		}
-		(*itch)->relayMessage(client, RPL_CHANNELMODEIS(_serverName, nick, channelInUse->getChannelName(), channelInUse->getModeString()));
-		client.appendResponse(RPL_CHANNELMODEIS(_serverName, nick, channelInUse->getChannelName(), channelInUse->getModeString()));
+		switch (_findMode(m))
+		{
+		case INVITE_ONLY:
+			_modeInviteOnly(isModeOn, *channelInUse);
+			break;
+		case TOPIC:
+			_modeTopic(isModeOn, *channelInUse);
+			break;
+		case KEY:
+			if (isModeOn)
+			{
+				_modeKeySet(isModeOn, params[3], channelInUse);
+			}
+			else
+			{
+				_modeKeySet(isModeOn, "", channelInUse);
+			}
+			break;
+		case OPERATOR_PRIVILEGE:
+			_modeOperatorPriv(isModeOn, params[3], client, channelInUse);
+			break;
+		case LIMIT:
+			if (isModeOn)
+				_modeSetUserLimit(isModeOn, params[3], *channelInUse);
+			else
+				_modeSetUserLimit(isModeOn, "", *channelInUse);
+			break;
+		default:
+			client.appendResponse(ERR_UNKNOWNMODE(_serverName, client.getNickname(), std::string(1, m)));
+			return;
+			break;
+		}
 	}
+	(*it)->relayMessage(client, RPL_CHANNELMODEIS(_serverName, nick, channelInUse->getChannelName(), channelInUse->getModeString()));
+	client.appendResponse(RPL_CHANNELMODEIS(_serverName, nick, channelInUse->getChannelName(), channelInUse->getModeString()));
 }
 
 void Server::_handleInviteCommand(Client &client, std::string &input)

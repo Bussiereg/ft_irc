@@ -39,6 +39,7 @@ public:
 	void						setClientList(Client *, bool);
 	void						addClient(Client &, bool isOperator);
 	bool						isMember(Client &);
+	bool						isOperator(Client &);
 	void						relayMessage(Client & sender, std::string const & message);
 	void 						getUserListInChannel(std::string & usersInChannel);
 };

@@ -66,6 +66,12 @@ bool Channel::isMember(Client & client){
 	return false;
 }
 
+bool Channel::isOperator(Client & client){
+	if (_clientList.find(&client) != _clientList.end())
+		return _clientList[&client];
+	return false;
+}
+
 std::string const &	Channel::getChannelName() const{
 	return _channelName;
 }
