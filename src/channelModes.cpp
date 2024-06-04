@@ -1,6 +1,5 @@
 #include "Server.hpp"
 
-
 unsigned int Server::_findMode(char m)
 {
 	char setMode[] = "itkol";
@@ -38,12 +37,14 @@ void Server::_modeOperatorPriv(bool isOperator, std::string ope, Client &client,
 
 	if (subject == channelUsers.end())
 	{
-		return client.appendResponse(ERR_NOTONCHANNEL(_serverName, client.getNickname(), channel->getChannelName()));
+		client.appendResponse(ERR_NOTONCHANNEL(_serverName, client.getNickname(), channel->getChannelName()));
+		return;
 	}
 
 	if (subject->second == false)
 	{
-		return client.appendResponse(ERR_CHANOPRIVSNEEDED(_serverName, client.getNickname(), channel->getChannelName()));
+		client.appendResponse(ERR_CHANOPRIVSNEEDED(_serverName, client.getNickname(), channel->getChannelName()));
+		return;
 	}
 
 	std::map<Client *, bool>::iterator object;
