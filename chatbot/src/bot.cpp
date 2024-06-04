@@ -2,7 +2,7 @@
 
 int sockfd;
 
-void bot::_send_command(const std::string& cmd) {
+void bot::_sendCommand(const std::string& cmd) {
     std::string full_cmd = cmd + "\r\n";
     send(sockfd, full_cmd.c_str(), full_cmd.length(), 0);
 }
@@ -20,7 +20,7 @@ std::string bot::_getMessageFromUser(const std::string& input) {
     return result;
 }
 
-void bot::_handle_server_message(const std::string& message) {
+void bot::_handleServerMessage(const std::string& message) {
     std::cout << "Server: " << message << std::endl;
     static bool greeting = false;
 

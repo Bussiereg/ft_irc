@@ -21,10 +21,10 @@ private:
     std::string		_nickBot;
     std::string		_userBot;
 	std::string		_password;
-	void 			_send_command(const std::string& cmd);
+	void 			_sendCommand(const std::string& cmd);
 	int				_generateRandomNumber();
 	void 			_wakeUp();
-	void 			_handle_server_message(const std::string& message);
+	void 			_handleServerMessage(const std::string& message);
 	std::string		_getMessageFromUser(const std::string& input);
 public:
 	bot(unsigned int, std::string);
