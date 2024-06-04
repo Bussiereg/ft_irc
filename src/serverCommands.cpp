@@ -174,11 +174,7 @@ void Server::_handleQuitCommand(Client &client, std::string &message)
 		reason += message.substr(6);
 
 	for (std::vector<Channel*>::iterator it = channelList.begin(); it != channelList.end(); ++it) {
-		if (!reason.empty())
-			(*it)->relayMessage(client, PART_REASON(client.getNickname(), client.getUsername(), client.getHostname(), (*it)->getChannelName(), reason));
-		else
-			(*it)->relayMessage(client, PART(client.getNickname(), client.getUsername(), client.getHostname(), (*it)->getChannelName()));
-
+		(*it)->relayMessage(client, PART(client.getNickname(), client.getUsername(), client.getHostname(), (*it)->getChannelName(), reason));
 	}
 	close(client.getClientSocket()->fd);
 	_delClient(client);
