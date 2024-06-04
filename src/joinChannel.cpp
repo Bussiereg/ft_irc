@@ -1,5 +1,16 @@
 #include "Server.hpp"
 
+void Channel::getUserListInChannel(std::string &usersInChannel)
+{
+	std::map<Client *, bool>::iterator it;
+	for (it = getClientList().begin(); it != getClientList().end(); ++it)
+	{
+		if (it->second)
+			usersInChannel += '@';
+		usersInChannel += it->first->getNickname() + " ";
+	}
+}
+
 void Server::_joinExistingChannel(Client & client, Channel & channel, std::string const & key)
 {
 	std::string const & nick = client.getNickname();
