@@ -77,7 +77,8 @@ void Server::_handleModeCommand(Client &client, std::string &input)
 		return ;
 	}
 
-	std::vector<Channel*>::iterator it = find_if(_channelList.begin(), _channelList.end(), MatchChannelName(params[1]));
+	std::string const & channelName = params[1];
+	std::vector<Channel*>::iterator it = find_if(_channelList.begin(), _channelList.end(), MatchChannelName(channelName));
 
 	if (it == _channelList.end())
 	{
@@ -106,12 +107,13 @@ void Server::_handleModeCommand(Client &client, std::string &input)
 		return;
 	}
 
-	Channel *channelInUse = *it;
-	bool isModeOn = params[2][0] == '+';
+	Channel *channel = *it;
+	std::string const & modeCode = params[2];
+	bool isModeOn = modeCode[0] == '+';
 
-	for (unsigned int i = 1; i < params[2].size(); i++)
+	for (unsigned int i = 1; i < modeCode.size(); i++)
 	{
-		char m = params[2][i];
+		char m = modeCode[i];
 		if (params.size() < 4)
 		{
 			if (m == 'o' || (isModeOn && (m == 'k' || m == 'l'))) {
@@ -123,35 +125,31 @@ void Server::_handleModeCommand(Client &client, std::string &input)
 		switch (_findMode(m))
 		{
 		case INVITE_ONLY:
-			_modeInviteOnly(isModeOn, *channelInUse);
+			_modeInviteOnly(isModeOn, *channel);
 			break;
 		case TOPIC:
-			_modeTopic(isModeOn, *channelInUse);
+			_modeTopic(isModeOn, *channel);
 			break;
 		case KEY:
 			if (isModeOn)
-			{
-				_modeKeySet(isModeOn, params[3], channelInUse);
-			}
+				_modeKeySet(isModeOn, params[3], channel);
 			else
-			{
-				_modeKeySet(isModeOn, "", channelInUse);
-			}
+				_modeKeySet(isModeOn, "", channel);
 			break;
 		case OPERATOR_PRIVILEGE:
-			_modeOperatorPriv(isModeOn, params[3], client, channelInUse);
+			_modeOperatorPriv(isModeOn, params[3], client, channel);
 			break;
 		case LIMIT:
 			if (isModeOn)
-				_modeSetUserLimit(isModeOn, params[3], *channelInUse);
+				_modeSetUserLimit(isModeOn, params[3], *channel);
 			else
-				_modeSetUserLimit(isModeOn, "", *channelInUse);
+				_modeSetUserLimit(isModeOn, "", *channel);
 			break;
 		default:
 			client.appendResponse(ERR_UNKNOWNMODE(_serverName, client.getNickname(), std::string(1, m)));
 			return;
 		}
 	}
-	(*it)->relayMessage(client, RPL_CHANNELMODEIS(_serverName, nick, channelInUse->getChannelName(), channelInUse->getModeString()));
-	client.appendResponse(RPL_CHANNELMODEIS(_serverName, nick, channelInUse->getChannelName(), channelInUse->getModeString()));
+	(*it)->relayMessage(client, RPL_CHANNELMODEIS(_serverName, nick, channelName, channel->getModeString()));
+	client.appendResponse(RPL_CHANNELMODEIS(_serverName, nick, channelName, channel->getModeString()));
 }
