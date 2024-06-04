@@ -272,7 +272,7 @@
 //  Returned when a client tries to perform a channel
 //  operator command but does not have the necessary
 //  privileges.
-#define ERR_CHANOPRIVSNEEDED(server, nick, channel) (":" + server + " 482 " + nick + " " + channel + " :You're not channel operator\r\n")
+#define ERR_CHANOPRIVSNEEDED(server, nick) (":" + server + " 482 " + nick + " :You're not channel operator\r\n")
 
 //  483     ERR_CANTKILLSERVER
 //  Returned when a client tries to kill a server.
