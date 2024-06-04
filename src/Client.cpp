@@ -101,7 +101,7 @@ std::string const & Client::getResponse() const
 
 void Client::appendResponse(std::string newMessage)
 {
-	_response.append(newMessage);
+	_response.append(newMessage + "\r\n");
 }
 
 void Client::clearResponse()
