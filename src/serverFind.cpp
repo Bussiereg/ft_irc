@@ -7,7 +7,7 @@ Client * Server::_findClient(std::string const & nickname)
 			return *it;
 		}
 	}
-	return nullptr;
+	return NULL;
 }
 
 Client * Server::_findClient(int fd)
@@ -17,5 +17,5 @@ Client * Server::_findClient(int fd)
 			return *it;
 		}
 	}
-	return nullptr;
+	return NULL;
 }

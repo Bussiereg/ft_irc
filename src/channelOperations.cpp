@@ -93,7 +93,8 @@ void Server::_handleInviteCommand(Client &client, std::string &input)
 	}
 
 	channel->setInviteList(invitee);
-	client.appendResponse(RPL_INVITING(_serverName, nick, channelName, invitee));
+	client.appendResponse(RPL_INVITING(_serverName, nick, invitee, channelName));
+	(*clientInvitee)->appendResponse(INVITE(nick, client.getUsername(), client.getHostname(),  invitee, channelName));	
 }
 
 void Server::_handleKickCommand(Client &client, std::string &input)
@@ -125,7 +126,7 @@ void Server::_handleKickCommand(Client &client, std::string &input)
 
 	Channel *channel = *it;
 	Client *clientToBeKicked = _findClient(kickNick);
-	if (clientToBeKicked == nullptr)
+	if (clientToBeKicked == NULL)
 	{
 		client.appendResponse(ERR_NOSUCHNICK(_serverName, nick));
 		return;
