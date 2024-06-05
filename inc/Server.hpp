@@ -58,7 +58,7 @@ private:
 
 	void					_initCommandMap();
 	void					_acceptNewClient();
-	void 					_removeCLient(Client &);
+	void 					_removeClient(Client &);
 	void 					_delClientFromChannel(Client &);
 	void					_delChannel(Channel * channel);
 	void 					_delClient(Client &);
@@ -79,10 +79,13 @@ private:
 	void					_modeOperatorPriv(bool isOperator, std::string ope, Client &, Channel *);
 	void					_modeSetUserLimit(bool isOperator, std::string limit, Channel &);
 
+	// READ CLIENT BUFFER
 	void					_printBuffer(const char* buff, int recevied);
-	ssize_t					_fillBuffer(size_t index, std::string & buffer);
+	ssize_t					_fillBuffer(Client & client);
+	void 					_readBuffer(Client & client);
+	std::string				_getNextLine(Client & client);
 
-	void 					_readBuffer(size_t index, std::string & buffer);
+	// COMMANDS
 	std::string 			_getCommand(std::string &);
 	void					_handlePassCommand(Client &, std::string &);
 	void					_handleNickCommand(Client &, std::string &);
@@ -106,7 +109,6 @@ private:
 	bool					_isValidNickname(const std::string &nickname);
 	static std::vector<std::string>	_splitString(const std::string & str, char separator);
 	std::string				_concatenateTokens(const std::vector<std::string>& tokens, size_t startPos);
-	std::string				_getNextLine(std::string & buffer);
 	static std::vector<std::string>	_parseReceivers(const std::string& message);
 
 public:
@@ -126,6 +128,10 @@ public:
 	};
 
 	class SocketListeningException : public std::exception {
+		virtual const char* what() const throw();
+	};
+
+	class SocketSendException : public std::exception {
 		virtual const char* what() const throw();
 	};
 };

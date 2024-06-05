@@ -12,10 +12,12 @@ SRC		:= main.cpp \
 			ChannelModes.cpp \
 			channelOperations.cpp \
 			Client.cpp \
+			ClientGetSet.cpp \
 			ConfigParser.cpp \
 			joinChannel.cpp \
 			removeClient.cpp \
 			Server.cpp \
+			ServerBuffer.cpp \
 			ServerCommands.cpp \
 			ServerExceptions.cpp \
 			ServerFind.cpp \

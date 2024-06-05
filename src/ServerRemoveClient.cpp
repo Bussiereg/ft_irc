@@ -1,5 +1,7 @@
 #include "Server.hpp"
 
+/// @brief delete the channel if it is empty after a client leaves
+/// @param channel channel to be deleted
 void	Server::_delChannel(Channel * channel)
 {	
 	std::cout << "[Server  ] Channel " << channel->getChannelName() << " deleted" << std::endl;
@@ -9,6 +11,8 @@ void	Server::_delChannel(Channel * channel)
 	delete channel;
 }
 
+/// @brief delete client from all channels they are on
+/// @param client 
 void	Server::_delClientFromChannel(Client & client){
 	std::vector<Channel*> & channels = client.getChannelJoined();
 	for (std::vector<Channel*>::iterator it = channels.begin(); it != channels.end(); ++it)
@@ -23,6 +27,8 @@ void	Server::_delClientFromChannel(Client & client){
 	}
 }
 
+/// @brief delete client from client vector, close the socket, and remove pollfd from _allSockets
+/// @param client 
 void	Server::_delClient(Client & client)
 {
 	std::vector<Client*>::iterator clientIt = std::find(_clients.begin(), _clients.end(), &client);
@@ -36,6 +42,8 @@ void	Server::_delClient(Client & client)
 	_clients.erase(_clients.begin() + index);
 }
 
+/// @brief remove client from from all the channels they are on, and delete the client
+/// @param client client to be removed
 void Server::_removeClient(Client & client)
 {
 	_delClientFromChannel(client);
