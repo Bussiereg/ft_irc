@@ -78,7 +78,7 @@ void Server::_handleNickCommand(Client &client, std::string &message)
 	std::string oldNick = client.getNickname();
 	client.setNickname(nick);
 	if (!oldNick.empty()) {
-		std::string response = ":" + oldNick + "!" + client.getUsername() + "@" + client.getHostname() + " NICK " + nick + "\r\n";
+		std::string response = ":" + oldNick + "!" + client.getUsername() + "@" + client.getHostname() + " NICK " + nick;
 		client.appendResponse(response);
 
 		// Forwarded to every client in the same channel:
@@ -137,7 +137,7 @@ void Server::_handlePrivmsgCommand(Client &client, std::string &message)
 
 	for (std::vector<std::string>::iterator it = receivers.begin(); it != receivers.end(); ++it)
 	{
-		std::string forward = ":" + nick + "!" + nick + "@" + client.getHostname() + " PRIVMSG " + *it + " :" + message.substr(pos + 2) + "\r\n";
+		std::string forward = ":" + nick + "!" + nick + "@" + client.getHostname() + " PRIVMSG " + *it + " :" + message.substr(pos + 2);
 		if ((*it)[0] == '#')
 		{
 			std::vector<Channel *>::iterator ite = std::find_if(_channelList.begin(), _channelList.end(), MatchChannelName(*it));
@@ -163,7 +163,7 @@ void Server::_handlePrivmsgCommand(Client &client, std::string &message)
 
 void Server::_handlePingCommand(Client &client, std::string &message)
 {
-	client.appendResponse("PONG " + message.substr(5) + "\r\n");
+	client.appendResponse("PONG " + message.substr(5));
 }
 
 void Server::_handleQuitCommand(Client &client, std::string &message)
@@ -172,16 +172,12 @@ void Server::_handleQuitCommand(Client &client, std::string &message)
 	std::string reason = "";
 	if (message.size() > 6)
 		reason += message.substr(6);
-
-	for (std::vector<Channel*>::iterator it = channelList.begin(); it != channelList.end(); ++it) {
-		if (!reason.empty())
-			(*it)->relayMessage(client, PART_REASON(client.getNickname(), client.getUsername(), client.getHostname(), (*it)->getChannelName(), reason));
-		else
-			(*it)->relayMessage(client, PART(client.getNickname(), client.getUsername(), client.getHostname(), (*it)->getChannelName()));
-
+	std::vector<Channel*>::iterator it;
+	for (it = channelList.begin(); it != channelList.end(); ++it) {
+		(*it)->relayMessage(client, PART(client.getNickname(), client.getUsername(), client.getHostname(), (*it)->getChannelName(), reason));
 	}
 	close(client.getClientSocket()->fd);
-	_delClient(client);
+	_removeCLient(client);
 }
 
 void Server::_handleInvalidCommand(Client &client, std::string &message)
@@ -199,30 +195,34 @@ void Server::_handleWhoCommand(Client & client, std::string & message)
 {
 	std::vector<std::string> params = _splitString(message, ' ');
 	bool found_channel = false;
-	if (params.size() == 2)
+	if (params.size() < 2)
 	{
-		for (std::vector<Channel *>::iterator it_ch = _channelList.begin(); it_ch != _channelList.end(); ++it_ch)
+		client.appendResponse(ERR_NEEDMOREPARAMS(_serverName, client.getNickname(), "WHO"));
+		return;
+	}
+
+	std::string const & channelMask = params[1];
+	for (std::vector<Channel *>::iterator it_ch = _channelList.begin(); it_ch != _channelList.end(); ++it_ch)
+	{
+		if ((*it_ch)->getChannelName() == channelMask)
 		{
-			if ((*it_ch)->getChannelName() == params[1])
+			found_channel = true;
+			for (std::map<Client*, bool>::iterator it_cl = (*it_ch)->getClientList().begin(); it_cl != (*it_ch)->getClientList().end(); ++it_cl)
 			{
-				found_channel = true;
-				for (std::map<Client*, bool>::iterator it_cl = (*it_ch)->getClientList().begin(); it_cl != (*it_ch)->getClientList().end(); ++it_cl)
-				{
-					if ((*it_cl).second == true)
-						client.appendResponse(RPL_WHO(_serverName, client.getNickname(), "#all" , (*it_cl).first->getUsername(), (*it_cl).first->getHostname(), (*it_cl).first->getNickname(), "*", (*it_cl).first->getRealname()));
-					else
-						client.appendResponse(RPL_WHO(_serverName, client.getNickname(), "#all" , (*it_cl).first->getUsername(), (*it_cl).first->getHostname(), (*it_cl).first->getNickname(), "", (*it_cl).first->getRealname()));
-				}
-				client.appendResponse(RPL_ENDWHO(_serverName, client.getNickname(), "#all"));
-				break;
+				if ((*it_cl).second == true)
+					client.appendResponse(RPL_WHO(_serverName, client.getNickname(), "#all" , (*it_cl).first->getUsername(), (*it_cl).first->getHostname(), (*it_cl).first->getNickname(), "*", (*it_cl).first->getRealname()));
+				else
+					client.appendResponse(RPL_WHO(_serverName, client.getNickname(), "#all" , (*it_cl).first->getUsername(), (*it_cl).first->getHostname(), (*it_cl).first->getNickname(), "", (*it_cl).first->getRealname()));
 			}
-		}
-		if (found_channel == false)
-		{
-			for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it)
-				client.appendResponse(RPL_WHO(_serverName, client.getNickname(), "#all" , (*it)->getUsername(), (*it)->getHostname(), (*it)->getNickname(), "", (*it)->getRealname()));
 			client.appendResponse(RPL_ENDWHO(_serverName, client.getNickname(), "#all"));
+			break;
 		}
+	}
+	if (found_channel == false)
+	{
+		for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+			client.appendResponse(RPL_WHO(_serverName, client.getNickname(), "#all" , (*it)->getUsername(), (*it)->getHostname(), (*it)->getNickname(), "", (*it)->getRealname()));
+		client.appendResponse(RPL_ENDWHO(_serverName, client.getNickname(), "#all"));
 	}
 }
 
@@ -232,15 +232,15 @@ void Server::_handleMotdCommand(Client & client, std::string & )
 	std::ifstream motd_file(filename.c_str());
 	std::string nick = client.getNickname();
 
-	if (filename.empty() || !motd_file.is_open())
+	if (filename.empty() || !motd_file.is_open()) {
 		client.appendResponse(ERR_NOMOTD(_serverName, nick));
-	else {
-		client.appendResponse(RPL_MOTDSTART(_serverName, nick));
-		std::string line;
-		while(std::getline(motd_file, line)) {
-			client.appendResponse(RPL_MOTD(_serverName, nick));
-			client.appendResponse(line + "\r\n");
-		}
-		client.appendResponse(RPL_ENDOFMOTD(_serverName, nick));
+		return ;
 	}
+	
+	client.appendResponse(RPL_MOTDSTART(_serverName, nick));
+	std::string line;
+	while(std::getline(motd_file, line)) {
+		client.appendResponse(RPL_MOTD(_serverName, nick) + line);
+	}
+	client.appendResponse(RPL_ENDOFMOTD(_serverName, nick));
 }

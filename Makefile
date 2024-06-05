@@ -10,8 +10,10 @@ SRC		:= main.cpp \
 			Server.cpp \
 			serverCommands.cpp \
 			serverExceptions.cpp \
+			serverFind.cpp \
 			serverPolling.cpp \
 			serverUtils.cpp \
+			channelModes.cpp \
 			channelOperations.cpp \
 			joinChannel.cpp \
 			Channel.cpp \

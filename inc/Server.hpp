@@ -58,17 +58,21 @@ private:
 
 	void					_initCommandMap();
 	void					_acceptNewClient();
-	void					_delClient(Client &);
+	void 					_removeCLient(Client &);
+	void 					_delClientFromChannel(Client &);
+	void					_delChannelIfEmpty(Channel *);
+	void 					_delClient(Client &);
 	void					_checkClients();
 	void					_registerUser(Client &);
+	Client *				_findClient(std::string const & nickname);
+	Client *				_findClient(int fd);
 
 	// JOIN
-	void 					_createJoinmap(Client &, std::string & message, std::map<std::string, std::string> & joinParams);
+	void					_createChannelKeyMap(std::vector<std::string> & params, std::map<std::string, std::string> & channelKeyMap);
 	void					_joinExistingChannel(Client & client, Channel & channel, std::string const & password);
 	void					_joinNewChannel(Client & client, std::string const & channelName, std::string const & password);
 
 	// MODE
-	unsigned int			_findMode(char m);
 	void					_modeInviteOnly(bool isOperator, Channel &);
 	void					_modeTopic(bool isOperator, Channel &);
 	void					_modeKeySet(bool isOperator, std::string key, Channel *);
@@ -111,7 +115,6 @@ public:
 	Server & operator=(Server const &);
 	~Server();
 
-	std::vector<Channel*>	getChannelList();
 	void 					startPolling();
 	
 	class SocketCreationException : public std::exception {
