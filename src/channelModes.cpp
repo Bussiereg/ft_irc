@@ -31,7 +31,7 @@ void Server::_modeOperatorPriv(bool isOperator, std::string ope, Client &client,
 
 	if (subject->second == false)
 	{
-		client.appendResponse(ERR_CHANOPRIVSNEEDED(_serverName, nick));
+		client.appendResponse(ERR_CHANOPRIVSNEEDED(_serverName, nick, channelName));
 		return;
 	}
 
@@ -84,7 +84,7 @@ void Server::_handleModeCommand(Client &client, std::string &input)
 
 	if ((*it)->isOperator(client) == false)
 	{
-		client.appendResponse(ERR_CHANOPRIVSNEEDED(_serverName, nick));
+		client.appendResponse(ERR_CHANOPRIVSNEEDED(_serverName, nick, channelName));
 		return ;
 	}
 

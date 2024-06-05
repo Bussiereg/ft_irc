@@ -47,7 +47,7 @@ void Server::_handleTopicCommand(Client &client, std::string &input)
 		channel->relayMessage(client, RPL_TOPIC(_serverName, nick, channelName, topic));
 	}
 	else
-		client.appendResponse(ERR_CHANOPRIVSNEEDED(_serverName, nick));
+		client.appendResponse(ERR_CHANOPRIVSNEEDED(_serverName, nick, channelName));
 }
 
 void Server::_handleInviteCommand(Client &client, std::string &input)
@@ -81,7 +81,7 @@ void Server::_handleInviteCommand(Client &client, std::string &input)
 
 	if (channel->isOperator(client) == false)
 	{
-		client.appendResponse(ERR_CHANOPRIVSNEEDED(_serverName, nick));
+		client.appendResponse(ERR_CHANOPRIVSNEEDED(_serverName, nick, channelName));
 		return;
 	}
 
@@ -138,7 +138,7 @@ void Server::_handleKickCommand(Client &client, std::string &input)
 	}
 	if (channel->isOperator(client) == false)
 	{
-		client.appendResponse(ERR_CHANOPRIVSNEEDED(_serverName, nick));
+		client.appendResponse(ERR_CHANOPRIVSNEEDED(_serverName, nick, channelName));
 		return;
 	}
 	if (channel->isMember(kickNick) == false)
