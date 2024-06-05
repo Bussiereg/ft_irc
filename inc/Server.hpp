@@ -58,7 +58,10 @@ private:
 
 	void					_initCommandMap();
 	void					_acceptNewClient();
-	void					_delClientAndChannel(Client &);
+	void 					_removeCLient(Client &);
+	void 					_delClientFromChannel(Client &);
+	void					_delChannelIfEmpty(Channel *);
+	void 					_delClient(Client &);
 	void					_checkClients();
 	void					_registerUser(Client &);
 	Client *				_findClient(std::string const & nickname);

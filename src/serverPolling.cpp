@@ -59,7 +59,7 @@ void Server::_checkClients()
 		{
 			std::string buffer;
  			if (_fillBuffer(i, buffer) <= 0) {
-				_delClientAndChannel(*_clients[i - 1]);
+				_removeCLient(*_clients[i - 1]);
 			} else {
 				_readBuffer(i, buffer);
 			}
@@ -67,29 +67,46 @@ void Server::_checkClients()
 	}
 }
 
-void Server::_delClientAndChannel(Client & client)
+void	Server::_delChannelIfEmpty(Channel * channelToDeleteIfEmpty)
 {
+	std::vector<Channel*>::iterator channelIndex =  std::find(_channelList.begin(), _channelList.end(), channelToDeleteIfEmpty);
+	std::map<Client*, bool> channelClientList = (*channelIndex)->getClientList();
+	if (channelClientList.empty()){
+		_channelList.erase(channelIndex);
+		delete *channelIndex;
+	}
+}
+
+void	Server::_delClientFromChannel(Client & client){
+	std::vector<Channel*> & channels = client.getChannelJoined();
+	for (std::vector<Channel*>::iterator it = channels.begin(); it != channels.end(); ++it)
+	{
+		std::map<Client*, bool>::iterator clientIndex = (*it)->getClientList().find(&client);
+		if (clientIndex != (*it)->getClientList().end()){
+			(*it)->removeClient(&client);
+			_delChannelIfEmpty(*it);
+		}
+	}
+}
+
+void	Server::_delClient(Client & client){
 	size_t index = 0;
 	for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it)
 	{
 		if ((*it)->getClientSocket()->fd == client.getClientSocket()->fd)
 			break;
-		index++;  // very strange way to get the index
-	}
-	for (std::vector<Channel*>::iterator it_ch = client.getChannelJoined().begin(); it_ch != client.getChannelJoined().end(); ++it_ch)
-	{
-		std::map<Client*, bool>::iterator iit = (*it_ch)->getClientList().find(&client);
-		if (iit != (*it_ch)->getClientList().end())
-			(*it_ch)->getClientList().erase(iit);
-		std::vector<Channel*>::iterator it_ch2 =  std::find(_channelList.begin(), _channelList.end(), *it_ch);
-		if ((*it_ch2)->getClientList().empty()){
-			delete *it_ch2;
-			_channelList.erase(it_ch2);
-		}
+		index++;
 	}
 	std::cerr << RED << "[Server] Client fd " << _allSockets[index + 1].fd << " just disconnected" << RESET << std::endl;
 	close(client.getClientSocket()->fd);
 	_allSockets.erase(_allSockets.begin() + index + 1);
 	delete _clients[index]; 
 	_clients.erase(_clients.begin() + index);
+}
+
+
+void Server::_removeCLient(Client & client)
+{
+	_delClientFromChannel(client);
+	_delClient(client);
 }
