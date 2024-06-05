@@ -5,7 +5,7 @@ void Server::_readBuffer(Client & client)
 {
 	std::string message;
 
-	while (!(message = client.PopFirstLineBuffer()).empty())
+	while (!(message = client.PopNextLine()).empty())
 	{
 		std::string command = _getCommand(message);
 		if (client.isFullyAccepted()

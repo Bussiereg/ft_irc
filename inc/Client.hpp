@@ -46,7 +46,7 @@ public:
 	std::string const &		getBuffer() const;
 	void					appendBuffer(std::string const &);
 	void					clearBuffer();
-	std::string				PopFirstLineBuffer();
+	std::string				PopNextLine();
 
 	std::vector<Channel*> & getChannelJoined();
 	void			 		removeChannelJoined(Channel * channel);

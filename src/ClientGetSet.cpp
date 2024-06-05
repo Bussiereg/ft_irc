@@ -71,7 +71,7 @@ void Client::clearBuffer()
 	_buffer.clear();
 }
 
-std::string Client::PopFirstLineBuffer()
+std::string Client::PopNextLine()
 {
 	size_t pos = _buffer.find("\r\n");
 	if (pos == std::string::npos)
