@@ -1,39 +1,5 @@
 #include "Server.hpp"
 
-void Server::_readBuffer(size_t index, std::string &buffer)
-{
-	Client &client = *_clients[index - 1];
-	std::string message;
-
-	while (!(message = _getNextLine(buffer)).empty())
-	{
-		std::cout << "[Client " << index << "] Message received from client " << std::endl;
-		std::cout << "     FD " << _allSockets[index].fd << "< " << CYAN << message << RESET << std::endl;
-
-		std::string command = _getCommand(message);
-		if (client.isFullyAccepted()
-			|| command == "LS"
-			|| command == "PASS"
-			|| (client.isPassedWord()
-				&& (command == "NICK" || command == "USER"))) {
-			(this->*_commandMap[command])(client, message);
-		} else {
-			client.appendResponse(ERR_NOTREGISTERED(_serverName, client.getNickname()));
-		}
-	}
-
-	std::cout << std::endl
-			  << "***list of clients***\n*" << std::endl;
-	for (size_t j = 0; j < _clients.size(); j++)
-	{
-		std::cout << "* _clients[" << j << "].fd = " << _clients[j]->getClientSocket()->fd << "  ";
-		std::cout << "_allSockets[" << j + 1 << "].fd = " << _allSockets[j + 1].fd << std::endl;
-		;
-	}
-	std::cout << "*\n*********************" << std::endl
-			  << std::endl;
-}
-
 std::string Server::_getCommand(std::string &message)
 {
 	size_t pos = message.find(" ");
@@ -176,7 +142,6 @@ void Server::_handleQuitCommand(Client &client, std::string &message)
 	for (it = channelList.begin(); it != channelList.end(); ++it) {
 		(*it)->relayMessage(client, PART(client.getNickname(), client.getUsername(), client.getHostname(), (*it)->getChannelName(), reason));
 	}
-	close(client.getClientSocket()->fd);
 	_removeCLient(client);
 }
 

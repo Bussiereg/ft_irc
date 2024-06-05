@@ -67,46 +67,36 @@ void Server::_checkClients()
 	}
 }
 
-void	Server::_delChannelIfEmpty(Channel * channelToDeleteIfEmpty)
+void Server::_readBuffer(size_t index, std::string &buffer)
 {
-	std::vector<Channel*>::iterator channelIndex =  std::find(_channelList.begin(), _channelList.end(), channelToDeleteIfEmpty);
-	std::map<Client*, bool> channelClientList = (*channelIndex)->getClientList();
-	if (channelClientList.empty()){
-		_channelList.erase(channelIndex);
-		delete *channelIndex;
-	}
-}
+	Client &client = *_clients[index - 1];
+	std::string message;
 
-void	Server::_delClientFromChannel(Client & client){
-	std::vector<Channel*> & channels = client.getChannelJoined();
-	for (std::vector<Channel*>::iterator it = channels.begin(); it != channels.end(); ++it)
+	while (!(message = _getNextLine(buffer)).empty())
 	{
-		std::map<Client*, bool>::iterator clientIndex = (*it)->getClientList().find(&client);
-		if (clientIndex != (*it)->getClientList().end()){
-			(*it)->removeClient(&client);
-			_delChannelIfEmpty(*it);
+		std::cout << "[Client " << index << "] Message received from client " << std::endl;
+		std::cout << "     FD " << _allSockets[index].fd << "< " << CYAN << message << RESET << std::endl;
+
+		std::string command = _getCommand(message);
+		if (client.isFullyAccepted()
+			|| command == "LS"
+			|| command == "PASS"
+			|| (client.isPassedWord()
+				&& (command == "NICK" || command == "USER"))) {
+			(this->*_commandMap[command])(client, message);
+		} else {
+			client.appendResponse(ERR_NOTREGISTERED(_serverName, client.getNickname()));
 		}
 	}
-}
 
-void	Server::_delClient(Client & client){
-	size_t index = 0;
-	for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+	std::cout << std::endl
+			  << "***list of clients***\n*" << std::endl;
+	for (size_t j = 0; j < _clients.size(); j++)
 	{
-		if ((*it)->getClientSocket()->fd == client.getClientSocket()->fd)
-			break;
-		index++;
+		std::cout << "* _clients[" << j << "].fd = " << _clients[j]->getClientSocket()->fd << "  ";
+		std::cout << "_allSockets[" << j + 1 << "].fd = " << _allSockets[j + 1].fd << std::endl;
+		;
 	}
-	std::cerr << RED << "[Server] Client fd " << _allSockets[index + 1].fd << " just disconnected" << RESET << std::endl;
-	close(client.getClientSocket()->fd);
-	_allSockets.erase(_allSockets.begin() + index + 1);
-	delete _clients[index]; 
-	_clients.erase(_clients.begin() + index);
-}
-
-
-void Server::_removeCLient(Client & client)
-{
-	_delClientFromChannel(client);
-	_delClient(client);
+	std::cout << "*\n*********************" << std::endl
+			  << std::endl;
 }

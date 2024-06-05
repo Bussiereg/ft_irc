@@ -7,18 +7,20 @@ SRCDIR	:= src
 INCDIR	:= inc
 OBJDIR	:= obj
 SRC		:= main.cpp \
-			Server.cpp \
-			serverCommands.cpp \
-			serverExceptions.cpp \
-			serverFind.cpp \
-			serverPolling.cpp \
-			serverUtils.cpp \
-			channelModes.cpp \
-			channelOperations.cpp \
-			joinChannel.cpp \
 			Channel.cpp \
+			ChannelChecks.cpp \
+			ChannelModes.cpp \
+			channelOperations.cpp \
 			Client.cpp \
-			ConfigParser.cpp
+			ConfigParser.cpp \
+			joinChannel.cpp \
+			removeClient.cpp \
+			Server.cpp \
+			ServerCommands.cpp \
+			ServerExceptions.cpp \
+			ServerFind.cpp \
+			ServerPolling.cpp \
+			ServerUtils.cpp
 SRC		:= $(addprefix $(SRCDIR)/, $(SRC))
 OBJ		:= $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SRC))
 HEADER	:= -I $(INCDIR)

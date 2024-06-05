@@ -60,7 +60,7 @@ private:
 	void					_acceptNewClient();
 	void 					_removeCLient(Client &);
 	void 					_delClientFromChannel(Client &);
-	void					_delChannelIfEmpty(Channel *);
+	void					_delChannel(Channel * channel);
 	void 					_delClient(Client &);
 	void					_checkClients();
 	void					_registerUser(Client &);
