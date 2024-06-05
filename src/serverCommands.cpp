@@ -177,7 +177,7 @@ void Server::_handleQuitCommand(Client &client, std::string &message)
 		(*it)->relayMessage(client, PART(client.getNickname(), client.getUsername(), client.getHostname(), (*it)->getChannelName(), reason));
 	}
 	close(client.getClientSocket()->fd);
-	_delClientAndChannel(client);
+	_removeCLient(client);
 }
 
 void Server::_handleInvalidCommand(Client &client, std::string &message)
