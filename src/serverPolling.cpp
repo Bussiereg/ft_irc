@@ -59,7 +59,7 @@ void Server::_checkClients()
 		{
 			std::string buffer;
  			if (_fillBuffer(i, buffer) <= 0) {
-				_delClient(*_clients[i - 1]);
+				_delClientAndChannel(*_clients[i - 1]);
 			} else {
 				_readBuffer(i, buffer);
 			}
