@@ -5,7 +5,7 @@ void Server::_readBuffer(Client & client)
 {
 	std::string message;
 
-	while (!(message = _getNextLine(client)).empty())
+	while (!(message = client.PopFirstLineBuffer()).empty())
 	{
 		std::string command = _getCommand(message);
 		if (client.isFullyAccepted()
@@ -57,9 +57,4 @@ ssize_t	Server::_fillBuffer(Client & client)
 	if (bytesRead > 0)
 		client.appendBuffer(temp);
 	return bytesRead;
-}
-
-std::string Server::_getNextLine(Client & client)
-{
-	return client.PopFirstLineBuffer();
 }

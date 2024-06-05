@@ -44,7 +44,7 @@ void	Server::_delClient(Client & client)
 
 /// @brief remove client from from all the channels they are on, and delete the client
 /// @param client client to be removed
-void Server::_removeCLient(Client & client)
+void Server::_removeClient(Client & client)
 {
 	_delClientFromChannel(client);
 	_delClient(client);

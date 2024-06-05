@@ -36,7 +36,7 @@ void	Server::_delClient(Client & client)
 	_clients.erase(_clients.begin() + index);
 }
 
-void Server::_removeCLient(Client & client)
+void Server::_removeClient(Client & client)
 {
 	_delClientFromChannel(client);
 	_delClient(client);

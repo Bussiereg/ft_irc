@@ -50,17 +50,15 @@ void Server::_checkClients()
 			_printBuffer(response.c_str(), 0);
 			ssize_t send_rt = send(_allSockets[i].fd, response.c_str(), response.size(), 0);
 			std::cout << "send return = " << std::dec << send_rt << " - ";
-			if (send_rt > -1)
-				std::cout << "sent succesfully " << std::endl;
-			else
-				std::cout << "send error" << std::endl; // should throw an exception
+			if (send_rt < 0)
+				throw SocketSendException();
 			client.clearResponse();
 		}
 		if (_allSockets[i].revents & POLLIN)
 		{
 			std::string buffer;
  			if (_fillBuffer(client) <= 0) {
-				_removeCLient(client);
+				_removeClient(client);
 			} else {
 				_readBuffer(client);
 			}

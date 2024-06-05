@@ -58,7 +58,7 @@ private:
 
 	void					_initCommandMap();
 	void					_acceptNewClient();
-	void 					_removeCLient(Client &);
+	void 					_removeClient(Client &);
 	void 					_delClientFromChannel(Client &);
 	void					_delChannel(Channel * channel);
 	void 					_delClient(Client &);
@@ -128,6 +128,10 @@ public:
 	};
 
 	class SocketListeningException : public std::exception {
+		virtual const char* what() const throw();
+	};
+
+	class SocketSendException : public std::exception {
 		virtual const char* what() const throw();
 	};
 };

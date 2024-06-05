@@ -142,7 +142,7 @@ void Server::_handleQuitCommand(Client &client, std::string &message)
 	for (it = channelList.begin(); it != channelList.end(); ++it) {
 		(*it)->relayMessage(client, PART(client.getNickname(), client.getUsername(), client.getHostname(), (*it)->getChannelName(), reason));
 	}
-	_removeCLient(client);
+	_removeClient(client);
 }
 
 void Server::_handleInvalidCommand(Client &client, std::string &message)
