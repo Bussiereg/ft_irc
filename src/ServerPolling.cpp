@@ -43,7 +43,8 @@ void Server::_checkClients()
 {
 	for (size_t i = _allSockets.size() - 1; i > 0; i--)
 	{
-		std::string const & response = _clients[i - 1]->getResponse();
+		Client & client = *_clients[i - 1];
+		std::string const & response = client.getResponse();
 		if (!response.empty() && _allSockets[i].revents & POLLOUT)
 		{
 			_printBuffer(response.c_str(), 0);
@@ -53,50 +54,17 @@ void Server::_checkClients()
 				std::cout << "sent succesfully " << std::endl;
 			else
 				std::cout << "send error" << std::endl; // should throw an exception
-			_clients[i - 1]->clearResponse();
+			client.clearResponse();
 		}
 		if (_allSockets[i].revents & POLLIN)
 		{
 			std::string buffer;
- 			if (_fillBuffer(i, buffer) <= 0) {
-				_removeCLient(*_clients[i - 1]);
+ 			if (_fillBuffer(client) <= 0) {
+				_removeCLient(client);
 			} else {
-				_readBuffer(i, buffer);
+				_readBuffer(client);
 			}
 		}
 	}
 }
 
-void Server::_readBuffer(size_t index, std::string &buffer)
-{
-	Client &client = *_clients[index - 1];
-	std::string message;
-
-	while (!(message = _getNextLine(buffer)).empty())
-	{
-		std::cout << "[Client " << index << "] Message received from client " << std::endl;
-		std::cout << "     FD " << _allSockets[index].fd << "< " << CYAN << message << RESET << std::endl;
-
-		std::string command = _getCommand(message);
-		if (client.isFullyAccepted()
-			|| command == "LS"
-			|| command == "PASS"
-			|| (client.isPassedWord()
-				&& (command == "NICK" || command == "USER"))) {
-			(this->*_commandMap[command])(client, message);
-		} else {
-			client.appendResponse(ERR_NOTREGISTERED(_serverName, client.getNickname()));
-		}
-	}
-
-	std::cout << std::endl
-			  << "***list of clients***\n*" << std::endl;
-	for (size_t j = 0; j < _clients.size(); j++)
-	{
-		std::cout << "* _clients[" << j << "].fd = " << _clients[j]->getClientSocket()->fd << "  ";
-		std::cout << "_allSockets[" << j + 1 << "].fd = " << _allSockets[j + 1].fd << std::endl;
-		;
-	}
-	std::cout << "*\n*********************" << std::endl
-			  << std::endl;
-}

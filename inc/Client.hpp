@@ -39,6 +39,15 @@ public:
 	std::string const &		getRealname() const;
 	void					setRealname(std::string const &);
 
+	std::string const &		getResponse() const;
+	void					appendResponse(std::string newMessage);
+	void					clearResponse();
+
+	std::string const &		getBuffer() const;
+	void					appendBuffer(std::string const &);
+	void					clearBuffer();
+	std::string				PopFirstLineBuffer();
+
 	std::vector<Channel*> & getChannelJoined();
 	void			 		removeChannelJoined(Channel * channel);
 	void					setChannelJoined(Channel*);
@@ -48,9 +57,6 @@ public:
 	bool 					isFullyAccepted() const;
 	void					acceptFully();
 
-	std::string const &		getResponse() const;
-	void					appendResponse(std::string newMessage);
-	void					clearResponse();
 };
 
 class MatchNickname {
