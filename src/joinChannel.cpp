@@ -37,6 +37,7 @@ void Server::_joinExistingChannel(Client & client, Channel & channel, std::strin
 
 void Server::_joinNewChannel(Client & client, std::string const & channelName, std::string const & password)
 {
+	std::cout << RED << "test1" << RESET << std::endl;
 	std::string const & nick = client.getNickname();
 	Channel *newChannel = new Channel(channelName, client);
 	_channelList.push_back(newChannel);	 // add the channel to the SERVER channel list

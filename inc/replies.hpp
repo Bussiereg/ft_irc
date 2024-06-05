@@ -272,7 +272,8 @@
 //  Returned when a client tries to perform a channel
 //  operator command but does not have the necessary
 //  privileges.
-#define ERR_CHANOPRIVSNEEDED(server, nick, channel) (":" + server + " 482 " + nick + " " + channel + " :You're not channel operator\r\n")
+// #define ERR_CHANOPRIVSNEEDED(server, nick) (":" + server + " 482 " + nick + " :You're not channel operator\r\n")
+#define ERR_CHANOPRIVSNEEDED(server, nick, channel) (":" + server + " PRIVMSG " + channel + " :" + nick + ": You're not a channel operator\r\n")
 
 //  483     ERR_CANTKILLSERVER
 //  Returned when a client tries to kill a server.
@@ -404,7 +405,8 @@
 //  341     RPL_INVITING
 //  Reply format to indicate that an invitation has been
 //  sent to a user.
-#define RPL_INVITING(server, nick, invitee, channel) (":" + server + " 341 " + nick + " " + invitee + " " + channel + "\r\n")
+// #define RPL_INVITING(server, nick, invitee, channel) (":" + server + " 341 " + nick + " " + invitee + " " + channel + "\r\n")
+#define RPL_INVITING(server, nick, invitee, channel) (":" + server + " PRIVMSG " + channel + " :" + nick + " invited " + invitee + " to join " + channel + "\r\n")
 
 //  342     RPL_SUMMONING
 //  Reply format to indicate that a user is being summoned.

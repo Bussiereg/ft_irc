@@ -84,7 +84,7 @@ void Server::_handleModeCommand(Client &client, std::string &input)
 
 	if ((*it)->isOperator(client) == false)
 	{
-		client.appendResponse(ERR_CHANOPRIVSNEEDED(_serverName, nick, (*it)->getChannelName()));
+		client.appendResponse(ERR_CHANOPRIVSNEEDED(_serverName, nick, channelName));
 		return ;
 	}
 

@@ -172,12 +172,12 @@ void Server::_handleQuitCommand(Client &client, std::string &message)
 	std::string reason = "";
 	if (message.size() > 6)
 		reason += message.substr(6);
-
-	for (std::vector<Channel*>::iterator it = channelList.begin(); it != channelList.end(); ++it) {
+	std::vector<Channel*>::iterator it;
+	for (it = channelList.begin(); it != channelList.end(); ++it) {
 		(*it)->relayMessage(client, PART(client.getNickname(), client.getUsername(), client.getHostname(), (*it)->getChannelName(), reason));
 	}
 	close(client.getClientSocket()->fd);
-	_delClient(client);
+	_delClientAndChannel(client);
 }
 
 void Server::_handleInvalidCommand(Client &client, std::string &message)
