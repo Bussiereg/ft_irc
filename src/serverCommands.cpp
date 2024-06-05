@@ -78,7 +78,7 @@ void Server::_handleNickCommand(Client &client, std::string &message)
 	std::string oldNick = client.getNickname();
 	client.setNickname(nick);
 	if (!oldNick.empty()) {
-		std::string response = ":" + oldNick + "!" + client.getUsername() + "@" + client.getHostname() + " NICK " + nick + "\r\n";
+		std::string response = ":" + oldNick + "!" + client.getUsername() + "@" + client.getHostname() + " NICK " + nick;
 		client.appendResponse(response);
 
 		// Forwarded to every client in the same channel:
@@ -137,7 +137,7 @@ void Server::_handlePrivmsgCommand(Client &client, std::string &message)
 
 	for (std::vector<std::string>::iterator it = receivers.begin(); it != receivers.end(); ++it)
 	{
-		std::string forward = ":" + nick + "!" + nick + "@" + client.getHostname() + " PRIVMSG " + *it + " :" + message.substr(pos + 2) + "\r\n";
+		std::string forward = ":" + nick + "!" + nick + "@" + client.getHostname() + " PRIVMSG " + *it + " :" + message.substr(pos + 2);
 		if ((*it)[0] == '#')
 		{
 			std::vector<Channel *>::iterator ite = std::find_if(_channelList.begin(), _channelList.end(), MatchChannelName(*it));
@@ -163,7 +163,7 @@ void Server::_handlePrivmsgCommand(Client &client, std::string &message)
 
 void Server::_handlePingCommand(Client &client, std::string &message)
 {
-	client.appendResponse("PONG " + message.substr(5) + "\r\n");
+	client.appendResponse("PONG " + message.substr(5));
 }
 
 void Server::_handleQuitCommand(Client &client, std::string &message)
@@ -232,15 +232,15 @@ void Server::_handleMotdCommand(Client & client, std::string & )
 	std::ifstream motd_file(filename.c_str());
 	std::string nick = client.getNickname();
 
-	if (filename.empty() || !motd_file.is_open())
+	if (filename.empty() || !motd_file.is_open()) {
 		client.appendResponse(ERR_NOMOTD(_serverName, nick));
-	else {
-		client.appendResponse(RPL_MOTDSTART(_serverName, nick));
-		std::string line;
-		while(std::getline(motd_file, line)) {
-			client.appendResponse(RPL_MOTD(_serverName, nick));
-			client.appendResponse(line + "\r\n");
-		}
-		client.appendResponse(RPL_ENDOFMOTD(_serverName, nick));
+		return ;
 	}
+	
+	client.appendResponse(RPL_MOTDSTART(_serverName, nick));
+	std::string line;
+	while(std::getline(motd_file, line)) {
+		client.appendResponse(RPL_MOTD(_serverName, nick) + line);
+	}
+	client.appendResponse(RPL_ENDOFMOTD(_serverName, nick));
 }
