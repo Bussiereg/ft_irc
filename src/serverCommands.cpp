@@ -176,7 +176,7 @@ void Server::_handleQuitCommand(Client &client, std::string &message)
 	for (it = channelList.begin(); it != channelList.end(); ++it) {
 		(*it)->relayMessage(client, PART(client.getNickname(), client.getUsername(), client.getHostname(), (*it)->getChannelName(), reason));
 	}
-	close(client.getClientSocket()->fd);
+	
 	_delClientAndChannel(client);
 }
 
@@ -232,15 +232,15 @@ void Server::_handleMotdCommand(Client & client, std::string & )
 	std::ifstream motd_file(filename.c_str());
 	std::string nick = client.getNickname();
 
-	if (filename.empty() || !motd_file.is_open())
+	if (filename.empty() || !motd_file.is_open()) {
 		client.appendResponse(ERR_NOMOTD(_serverName, nick));
-	else {
-		client.appendResponse(RPL_MOTDSTART(_serverName, nick));
-		std::string line;
-		while(std::getline(motd_file, line)) {
-			client.appendResponse(RPL_MOTD(_serverName, nick));
-			client.appendResponse(line + "\r\n");
-		}
-		client.appendResponse(RPL_ENDOFMOTD(_serverName, nick));
+		return ;
 	}
+	
+	client.appendResponse(RPL_MOTDSTART(_serverName, nick));
+	std::string line;
+	while(std::getline(motd_file, line)) {
+		client.appendResponse(RPL_MOTD(_serverName, nick) + line);
+	}
+	client.appendResponse(RPL_ENDOFMOTD(_serverName, nick));
 }
