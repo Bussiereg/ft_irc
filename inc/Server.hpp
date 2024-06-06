@@ -37,10 +37,6 @@ enum mode {
 
 #define BUFFER_SIZE 512
 
-#ifndef HOSTNAME
-# define HOSTNAME "localhost"
-#endif
-
 class Server
 {
 private:

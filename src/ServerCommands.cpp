@@ -74,6 +74,7 @@ void Server::_handleUserCommand(Client &client, std::string &message)
 		return;
 	}
 	client.setUsername(params[1]);
+	client.setHostname(params[2]);
 	client.setRealname(_concatenateTokens(params, 4));
 
 	if (!client.isFullyAccepted() && !client.getNickname().empty())

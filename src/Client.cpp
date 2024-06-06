@@ -1,6 +1,6 @@
 #include "Client.hpp"
 
-Client::Client(pollfd *socket) : _socket(socket), _nickname(""), _hostname(HOSTNAME), _isPassedWord(false), _isFullyAccepted(false)
+Client::Client(pollfd *socket) : _socket(socket), _isPassedWord(false), _isFullyAccepted(false)
 {
 }
 
