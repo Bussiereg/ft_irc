@@ -70,6 +70,10 @@ void Server::_handleModeCommand(Client &client, std::string &input)
 	std::string const &channelName = params[1];
 	std::vector<Channel *>::iterator it = find_if(_channelList.begin(), _channelList.end(), MatchChannelName(channelName));
 
+	if (params.size() == 3 && params[2].size() == 2 && params[2][1] == 'i'){ // silence the return invite mode once registered
+		return;
+	} 
+
 	if (it == _channelList.end())
 	{
 		client.appendResponse(ERR_NOSUCHCHANNEL(_serverName, nick, params[1]));

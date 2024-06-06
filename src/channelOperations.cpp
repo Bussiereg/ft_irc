@@ -131,7 +131,7 @@ void Server::_handleKickCommand(Client &client, std::string &input)
 		client.appendResponse(ERR_NOSUCHNICK(_serverName, nick));
 		return;
 	}
-	if (channel->isMember(*clientToBeKicked) == false)
+	if (channel->isMember(client) == false)
 	{
 		client.appendResponse(ERR_NOTONCHANNEL(_serverName, nick, channelName));
 		return;
