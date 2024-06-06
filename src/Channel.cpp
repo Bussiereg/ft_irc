@@ -13,7 +13,6 @@ Channel::Channel(std::string name, Client &client, Config const &config) : _chan
 	_mode['k'] = false;
 	_mode['l'] = false;
 	std::string modes = config.get("Channels", "DefaultModes");
-	std::cout << "Default modes are: " << modes << std::endl;
 	if (modes.size() > 2 && modes[0] == '+')
 	{
 		for (unsigned long i = 1; i < modes.size(); i++)
@@ -28,7 +27,6 @@ void Channel::relayMessage(Client &sender, std::string const &message)
 {
 	for (std::map<Client *, bool>::iterator it = _clientList.begin(); it != _clientList.end(); ++it)
 	{
-		std::cout << "Relaying message to " << it->first->getNickname() << std::endl;
 		if ((it->first) != &sender)
 			it->first->appendResponse(message);
 	}

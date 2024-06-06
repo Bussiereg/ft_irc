@@ -65,7 +65,7 @@ void Server::_readClient(Client &client)
 void Server::_checkClients()
 {
 	for (size_t i = _allSockets.size() - 1; i > 0; i--)
-	{
+	{	
 		Client &client = *_clients[i - 1];
 		std::string const &response = client.getResponse();
 		if (!response.empty() && _allSockets[i].revents & POLLOUT)

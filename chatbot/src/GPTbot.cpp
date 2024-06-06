@@ -63,12 +63,10 @@ std::string GPTbot::_send_to_chatgpt(std::string& input)
 
 void GPTbot::_handleServerMessage(const std::string& message) 
 {
-	std::cout << "Server: " << message << std::endl;
 	if (message.find("PRIVMSG") != std::string::npos) {
 		std::string sender = message.substr(1, message.find("!") - 1);
 		std::string input = _getMessageFromUser(message);
 		std::string response = _send_to_chatgpt(input);
-		std::cout << "Response: " << response << std::endl;
 		_sendCommand("PRIVMSG " + sender + " :" + response);
 	}
 }
@@ -79,7 +77,6 @@ void GPTbot::_wakeUp() {
 	struct hostent* host;
 
 	if ((host = gethostbyname(_serverName.c_str())) == NULL) {
-		std::cout << host << std::endl;
 		throw bothostnameException();
 	}
 	_sockfd = socket(AF_INET, SOCK_STREAM, 0);
