@@ -18,10 +18,7 @@ void Server::_handlePassCommand(Client &client, std::string &message)
 	else if (params.size() < 2 || params[1] != _password)
 		client.appendResponse(ERR_PASSWDMISMATCH(_serverName, nick));
 	else
-	{
-		std::cout << "[Server  ] Password accepted for " << client.getNickname() << std::endl;
 		client.acceptPassword();
-	}
 }
 
 void Server::_handleNickCommand(Client &client, std::string &message)
@@ -51,15 +48,13 @@ void Server::_handleNickCommand(Client &client, std::string &message)
 		std::string response = ":" + oldNick + "!" + client.getUsername() + "@" + client.getHostname() + " NICK " + nick;
 		client.appendResponse(response);
 
-		// Forwarded to every client in the same channel:
+		// Forward to every client in the same channel
 		for (std::vector<Channel *>::iterator it = _channelList.begin(); it != _channelList.end(); ++it)
 		{
-			// the message should have the right form so that in irssi it will appear in the relevant channel
 			if ((*it)->isMember(client))
 				(*it)->relayMessage(client, response);
 		}
 	}
-	std::cout << "[Server  ] Nickname accepted for " << nick << std::endl;
 
 	if (!client.isFullyAccepted() && !client.getUsername().empty())
 		_registerUser(client);

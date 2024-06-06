@@ -27,14 +27,6 @@ extern bool	g_quit;
 class Client;
 class Channel;
 
-enum mode {
-	INVITE_ONLY,
-	TOPIC,
-	KEY,
-	OPERATOR_PRIVILEGE,
-	LIMIT
-};
-
 #define BUFFER_SIZE 512
 
 class Server
@@ -80,10 +72,8 @@ private:
 	void					_modeSetUserLimit(bool isOperator, std::string limit, Channel &);
 
 	// READ CLIENT BUFFER
-	void					_printBuffer(const char* buff, int recevied);
 	ssize_t					_fillBuffer(Client & client);
 	void 					_readBuffer(Client & client);
-	std::string				_getNextLine(Client & client);
 
 	// COMMANDS
 	std::string 			_getCommand(std::string &);
@@ -128,10 +118,6 @@ public:
 	};
 
 	class SocketListeningException : public std::exception {
-		virtual const char* what() const throw();
-	};
-
-	class SocketSendException : public std::exception {
 		virtual const char* what() const throw();
 	};
 };

@@ -13,13 +13,13 @@ SRC		:= main.cpp \
 			ClientGetSet.cpp \
 			ConfigParser.cpp \
 			joinChannel.cpp \
-			removeClient.cpp \
 			Server.cpp \
 			ServerBuffer.cpp \
 			ServerCommands.cpp \
 			ServerExceptions.cpp \
 			ServerFind.cpp \
 			ServerPolling.cpp \
+			ServerRemoveClient.cpp \
 			ServerUtils.cpp
 SRC		:= $(addprefix $(SRCDIR)/, $(SRC))
 OBJ		:= $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SRC))

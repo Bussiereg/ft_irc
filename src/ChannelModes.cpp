@@ -70,6 +70,9 @@ void Server::_handleModeCommand(Client &client, std::string &input)
 	std::string const &channelName = params[1];
 	std::vector<Channel *>::iterator it = find_if(_channelList.begin(), _channelList.end(), MatchChannelName(channelName));
 
+	if (params.size() == 3 && params[1] == client.getNickname())
+		return;
+
 	if (it == _channelList.end())
 	{
 		client.appendResponse(ERR_NOSUCHCHANNEL(_serverName, nick, params[1]));
