@@ -1,5 +1,4 @@
-#ifndef BOT_HPP
-#define BOT_HPP
+#pragma once
 
 #include <iostream>
 #include <cstring>
@@ -14,14 +13,15 @@
 #include <string>
 #include <algorithm>
 
-class bot
+class Gamebot
 {
 private:
-	int 						_numberToGuess;
+	int							_sockfd;
+	int							_numberToGuess;
 	std::string					_serverName;
-    unsigned int				_port;
-    std::string					_nickBot;
-    std::string					_userBot;
+	unsigned int				_port;
+	std::string					_nickBot;
+	std::string					_userBot;
 	std::string					_password;
 	void 						_sendCommand(const std::string& cmd);
 	int							_generateRandomNumber();
@@ -32,8 +32,9 @@ private:
 	void 						_letsPlay(std::string & sender, std::string & input);
 	std::vector<std::string> 	_listOfUser;
 public:
-	bot(unsigned int, std::string);
-	~bot();
+	Gamebot();
+	Gamebot(unsigned int, std::string);
+	~Gamebot();
 
 	class botSocketCreationException : public std::exception {
 		virtual const char *what() const throw();
@@ -48,6 +49,3 @@ public:
 	};
 
 };
-
-
-#endif
