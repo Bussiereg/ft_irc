@@ -23,14 +23,19 @@ SRC		:= $(addprefix $(SRCDIR)/, $(SRC))
 OBJ		:= $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SRC))
 HEADER	:= -I $(INCDIR)
 
-BOT			:= botbot
+BOT1		:= gamebot
+BOT2		:= gptbot
 BOT_SRCDIR	:= chatbot/src
 BOT_INCDIR	:= chatbot/inc
 BOT_OBJDIR	:= chatbot/obj
-BOT_SRC     := bot.cpp \
-				main.cpp
-BOT_SRC		:= $(addprefix $(BOT_SRCDIR)/, $(BOT_SRC))
-BOT_OBJ		:= $(patsubst $(BOT_SRCDIR)/%.cpp, $(BOT_OBJDIR)/%.o, $(BOT_SRC))
+BOT1_SRC	:= Gamebot.cpp \
+				mainGame.cpp
+BOT2_SRC	:= GPTbot.cpp \
+				mainGPT.cpp
+BOT1_SRC		:= $(addprefix $(BOT_SRCDIR)/, $(BOT1_SRC))
+BOT1_OBJ		:= $(patsubst $(BOT_SRCDIR)/%.cpp, $(BOT_OBJDIR)/%.o, $(BOT1_SRC))
+BOT2_SRC		:= $(addprefix $(BOT_SRCDIR)/, $(BOT2_SRC))
+BOT2_OBJ		:= $(patsubst $(BOT_SRCDIR)/%.cpp, $(BOT_OBJDIR)/%.o, $(BOT2_SRC))
 BOT_HEADER	:= -I $(BOT_INCDIR)
 
 
@@ -63,11 +68,17 @@ fclean: clean
 	@echo "$(COLOR_YELLOW)Removing $(NAME)$(COLOR_RESET)"
 	@rm -f $(NAME)
 	@echo "$(COLOR_YELLOW)Removing $(BOT)$(COLOR_RESET)"
-	@rm -f $(BOT)
+	@rm -f $(BOT1)
+	@rm -f $(BOT2)
+	@rm -f response.txt
 
-$(BOT): $(BOT_OBJ)
+$(BOT1): $(BOT1_OBJ)
 	@$(CPP) $(FLAGS) $(BOT_HEADER) $^ -o $@
-	@echo "$(COLOR_GREEN)Botbot was successfully assembled!$(COLOR_RESET)"
+	@echo "$(COLOR_GREEN)Gamebot was successfully assembled!$(COLOR_RESET)"
+
+$(BOT2): $(BOT2_OBJ)
+	@$(CPP) $(FLAGS) $(BOT_HEADER) $^ -o $@
+	@echo "$(COLOR_GREEN)GPTbot was successfully assembled!$(COLOR_RESET)"
 
 $(BOT_OBJDIR)/%.o: $(BOT_SRCDIR)/%.cpp | $(BOT_OBJDIR)
 	@$(CPP) $(FLAGS) $(BOT_HEADER) -D HOSTNAME=$(HOSTNAME) -c $< -o $@
