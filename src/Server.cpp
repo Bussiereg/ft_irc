@@ -1,12 +1,12 @@
 #include "Server.hpp"
 
-Server::Server(int port, std::string password, ConfigParser const & config)
+Server::Server(int port, std::string password, Config const &config)
 	: _config(config),
-		_serverName(_config.get("Server", "Name")),
-		_port(port),
-		_password(password)
+	  _serverName(_config.get("Server", "Name")),
+	  _port(port),
+	  _password(password)
 {
-	pollfd	serverSocket;
+	pollfd serverSocket;
 	serverSocket.fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (serverSocket.fd == -1)
 		throw SocketCreationException();
@@ -37,7 +37,13 @@ Server::Server(int port, std::string password, ConfigParser const & config)
 	serverSocket.events = POLLIN;
 	serverSocket.revents = 0;
 	_allSockets.push_back(serverSocket);
-	std::cout << YELLOW << "Server listening on port " << port << "\n" << RESET << std::endl;
+
+	std::stringstream ss(_config.get("Server", "MaxClients"));
+	if (!(ss >> _maxUsers))
+		_maxUsers = 0;
+	std::cout << YELLOW << "Server listening on port " << port << "\n"
+			  << RESET << std::endl;
+	std::cout << YELLOW << "Max users: " << _maxUsers << RESET << std::endl;
 }
 
 void Server::_initCommandMap()
@@ -86,9 +92,10 @@ Server::~Server()
 		close(_allSockets[i].fd);
 		delete _clients[i - 1];
 	}
-    for (std::vector<Channel*>::iterator it = _channelList.begin(); it != _channelList.end(); ++it) {
-        delete *it;
-    }
-    _channelList.clear();
+	for (std::vector<Channel *>::iterator it = _channelList.begin(); it != _channelList.end(); ++it)
+	{
+		delete *it;
+	}
+	_channelList.clear();
 	_clients.clear();
 }

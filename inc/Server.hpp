@@ -20,7 +20,7 @@
 #include "Channel.hpp"
 #include "replies.hpp"
 #include "ColorPrint.hpp"
-#include "ConfigParser.hpp"
+#include "Config.hpp"
 
 extern bool	g_quit;
 
@@ -37,10 +37,6 @@ enum mode {
 
 #define BUFFER_SIZE 512
 
-#ifndef HOSTNAME
-# define HOSTNAME "localhost"
-#endif
-
 class Server
 {
 private:
@@ -50,11 +46,11 @@ private:
 	std::vector<Channel*>	_channelList;
 	std::vector<Client*>	_clients;
 	std::vector<pollfd>		_allSockets;
-
-	ConfigParser			_config;
+	Config					_config;
 	std::string	const		_serverName;
 	int const				_port;
 	std::string const		_password;
+	size_t					_maxUsers;
 
 	void					_initCommandMap();
 	void					_acceptNewClient();
@@ -62,10 +58,14 @@ private:
 	void 					_delClientFromChannel(Client &);
 	void					_delChannel(Channel * channel);
 	void 					_delClient(Client &);
-	void					_checkClients();
 	void					_registerUser(Client &);
 	Client *				_findClient(std::string const & nickname);
 	Client *				_findClient(int fd);
+
+	// POLLING
+	void					_checkClients();
+	void					_sendServerResponse(Client &, std::string const &);
+	void					_readClient(Client &);
 
 	// JOIN
 	void					_createChannelKeyMap(std::vector<std::string> & params, std::map<std::string, std::string> & channelKeyMap);
@@ -112,7 +112,7 @@ private:
 	static std::vector<std::string>	_parseReceivers(const std::string& message);
 
 public:
-	Server(int port, std::string password, ConfigParser const &);
+	Server(int port, std::string password, Config const &);
 	Server(Server const &);
 	Server & operator=(Server const &);
 	~Server();

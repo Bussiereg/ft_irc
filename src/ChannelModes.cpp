@@ -18,8 +18,8 @@ void Server::_modeKeySet(bool isOperator, std::string key, Channel *channel)
 
 void Server::_modeOperatorPriv(bool isOperator, std::string ope, Client &client, Channel *channel)
 {
-	std::string const & nick = client.getNickname();
-	std::string const & channelName = channel->getChannelName();
+	std::string const &nick = client.getNickname();
+	std::string const &channelName = channel->getChannelName();
 	std::map<Client *, bool> const &channelUsers = channel->getClientList();
 	std::map<Client *, bool>::const_iterator subject = channelUsers.find(&client);
 
@@ -64,33 +64,33 @@ void Server::_handleModeCommand(Client &client, std::string &input)
 	if (params.size() < 2)
 	{
 		client.appendResponse(ERR_NEEDMOREPARAMS(_serverName, nick, "MODE"));
-		return ;
+		return;
 	}
 
-	std::string const & channelName = params[1];
-	std::vector<Channel*>::iterator it = find_if(_channelList.begin(), _channelList.end(), MatchChannelName(channelName));
+	std::string const &channelName = params[1];
+	std::vector<Channel *>::iterator it = find_if(_channelList.begin(), _channelList.end(), MatchChannelName(channelName));
 
 	if (it == _channelList.end())
 	{
 		client.appendResponse(ERR_NOSUCHCHANNEL(_serverName, nick, params[1]));
-		return ;
+		return;
 	}
 
 	if (params.size() == 2)
 	{
 		client.appendResponse(RPL_CHANNELMODEIS(_serverName, nick, (*it)->getChannelName(), (*it)->getModeString()));
-		return ;
+		return;
 	}
 
 	if ((*it)->isOperator(client) == false)
 	{
 		client.appendResponse(ERR_CHANOPRIVSNEEDED(_serverName, nick, channelName));
-		return ;
+		return;
 	}
 
 	if (params.size() == 3 && params[2].size() == 1 && params[2][0] == 'b') // silence the return ban of the client
 		return;
-	
+
 	if (params[2][0] != '+' && params[2][0] != '-')
 	{
 		client.appendResponse(ERR_UNKNOWNMODE(_serverName, nick, params[2]));
@@ -98,7 +98,7 @@ void Server::_handleModeCommand(Client &client, std::string &input)
 	}
 
 	Channel *channel = *it;
-	std::string const & modeCode = params[2];
+	std::string const &modeCode = params[2];
 	bool isModeOn = modeCode[0] == '+';
 
 	for (unsigned int i = 1; i < modeCode.size(); i++)
@@ -107,7 +107,7 @@ void Server::_handleModeCommand(Client &client, std::string &input)
 		if (params.size() < 4 && (m == 'o' || (isModeOn && (m == 'k' || m == 'l'))))
 		{
 			client.appendResponse(ERR_NEEDMOREPARAMS(_serverName, nick, "MODE"));
-			continue ;
+			continue;
 		}
 
 		if (m == 'i')
