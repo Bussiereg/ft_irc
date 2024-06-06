@@ -43,7 +43,7 @@ void Gamebot::_letsPlay(std::string & sender, std::string & input)
 		_sendCommand("PRIVMSG " + sender + " :less!");
 	else if (std::atoi(input.c_str()) == _numberToGuess)
 	{
-		_sendCommand("PRIVMSG " + sender + " :Congratulation" + sender + " !");
+		_sendCommand("PRIVMSG " + sender + " :Congratulation " + sender + " !");
 		sleep(1);
 		_sendCommand("PRIVMSG " + sender + " :Let's play again!");
 		sleep(1);
