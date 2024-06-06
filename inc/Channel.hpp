@@ -4,6 +4,7 @@
 #include "Server.hpp"
 #include "Client.hpp"
 #include "replies.hpp"
+#include "Config.hpp"
 
 class Client;
 
@@ -19,7 +20,7 @@ private:
 	std::map<Client*, bool>		_clientList; // second param bool is true if the client if operator, false otherwise
 	
 public:
-	Channel(std::string, Client &);
+	Channel(std::string, Client &, Config const &);
 	~Channel();
 
 	void						setTopic(std::string & newTopic);

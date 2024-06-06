@@ -1,52 +1,51 @@
 #include "Client.hpp"
 
-
-pollfd const * Client::getClientSocket() const
+pollfd const *Client::getClientSocket() const
 {
 	return _socket;
 }
 
-std::string const &	Client::getNickname() const
+std::string const &Client::getNickname() const
 {
 	return _nickname;
 }
 
-void Client::setNickname(std::string const & nick)
+void Client::setNickname(std::string const &nick)
 {
 	_nickname = nick;
 }
 
-std::string const & Client::getUsername() const
+std::string const &Client::getUsername() const
 {
 	return _username;
 }
 
-void Client::setUsername(std::string const & username)
+void Client::setUsername(std::string const &username)
 {
 	_username = username;
 }
 
-std::string const & Client::getHostname() const
+std::string const &Client::getHostname() const
 {
 	return _hostname;
 }
 
-void Client::setHostname(std::string const & hostname)
+void Client::setHostname(std::string const &hostname)
 {
 	_hostname = hostname;
 }
 
-std::string const & Client::getRealname() const
+std::string const &Client::getRealname() const
 {
 	return _realname;
 }
 
-void Client::setRealname(std::string const & realname)
+void Client::setRealname(std::string const &realname)
 {
 	_realname = realname;
 }
 
-std::string const & Client::getResponse() const
+std::string const &Client::getResponse() const
 {
 	return _response;
 }
@@ -56,12 +55,12 @@ void Client::appendResponse(std::string newMessage)
 	_response.append(newMessage + "\r\n");
 }
 
-std::string const &	Client::getBuffer() const
+std::string const &Client::getBuffer() const
 {
 	return _buffer;
 }
 
-void Client::appendBuffer(std::string const & str)
+void Client::appendBuffer(std::string const &str)
 {
 	_buffer += str;
 }
@@ -86,20 +85,25 @@ void Client::clearResponse()
 	_response.clear();
 }
 
-std::vector<Channel*> & Client::getChannelJoined(){
+std::vector<Channel *> &Client::getChannelJoined()
+{
 	return _channelJoined;
 }
 
-void Client::removeChannelJoined(Channel * channel){
-	std::vector<Channel*>::iterator it;
-	for (it = _channelJoined.begin(); it != _channelJoined.end(); ++it){
-		if ((*it) == channel){
+void Client::removeChannelJoined(Channel *channel)
+{
+	std::vector<Channel *>::iterator it;
+	for (it = _channelJoined.begin(); it != _channelJoined.end(); ++it)
+	{
+		if ((*it) == channel)
+		{
 			_channelJoined.erase(it);
 			break;
 		}
 	}
 }
 
-void Client::setChannelJoined(Channel* channelToAdd){
+void Client::setChannelJoined(Channel *channelToAdd)
+{
 	_channelJoined.push_back(channelToAdd);
 }

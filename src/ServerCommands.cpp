@@ -11,7 +11,7 @@ std::string Server::_getCommand(std::string &message)
 void Server::_handlePassCommand(Client &client, std::string &message)
 {
 	std::vector<std::string> params = _splitString(message, ' ');
-	std::string const & nick = client.getNickname();
+	std::string const &nick = client.getNickname();
 
 	if (client.isPassedWord())
 		client.appendResponse(ERR_ALREADYREGISTRED(_serverName, nick));
@@ -28,27 +28,32 @@ void Server::_handleNickCommand(Client &client, std::string &message)
 {
 	std::vector<std::string> params = _splitString(message, ' ');
 
-	if (params.size() < 2) {
+	if (params.size() < 2)
+	{
 		client.appendResponse(ERR_NONICKNAMEGIVEN(_serverName, ""));
 		return;
-	} 
-	std::string nick = params[1];
-	if (!_isValidNickname(nick)) {
-		client.appendResponse(ERR_ERRONEUSNICKNAME(_serverName, client.getNickname(), nick));
-		return ;
 	}
-	if (_isNickInUse(nick)) {
+	std::string nick = params[1];
+	if (!_isValidNickname(nick))
+	{
+		client.appendResponse(ERR_ERRONEUSNICKNAME(_serverName, client.getNickname(), nick));
+		return;
+	}
+	if (_isNickInUse(nick))
+	{
 		client.appendResponse(ERR_NICKNAMEINUSE(_serverName, client.getNickname(), nick));
-		return ;
+		return;
 	}
 	std::string oldNick = client.getNickname();
 	client.setNickname(nick);
-	if (!oldNick.empty()) {
+	if (!oldNick.empty())
+	{
 		std::string response = ":" + oldNick + "!" + client.getUsername() + "@" + client.getHostname() + " NICK " + nick;
 		client.appendResponse(response);
 
 		// Forwarded to every client in the same channel:
-		for (std::vector<Channel *>::iterator it = _channelList.begin(); it != _channelList.end(); ++it) {
+		for (std::vector<Channel *>::iterator it = _channelList.begin(); it != _channelList.end(); ++it)
+		{
 			// the message should have the right form so that in irssi it will appear in the relevant channel
 			if ((*it)->isMember(client))
 				(*it)->relayMessage(client, response);
@@ -66,10 +71,9 @@ void Server::_handleUserCommand(Client &client, std::string &message)
 	if (params.size() < 5)
 	{
 		client.appendResponse(ERR_NEEDMOREPARAMS(_serverName, client.getNickname(), "USER"));
-		return ;
+		return;
 	}
 	client.setUsername(params[1]);
-	client.setHostname("localhost");
 	client.setRealname(_concatenateTokens(params, 4));
 
 	if (!client.isFullyAccepted() && !client.getNickname().empty())
@@ -86,7 +90,7 @@ void Server::_registerUser(Client &client)
 
 void Server::_handlePrivmsgCommand(Client &client, std::string &message)
 {
-	std::string const & nick = client.getNickname();
+	std::string const &nick = client.getNickname();
 	std::vector<std::string> receivers = _parseReceivers(message);
 	if (receivers.empty())
 	{
@@ -134,12 +138,13 @@ void Server::_handlePingCommand(Client &client, std::string &message)
 
 void Server::_handleQuitCommand(Client &client, std::string &message)
 {
-	std::vector<Channel*> channelList = client.getChannelJoined();
+	std::vector<Channel *> channelList = client.getChannelJoined();
 	std::string reason = "";
 	if (message.size() > 6)
 		reason += message.substr(6);
-	std::vector<Channel*>::iterator it;
-	for (it = channelList.begin(); it != channelList.end(); ++it) {
+	std::vector<Channel *>::iterator it;
+	for (it = channelList.begin(); it != channelList.end(); ++it)
+	{
 		(*it)->relayMessage(client, PART(client.getNickname(), client.getUsername(), client.getHostname(), (*it)->getChannelName(), reason));
 	}
 	_removeClient(client);
@@ -156,7 +161,7 @@ void Server::_handleCapCommand(Client &, std::string &)
 {
 }
 
-void Server::_handleWhoCommand(Client & client, std::string & message)
+void Server::_handleWhoCommand(Client &client, std::string &message)
 {
 	std::vector<std::string> params = _splitString(message, ' ');
 	bool found_channel = false;
@@ -166,18 +171,18 @@ void Server::_handleWhoCommand(Client & client, std::string & message)
 		return;
 	}
 
-	std::string const & channelMask = params[1];
+	std::string const &channelMask = params[1];
 	for (std::vector<Channel *>::iterator it_ch = _channelList.begin(); it_ch != _channelList.end(); ++it_ch)
 	{
 		if ((*it_ch)->getChannelName() == channelMask)
 		{
 			found_channel = true;
-			for (std::map<Client*, bool>::iterator it_cl = (*it_ch)->getClientList().begin(); it_cl != (*it_ch)->getClientList().end(); ++it_cl)
+			for (std::map<Client *, bool>::iterator it_cl = (*it_ch)->getClientList().begin(); it_cl != (*it_ch)->getClientList().end(); ++it_cl)
 			{
 				if ((*it_cl).second == true)
-					client.appendResponse(RPL_WHO(_serverName, client.getNickname(), "#all" , (*it_cl).first->getUsername(), (*it_cl).first->getHostname(), (*it_cl).first->getNickname(), "*", (*it_cl).first->getRealname()));
+					client.appendResponse(RPL_WHO(_serverName, client.getNickname(), "#all", (*it_cl).first->getUsername(), (*it_cl).first->getHostname(), (*it_cl).first->getNickname(), "*", (*it_cl).first->getRealname()));
 				else
-					client.appendResponse(RPL_WHO(_serverName, client.getNickname(), "#all" , (*it_cl).first->getUsername(), (*it_cl).first->getHostname(), (*it_cl).first->getNickname(), "", (*it_cl).first->getRealname()));
+					client.appendResponse(RPL_WHO(_serverName, client.getNickname(), "#all", (*it_cl).first->getUsername(), (*it_cl).first->getHostname(), (*it_cl).first->getNickname(), "", (*it_cl).first->getRealname()));
 			}
 			client.appendResponse(RPL_ENDWHO(_serverName, client.getNickname(), "#all"));
 			break;
@@ -186,25 +191,27 @@ void Server::_handleWhoCommand(Client & client, std::string & message)
 	if (found_channel == false)
 	{
 		for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it)
-			client.appendResponse(RPL_WHO(_serverName, client.getNickname(), "#all" , (*it)->getUsername(), (*it)->getHostname(), (*it)->getNickname(), "", (*it)->getRealname()));
+			client.appendResponse(RPL_WHO(_serverName, client.getNickname(), "#all", (*it)->getUsername(), (*it)->getHostname(), (*it)->getNickname(), "", (*it)->getRealname()));
 		client.appendResponse(RPL_ENDWHO(_serverName, client.getNickname(), "#all"));
 	}
 }
 
-void Server::_handleMotdCommand(Client & client, std::string & )
+void Server::_handleMotdCommand(Client &client, std::string &)
 {
 	std::string filename(_config.get("Misc", "Motd"));
 	std::ifstream motd_file(filename.c_str());
 	std::string nick = client.getNickname();
 
-	if (filename.empty() || !motd_file.is_open()) {
+	if (filename.empty() || !motd_file.is_open())
+	{
 		client.appendResponse(ERR_NOMOTD(_serverName, nick));
-		return ;
+		return;
 	}
-	
+
 	client.appendResponse(RPL_MOTDSTART(_serverName, nick));
 	std::string line;
-	while(std::getline(motd_file, line)) {
+	while (std::getline(motd_file, line))
+	{
 		client.appendResponse(RPL_MOTD(_serverName, nick) + line);
 	}
 	client.appendResponse(RPL_ENDOFMOTD(_serverName, nick));

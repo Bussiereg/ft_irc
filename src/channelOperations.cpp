@@ -11,7 +11,7 @@ void Server::_handleTopicCommand(Client &client, std::string &input)
 		return;
 	}
 
-	std::string const & channelName = params[1];
+	std::string const &channelName = params[1];
 	std::vector<Channel *>::iterator it = find_if(_channelList.begin(), _channelList.end(), MatchChannelName(channelName));
 	if (it == _channelList.end())
 	{
@@ -26,18 +26,18 @@ void Server::_handleTopicCommand(Client &client, std::string &input)
 		client.appendResponse(ERR_NOTONCHANNEL(_serverName, nick, channelName));
 		return;
 	}
-	
-	std::string const & topic = channel->getTopic();
-	
+
+	std::string const &topic = channel->getTopic();
+
 	if (params.size() == 2)
 	{
 		if (topic.empty())
 			client.appendResponse(RPL_NOTOPIC(_serverName, nick, channelName));
 		else
 			client.appendResponse(RPL_TOPIC(_serverName, nick, channelName, topic));
-		return ;
+		return;
 	}
-	
+
 	if (channel->isModeOn('t') == false || (channel->isOperator(client) == true))
 	{
 		size_t colonpos = input.find(':');
@@ -61,10 +61,10 @@ void Server::_handleInviteCommand(Client &client, std::string &input)
 		return;
 	}
 
-	std::string const & invitee = params[1];
-	std::string const & channelName = params[2];
+	std::string const &invitee = params[1];
+	std::string const &channelName = params[2];
 
-	std::vector<Channel*>::iterator it = find_if(_channelList.begin(), _channelList.end(), MatchChannelName(channelName));
+	std::vector<Channel *>::iterator it = find_if(_channelList.begin(), _channelList.end(), MatchChannelName(channelName));
 	if (it == _channelList.end())
 	{
 		client.appendResponse(ERR_NOSUCHCHANNEL(_serverName, nick, channelName));
@@ -85,7 +85,7 @@ void Server::_handleInviteCommand(Client &client, std::string &input)
 		return;
 	}
 
-	std::vector<Client*>::iterator clientInvitee = find_if(_clients.begin(), _clients.end(), MatchNickname(invitee));
+	std::vector<Client *>::iterator clientInvitee = find_if(_clients.begin(), _clients.end(), MatchNickname(invitee));
 	if (clientInvitee == _clients.end())
 	{
 		client.appendResponse(ERR_NOSUCHNICK(_serverName, nick));
@@ -94,7 +94,7 @@ void Server::_handleInviteCommand(Client &client, std::string &input)
 
 	channel->setInviteList(invitee);
 	client.appendResponse(RPL_INVITING(_serverName, nick, invitee, channelName));
-	(*clientInvitee)->appendResponse(INVITE(nick, client.getUsername(), client.getHostname(),  invitee, channelName));	
+	(*clientInvitee)->appendResponse(INVITE(nick, client.getUsername(), client.getHostname(), invitee, channelName));
 }
 
 void Server::_handleKickCommand(Client &client, std::string &input)
@@ -104,11 +104,11 @@ void Server::_handleKickCommand(Client &client, std::string &input)
 	if (params.size() < 3)
 	{
 		client.appendResponse(ERR_NEEDMOREPARAMS(_serverName, nick, "KICK"));
-		return ;
+		return;
 	}
 
-	std::string const & channelName = params[1];
-	std::string const & kickNick = params[2];
+	std::string const &channelName = params[1];
+	std::string const &kickNick = params[2];
 
 	std::string comment = "";
 	if (params.size() >= 4)
@@ -117,7 +117,7 @@ void Server::_handleKickCommand(Client &client, std::string &input)
 		comment = input.substr(colonpos + 1);
 	}
 
-	std::vector<Channel*>::iterator it = find_if(_channelList.begin(), _channelList.end(), MatchChannelName(channelName));
+	std::vector<Channel *>::iterator it = find_if(_channelList.begin(), _channelList.end(), MatchChannelName(channelName));
 	if (it == _channelList.end())
 	{
 		client.appendResponse(ERR_NOSUCHCHANNEL(_serverName, nick, channelName));
@@ -172,8 +172,8 @@ void Server::_handlePartCommand(Client &client, std::string &input)
 
 	for (size_t i = 0; i < channelList.size(); i++)
 	{
-		std::string const & channelName = channelList[i];
-		std::vector<Channel*>::iterator it = std::find_if(_channelList.begin(), _channelList.end(), MatchChannelName(channelName));
+		std::string const &channelName = channelList[i];
+		std::vector<Channel *>::iterator it = std::find_if(_channelList.begin(), _channelList.end(), MatchChannelName(channelName));
 		if (it == _channelList.end())
 		{
 			client.appendResponse(ERR_NOSUCHCHANNEL(_serverName, nick, channelName));
@@ -187,8 +187,8 @@ void Server::_handlePartCommand(Client &client, std::string &input)
 			continue;
 		}
 
-		std::string const & username = client.getUsername();
-		std::string const & hostname = client.getHostname();
+		std::string const &username = client.getUsername();
+		std::string const &hostname = client.getHostname();
 
 		channel->relayMessage(client, PART(nick, username, hostname, channelName, reason));
 		client.appendResponse(KICK(nick, username, hostname, channelName, nick, reason));

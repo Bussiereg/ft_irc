@@ -1,20 +1,18 @@
 #include "Server.hpp"
 
-
-void Server::_readBuffer(Client & client)
+void Server::_readBuffer(Client &client)
 {
 	std::string message;
 
 	while (!(message = client.PopNextLine()).empty())
 	{
 		std::string command = _getCommand(message);
-		if (client.isFullyAccepted()
-			|| command == "LS"
-			|| command == "PASS"
-			|| (client.isPassedWord()
-				&& (command == "NICK" || command == "USER"))) {
+		if (client.isFullyAccepted() || command == "LS" || command == "PASS" || (client.isPassedWord() && (command == "NICK" || command == "USER")))
+		{
 			(this->*_commandMap[command])(client, message);
-		} else {
+		}
+		else
+		{
 			client.appendResponse(ERR_NOTREGISTERED(_serverName, client.getNickname()));
 		}
 	}
@@ -31,23 +29,27 @@ void Server::_readBuffer(Client & client)
 			  << std::endl;
 }
 
-void Server::_printBuffer(const char* buff, int received)
+void Server::_printBuffer(const char *buff, int received)
 {
 	if (received)
 		std::cout << "[buff  in] " << MAGENTA;
 	else
 		std::cout << "[buff out] " << YELLOW;
-	for (int j = 0; buff[j] != 0; ++j) {
-		if (std::isprint(buff[j])) {
+	for (int j = 0; buff[j] != 0; ++j)
+	{
+		if (std::isprint(buff[j]))
+		{
 			std::cout << buff[j];
-		} else {
+		}
+		else
+		{
 			std::cout << "\\x" << std::hex << std::setw(2) << std::setfill('0') << (int)(unsigned char)buff[j];
 		}
 	}
 	std::cout << RESET << std::endl;
 }
 
-ssize_t	Server::_fillBuffer(Client & client)
+ssize_t Server::_fillBuffer(Client &client)
 {
 	char temp[BUFFER_SIZE];
 

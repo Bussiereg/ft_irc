@@ -1,8 +1,8 @@
 NAME	:= ircserv
 CPP		:= c++
-FLAGS	:= -std=c++98 -Wall -Wextra -Werror -fsanitize=address -g
+FLAGS	:= -std=c++98 -Wall -Wextra -Werror
 #FLAGS	:= -std=c++98 -Wall -Wextra -Werror
-HOSTNAME :=	$(shell hostname)
+HOSTNAME ?=	$(shell hostname)
 SRCDIR	:= src
 INCDIR	:= inc
 OBJDIR	:= obj
@@ -49,7 +49,7 @@ $(NAME): $(OBJ)
 	@echo "$(COLOR_GREEN)IRC was successfully compiled!$(COLOR_RESET)"
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
-	@$(CPP) $(FLAGS) $(HEADER) -D HOSTNAME=$(HOSTNAME) -c $< -o $@
+	@$(CPP) $(FLAGS) $(HEADER) -DHOSTNAME=\"$(HOSTNAME)\" -c $< -o $@
 
 $(OBJDIR):
 	@mkdir -p $(OBJDIR)

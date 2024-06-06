@@ -1,16 +1,15 @@
 #include "Client.hpp"
 
-Client::Client(pollfd * socket) : _socket(socket), _nickname(""), _isPassedWord(false), _isFullyAccepted(false)
+Client::Client(pollfd *socket) : _socket(socket), _nickname(""), _hostname(HOSTNAME), _isPassedWord(false), _isFullyAccepted(false)
 {
-	_hostname = "localhost";
 }
 
-Client::Client(Client const & other)
+Client::Client(Client const &other)
 	: _socket(other._socket), _nickname(other._nickname), _username(other._username), _hostname(other._hostname), _isPassedWord(other._isPassedWord), _isFullyAccepted(other._isFullyAccepted)
 {
 }
 
-Client & Client::operator=(Client const & other)
+Client &Client::operator=(Client const &other)
 {
 	if (this != &other)
 	{
@@ -28,7 +27,6 @@ Client::~Client()
 {
 	delete _socket;
 }
-
 
 bool Client::isPassedWord() const
 {

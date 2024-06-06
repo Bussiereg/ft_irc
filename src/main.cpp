@@ -5,7 +5,7 @@
 
 bool g_quit = false;
 
-void signal_handler(int )
+void signal_handler(int)
 {
 	g_quit = true;
 }
@@ -21,16 +21,19 @@ int main(int argc, char *argv[])
 	std::istringstream ss(argv[1]);
 	int port;
 	if (!(ss >> port))
-  		std::cerr << "Invalid port number: " << argv[1] << std::endl;
+		std::cerr << "Invalid port number: " << argv[1] << std::endl;
 	else if (!ss.eof())
-  		std::cerr << "Trailing characters after port number: " << argv[1] << std::endl;
-	
+		std::cerr << "Trailing characters after port number: " << argv[1] << std::endl;
+
 	signal(SIGINT, signal_handler);
-	try {
-		ConfigParser config("./config/server.conf");
+	try
+	{
+		Config config("./config/server.conf");
 		Server server(port, argv[2], config);
 		server.startPolling();
-	} catch (std::exception & e) {
+	}
+	catch (std::exception &e)
+	{
 		std::cerr << "ircserver: " << e.what() << std::endl;
 	}
 
