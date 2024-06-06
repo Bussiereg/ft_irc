@@ -4,7 +4,7 @@
 /// @param channel channel to be deleted
 void Server::_delChannel(Channel *channel)
 {
-	std::cout << "[Server  ] Channel " << channel->getChannelName() << " deleted" << std::endl;
+	std::cout << "[Server] Channel " << channel->getChannelName() << " deleted" << std::endl;
 	std::vector<Channel *>::iterator it = std::find(_channelList.begin(), _channelList.end(), channel);
 	int channelIndex = std::distance(_channelList.begin(), it);
 	_channelList.erase(_channelList.begin() + channelIndex);

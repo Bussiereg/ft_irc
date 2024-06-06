@@ -54,7 +54,6 @@ void Gamebot::_letsPlay(std::string & sender, std::string & input)
 
 void Gamebot::_handleServerMessage(const std::string& message) 
 {
-	std::cout << "Server: " << message << std::endl;
 	if (message.find("PRIVMSG") != std::string::npos) {
 		std::string sender = message.substr(1, message.find("!") - 1);
 		std::string input = _getMessageFromUser(message);
@@ -73,7 +72,6 @@ void Gamebot::_wakeUp() {
 	struct hostent* host;
 
 	if ((host = gethostbyname(_serverName.c_str())) == NULL) {
-		std::cout << host << std::endl;
 		throw bothostnameException();
 	}
 
@@ -102,7 +100,6 @@ void Gamebot::_wakeUp() {
 			break;
 		}
 		std::string message(buffer, bytes_received);
-		std::cout << "message: " << message << std::endl;
 		_handleServerMessage(message);
 	}
 
