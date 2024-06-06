@@ -15,3 +15,8 @@ const char *Server::SocketListeningException::what() const throw()
 {
 	return "ircserv: error listening on socket";
 }
+
+const char *Server::SocketSendException::what() const throw()
+{
+	return "ircserv: error sending to socket";
+}
