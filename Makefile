@@ -48,45 +48,45 @@ COLOR_RESET := \033[0m
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	@$(CPP) $(FLAGS) $(HEADER) $^ -o $@
+	$(CPP) $(FLAGS) $(HEADER) $^ -o $@
 	@echo "$(COLOR_GREEN)IRC was successfully compiled!$(COLOR_RESET)"
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
-	@$(CPP) $(FLAGS) $(HEADER) -c $< -o $@
+	$(CPP) $(FLAGS) $(HEADER) -c $< -o $@
 
 $(OBJDIR):
-	@mkdir -p $(OBJDIR)
+	mkdir -p $(OBJDIR)
 
 log:
 	@git log -n 10 --pretty=format:"%C(yellow)Branch: %D%n%C(red)Author: %an%n%C(green)Date: %ad%n%C(cyan)Commit ID: %H%n%C(magenta)Comment: %s%n%C(reset)%n" --date=format:"%d/%m/%Y à %H:%M"
 
 clean:
 	@echo "$(COLOR_YELLOW)Removing obj/ directory$(COLOR_RESET)"
-	@rm -fr $(OBJDIR)
+	rm -fr $(OBJDIR)
 	@echo "$(COLOR_YELLOW)Removing chatbot/obj/ directory$(COLOR_RESET)"
-	@rm -fr $(BOT_OBJDIR)
+	rm -fr $(BOT_OBJDIR)
 
 fclean: clean
 	@echo "$(COLOR_YELLOW)Removing $(NAME)$(COLOR_RESET)"
-	@rm -f $(NAME)
+	rm -f $(NAME)
 	@echo "$(COLOR_YELLOW)Removing $(BOT)$(COLOR_RESET)"
-	@rm -f $(BOT1)
-	@rm -f $(BOT2)
-	@rm -f response.txt
+	rm -f $(BOT1)
+	rm -f $(BOT2)
+	rm -f response.txt
 
 $(BOT1): $(BOT1_OBJ)
-	@$(CPP) $(FLAGS) $(BOT_HEADER) $^ -o $@
+	$(CPP) $(FLAGS) $(BOT_HEADER) $^ -o $@
 	@echo "$(COLOR_GREEN)Gamebot was successfully assembled!$(COLOR_RESET)"
 
 $(BOT2): $(BOT2_OBJ)
-	@$(CPP) $(FLAGS) $(BOT_HEADER) $^ -o $@
+	$(CPP) $(FLAGS) $(BOT_HEADER) $^ -o $@
 	@echo "$(COLOR_GREEN)GPTbot was successfully assembled!$(COLOR_RESET)"
 
 $(BOT_OBJDIR)/%.o: $(BOT_SRCDIR)/%.cpp | $(BOT_OBJDIR)
-	@$(CPP) $(FLAGS) $(BOT_HEADER) -D HOSTNAME=$(HOSTNAME) -c $< -o $@
+	$(CPP) $(FLAGS) $(BOT_HEADER) -D HOSTNAME=$(HOSTNAME) -c $< -o $@
 
 $(BOT_OBJDIR):
-	@mkdir -p $(BOT_OBJDIR)
+	mkdir -p $(BOT_OBJDIR)
 
 
 re: fclean all
