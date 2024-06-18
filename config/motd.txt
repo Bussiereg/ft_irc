@@ -1,0 +1,30 @@
+*************************************************
+*                                               *
+*     Welcome to Serve the Server!              *
+*                                               *
+*        |  | ___ \  _ _|  _ \   ___|           *
+*        |  |    ) |   |  |   | |               *
+*       ___ __| __/    |  __ <  |               *
+*          _| _____| ___|_| \_\\____|           *
+*                                               *
+*                                               *
+*   .       Project for 42Berlin                *
+*   |           by                              *
+*   |       Jules Bernard                       *
+*   |       Guillaume Bussier                   *
+*   #       Martijn Wallage                     *
+*  (=)                                          *
+*   H                                           *
+*   H       Server: irc.42berlin.de             *
+*   H       Network: localhost                  *
+*   H                                           *
+*   H       Rules:                              *
+*   H       1. Don't follow the next rule       *
+*   M       2. Don't follow the previous rule   *
+*   M                                           *
+*  / \                                          *
+*                                               *
+*   Have fun and enjoy your stay!               *
+*                                               *
+*************************************************
+
