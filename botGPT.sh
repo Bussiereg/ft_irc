@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # insert your openai API key here
-API_KEY="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"
+API_KEY="sk-proj-5n3317a8C1NrWD1v20mPT3BlbkFJJ9ytXwEe8ZzxWwSp3ZlZ"
 PROMPT="$1"
 
 RESPONSE=$(curl -s -o response.json -w "%{http_code}" -X POST https://api.openai.com/v1/chat/completions \

@@ -68,10 +68,9 @@ void Server::_handleModeCommand(Client &client, std::string &input)
 	}
 
 	std::string const &channelName = params[1];
-	std::vector<Channel *>::iterator it = find_if(_channelList.begin(), _channelList.end(), MatchChannelName(channelName));
-
-	if (params.size() == 3 && params[1] == client.getNickname())
+	if (channelName == client.getNickname())
 		return;
+	std::vector<Channel *>::iterator it = find_if(_channelList.begin(), _channelList.end(), MatchChannelName(channelName));
 
 	if (it == _channelList.end())
 	{
