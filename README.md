@@ -39,8 +39,8 @@ Welcome to our IRC (Internet Relay Chat) project! This project aims to implement
 
 1. **Clone the repository:**
    ```sh
-   git clone https://github.com/yourusername/irc-project.git
-   cd irc-project
+   git clone https://github.com/Bussiereg/ft_irc.git
+   cd ft_irc
    ```
 2. **Build the project:**
    ```sh
