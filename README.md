@@ -1,4 +1,6 @@
-# IRC Project - 42
+# IRC server
+
+![Demo GIF](gif_and_image/irc_demo.gif)
 
 ## Table of Contents
 
@@ -133,8 +135,12 @@ We implemented two chatbots
     
   3. you can start a private conversation with the chatbots using PRIVMSG
      - Gamebot - small game to guess a number.
-    
+       
+       ![Demo GIF](gif_and_image/gamebot.gif)
+       
      - Gptbot: this bot uses an API key, you can add your own key to test it by plugging it in the file botGPT.sh
+
+       ![Demo GIF](gif_and_image/gptbot.gif)
 
 ## Contributors
 - [Guillaume Bussiere](https://github.com/Bussiereg)
@@ -142,7 +148,7 @@ We implemented two chatbots
 - [Martijn Wallage](https://github.com/MartijnWallage)
 
 ## Resources
-- [irsssi commands](https://irssi.org/documentation/help/cat_IRC%20Commands)
+- [irssi commands](https://irssi.org/documentation/help/cat_IRC%20Commands)
 - [RFC 1459 "Internet Relay Chat Protocol"](https://datatracker.ietf.org/doc/html/rfc1459)
 - [RFC 2810: "Internet Relay Chat: Architecture"](https://datatracker.ietf.org/doc/html/rfc2810)
 - [RFC 2811: "Internet Relay Chat: Channel Management"](https://datatracker.ietf.org/doc/html/rfc2811)
