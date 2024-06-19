@@ -138,11 +138,9 @@ We implemented two chatbots
   make gamebot gptbot
   ```
   2. run the bots in two separate terminals
-    ```sh
-  ./gamebot <port> <password>
-  ```
 
-    ```sh
+   ```sh
+  ./gamebot <port> <password>
   ./gptbot <port> <password>
   ```
 
