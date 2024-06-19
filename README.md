@@ -7,9 +7,9 @@
 1. [Introduction](#introduction)
 2. [Features](#features)
 3. [Installation](#installation)
-4. [Usage](#usage)
-5. [Configuration](#configuration)
-6. [Commands](#commands)
+4. [Commands](#commands) 
+5. [Usage](#usage)
+6. [Configuration](#configuration)
 7. [Chatbots](#chatbots)
 8. [Contributors](#contributors)
 9. [Resources](#resources)
@@ -46,6 +46,30 @@ Welcome to our IRC (Internet Relay Chat) project! This project aims to implement
    ```sh
    make
    ```
+## Commands
+
+### Server related commands
+* PING
+* PONG
+* QUIT
+
+### User related commands
+* USER
+* NICK
+* PASS
+* WHO
+
+### Channel related commands
+* INVITE
+* JOIN
+* KICK
+* MODE (t, i, o, l, k)
+* PART
+* TOPIC
+
+### Messages commands ###
+* PRIVMSG
+
 
 ### Usage
 
@@ -78,36 +102,12 @@ Example:
 - Alternatively you can execute the attached shell script which connect automatically 3 different users (recommanded).
   
   ```sh
-  ./script.sh
+  ./scriptClient.sh
   ```
-## Configuration
+- Here is a small demonstration
 
-The server can be configured using a configuration file named server.conf in the /config folder. 
+  ![Demo GIF](gif_and_image/demo.gif)
 
-## Commands
-
-### Server related commands
-* PING
-* PONG
-* QUIT
-
-### User related commands
-* USER
-* NICK
-* PASS
-* WHO
-
-### Channel related commands
-* INVITE
-* JOIN
-* KICK
-* MODE (t, i, o, l, k)
-* PART
-* TOPIC
-
-### Messages commands ###
-* PRIVMSG
-  
 #### Commands on irssi
     /mode: set or remove channel modes:
       - +i: set channel to Invite-only.
@@ -123,6 +123,11 @@ The server can be configured using a configuration file named server.conf in the
     /invite: invite a user to a channel.
     /kick: eject a client from the channel.
 
+## Configuration
+
+The server can be configured using a configuration file named server.conf in the /config folder. 
+
+
 ## Chatbots
 
 We implemented two chatbots
@@ -132,7 +137,15 @@ We implemented two chatbots
   ```sh
   make gamebot gptbot
   ```
-    
+  2. run the bots in two separate terminals
+    ```sh
+  ./gamebot <port> <password>
+  ```
+
+    ```sh
+  ./gptbot <port> <password>
+  ```
+
   3. you can start a private conversation with the chatbots using PRIVMSG
      - Gamebot - small game to guess a number.
        
